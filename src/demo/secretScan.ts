@@ -14,7 +14,7 @@ const ignoredExtensions = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".t
 const scannedExtensions = new Set(["", ".env", ".example", ".json", ".js", ".jsx", ".md", ".mjs", ".ts", ".tsx", ".txt", ".yaml", ".yml"]);
 
 const secretAssignmentPattern =
-  /^\s*(?:export\s+)?([A-Z0-9_]*(?:API_KEY|PRIVATE_KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL|PACT_API_KEY)[A-Z0-9_]*)\s*=\s*(.+?)\s*$/i;
+  /^\s*(?:export\s+)?([A-Z0-9_]*(?:API_KEY|PRIVATE_KEY|SECRET|AUTH_TOKEN|ACCESS_TOKEN|REFRESH_TOKEN|PASSWORD|CREDENTIAL|PACT_API_KEY)[A-Z0-9_]*)\s*=\s*(.+?)\s*$/i;
 const jsonSecretPattern =
   /^\s*"([^"]*(?:apiKey|api_key|privateKey|private_key|secret|token|password|credential)[^"]*)"\s*:\s*"([^"]+)"/i;
 const tokenPatterns: Array<{ pattern: RegExp; reason: string }> = [
