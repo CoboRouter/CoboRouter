@@ -1,4 +1,5 @@
-import { Configuration, PactsApi, TransactionsApi } from "@cobo/agentic-wallet";
+import { setTimeout as sleep } from "node:timers/promises";
+import { Configuration, PactsApi, TransactionRecordsApi, TransactionsApi } from "@cobo/agentic-wallet";
 import type { WalletAuthorization, WalletPolicyInput, WalletPolicyResult } from "../types.js";
 import { shortId } from "../utils/hash.js";
 import { policyHash } from "./policy.js";
@@ -188,6 +189,10 @@ export class LiveCoboWalletAdapter implements CoboWalletAdapter {
     return new TransactionsApi(new Configuration({ apiKey, basePath: this.apiUrl }));
   }
 
+  private txRecordsApi(apiKey = this.apiKey): TransactionRecordsApi {
+    return new TransactionRecordsApi(new Configuration({ apiKey, basePath: this.apiUrl }));
+  }
+
   async checkPolicy(input: WalletPolicyInput): Promise<WalletPolicyResult> {
     return localPolicyDecision(input, this.policyId, this.walletAddress);
   }
@@ -308,10 +313,12 @@ export class LiveCoboWalletAdapter implements CoboWalletAdapter {
     const tokenId = requireEnvValue("COBO_SETTLEMENT_TOKEN_ID");
     const amount = process.env.COBO_SETTLEMENT_AMOUNT || actualCostUsd.toFixed(4);
     const requestId = `coborouter_${operationId}`;
+    const sourceAddress = process.env.COBO_SOURCE_ADDRESS || this.walletAddress;
 
     try {
       const transfer = (
         await this.txApi(operation.pactApiKey || this.apiKey).transferTokens(this.walletId, {
+          src_addr: sourceAddress,
           dst_addr: destination,
           amount,
           token_id: tokenId,
@@ -321,9 +328,25 @@ export class LiveCoboWalletAdapter implements CoboWalletAdapter {
         })
       ).data.result;
 
-      const txHash = transfer.transaction_hash || null;
+      let txHash = transfer.transaction_hash || null;
+      let rawStatus = String(transfer.status_display || transfer.status || "").toLowerCase();
+      for (let attempt = 0; attempt < 8 && !txHash && !["success", "failed"].includes(rawStatus); attempt += 1) {
+        await sleep(2500);
+        const record = (
+          await this.txRecordsApi(operation.pactApiKey || this.apiKey).getUserTransactionByRequestId(this.walletId, requestId, true)
+        ).data.result;
+        txHash = record.transaction_hash || null;
+        rawStatus = String(record.status_display || record.sub_status || record.status || "").toLowerCase();
+      }
+
       const explorerUrl = txHash && process.env.COBO_EXPLORER_TX_BASE_URL ? `${process.env.COBO_EXPLORER_TX_BASE_URL.replace(/\/$/, "")}/${txHash}` : null;
-      const status = transfer.status === 100 ? "pending_approval" : transfer.status >= 900 && transfer.status !== 900 ? "failed" : txHash || transfer.status === 900 ? "settled" : "authorized";
+      const status = rawStatus.includes("fail")
+        ? "failed"
+        : txHash || rawStatus.includes("success") || rawStatus.includes("complete")
+            ? "settled"
+            : rawStatus.includes("pending")
+              ? "pending_approval"
+              : "authorized";
 
       return {
         operationId: transfer.id || operationId,

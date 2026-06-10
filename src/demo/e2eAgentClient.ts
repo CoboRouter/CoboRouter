@@ -82,6 +82,12 @@ try {
       `operation=${approved.payment.operation_id || "missing"} payment=${approved.payment.payment_reference || "missing"}`
     ),
     assert(
+      "transfer settlement returns on-chain proof",
+      process.env.COBO_SETTLEMENT_MODE !== "transfer" ||
+        Boolean(approved.payment.tx_hash && approved.payment.explorer_url && approved.payment.status === "settled"),
+      `status=${approved.payment.status} tx=${approved.payment.tx_hash || "missing"}`
+    ),
+    assert(
       "approved path has non-demo wallet when live env is configured",
       process.env.COBO_ADAPTER_MODE !== "live" || approved.wallet_policy.policyId !== "cobo_policy_demo",
       `policy=${approved.wallet_policy.policyId}`

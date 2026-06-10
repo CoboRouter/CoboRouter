@@ -1,6 +1,6 @@
 {
   "status": "completed",
-  "task_id": "task_ea730eb35df9",
+  "task_id": "task_7baed1a40354",
   "broker_decision": {
     "task_type": "web3_tool_use",
     "triage_source": "cached_zai_response",
@@ -12,7 +12,7 @@
     "actual_cost_usd": 0.0736,
     "triage_cost_usd": 0,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_f9c8c43cc10b",
+    "quote_id": "quote_623c0d56a5b4",
     "route_trace": [
       {
         "provider_id": "zai",
@@ -48,9 +48,9 @@
   },
   "wallet_policy": {
     "result": "approved",
-    "policyId": "7da6adca-e91a-4139-85e7-146875baefdc",
-    "policyHash": "sha256:1f5f7d8b2d5be7d59421ead7aeadbfc72b9725c8b86ba21fbd16d93e7d23ed26",
-    "walletAddress": "J5AGmvxG4SMbu49HsbALFfgL5Snv9DRBTiwkDJoxrA1t",
+    "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
+    "policyHash": "sha256:3fa66a5051960d8c198630f8c4068b8ecd5aafe63d2024aa53c0d44341b5f5f1",
+    "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
     "max_spend_usd": 0.25,
     "approved_spend_usd": 0.08,
     "provider_allowlisted": true,
@@ -59,21 +59,21 @@
   "receipt": {
     "receipt_id": "coborouter_demo_approved_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
-    "policy_hash": "sha256:1f5f7d8b2d5be7d59421ead7aeadbfc72b9725c8b86ba21fbd16d93e7d23ed26",
-    "quote_id": "quote_f9c8c43cc10b",
+    "policy_hash": "sha256:3fa66a5051960d8c198630f8c4068b8ecd5aafe63d2024aa53c0d44341b5f5f1",
+    "quote_id": "quote_623c0d56a5b4",
     "idempotency_key": "demo-approved-001",
-    "timestamp": "2026-06-10T23:01:59.329Z",
+    "timestamp": "2026-06-10T23:13:50.202Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_demo_approved_001.json"
   },
   "payment": {
     "wallet_provider": "cobo_agentic_wallet",
-    "operation_id": "7da6adca-e91a-4139-85e7-146875baefdc",
-    "payment_reference": "caw_pact_7da6adca-e91a-4139-85e7-146875baefdc",
-    "tx_hash": null,
-    "explorer_url": null,
-    "proof_type": "cobo_operation",
-    "status": "authorized",
+    "operation_id": "7406658f-973a-4fa7-8a62-4c072225c107",
+    "payment_reference": "coborouter_c54ceef0-e251-4f3a-8d2d-dc2d855add43",
+    "tx_hash": "0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b",
+    "explorer_url": "https://sepolia.etherscan.io/tx/0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b",
+    "proof_type": "on_chain",
+    "status": "settled",
     "refund_status": "not_required"
   },
   "provider_invoice": {

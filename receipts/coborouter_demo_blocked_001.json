@@ -1,6 +1,6 @@
 {
   "status": "blocked",
-  "task_id": "task_7e8d37c206a8",
+  "task_id": "task_f446be426f7a",
   "broker_decision": {
     "task_type": "web3_tool_use",
     "triage_source": "cached_zai_response",
@@ -12,7 +12,7 @@
     "actual_cost_usd": 0,
     "triage_cost_usd": 0,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_a74f84f8058c",
+    "quote_id": "quote_61c14c2fb43f",
     "route_trace": [
       {
         "provider_id": "zai",
@@ -49,9 +49,9 @@
   "wallet_policy": {
     "result": "blocked",
     "reason": "quote_exceeds_task_budget",
-    "policyId": "7da6adca-e91a-4139-85e7-146875baefdc",
-    "policyHash": "sha256:1f5f7d8b2d5be7d59421ead7aeadbfc72b9725c8b86ba21fbd16d93e7d23ed26",
-    "walletAddress": "J5AGmvxG4SMbu49HsbALFfgL5Snv9DRBTiwkDJoxrA1t",
+    "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
+    "policyHash": "sha256:3fa66a5051960d8c198630f8c4068b8ecd5aafe63d2024aa53c0d44341b5f5f1",
+    "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
     "max_spend_usd": 0.03,
     "approved_spend_usd": 0,
     "provider_allowlisted": true,
@@ -60,10 +60,10 @@
   "receipt": {
     "receipt_id": "coborouter_demo_blocked_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
-    "policy_hash": "sha256:1f5f7d8b2d5be7d59421ead7aeadbfc72b9725c8b86ba21fbd16d93e7d23ed26",
-    "quote_id": "quote_a74f84f8058c",
+    "policy_hash": "sha256:3fa66a5051960d8c198630f8c4068b8ecd5aafe63d2024aa53c0d44341b5f5f1",
+    "quote_id": "quote_61c14c2fb43f",
     "idempotency_key": "demo-blocked-001",
-    "timestamp": "2026-06-10T23:01:59.326Z",
+    "timestamp": "2026-06-10T23:13:50.198Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_demo_blocked_001.json"
   },
