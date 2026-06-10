@@ -45,10 +45,11 @@ async function checkZai(): Promise<Gate> {
     });
 
     if (!response.ok) {
+      const body = await response.text().catch(() => "");
       return {
         name: "Z.AI model call",
         status: "fail",
-        detail: `model=${model}; HTTP ${response.status}`
+        detail: `model=${model}; HTTP ${response.status}${body ? `; ${body.slice(0, 240)}` : ""}`
       };
     }
 

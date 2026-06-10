@@ -1,6 +1,6 @@
 {
   "status": "blocked",
-  "task_id": "task_f446be426f7a",
+  "task_id": "task_4c9b488d60c8",
   "broker_decision": {
     "task_type": "web3_tool_use",
     "triage_source": "cached_zai_response",
@@ -12,7 +12,7 @@
     "actual_cost_usd": 0,
     "triage_cost_usd": 0,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_61c14c2fb43f",
+    "quote_id": "quote_3422ace6c95c",
     "route_trace": [
       {
         "provider_id": "zai",
@@ -61,9 +61,9 @@
     "receipt_id": "coborouter_demo_blocked_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
     "policy_hash": "sha256:3fa66a5051960d8c198630f8c4068b8ecd5aafe63d2024aa53c0d44341b5f5f1",
-    "quote_id": "quote_61c14c2fb43f",
+    "quote_id": "quote_3422ace6c95c",
     "idempotency_key": "demo-blocked-001",
-    "timestamp": "2026-06-10T23:13:50.198Z",
+    "timestamp": "2026-06-10T23:20:28.514Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_demo_blocked_001.json"
   },
