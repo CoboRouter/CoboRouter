@@ -23,7 +23,7 @@
 
 ## The 20-second version
 
-CoboRouter is not a model router. It is an **agentic resource procurement flow**:
+CoboRouter is an **agentic resource procurement flow** for wallet-bound autonomous agents:
 
 1. An agent sends a task prompt and spend cap.
 2. CoboRouter scores the prompt and routes to the cheapest capable provider.
@@ -61,7 +61,7 @@ This repo includes receipts from a live end-to-end run.
 
 ## Edge cases
 
-CoboRouter is not a one-path happy demo. The repo includes receipts for routes where the broker chooses not to spend, or chooses a cheaper/local model.
+CoboRouter handles successful procurement, wallet-policy denial, local execution, and lightweight model routing. The repo includes receipts for routes where the broker chooses not to spend, or chooses a cheaper/local model.
 
 | Scenario | Command | Expected proof |
 | --- | --- | --- |
