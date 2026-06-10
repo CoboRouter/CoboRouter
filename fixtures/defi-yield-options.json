@@ -1,0 +1,31 @@
+{
+  "asset": "USDC",
+  "treasury_amount_usd": 1000,
+  "options": [
+    {
+      "id": "option_a",
+      "name": "Approved USDC Lending Fixture",
+      "estimated_apy": 4.2,
+      "liquidity": "high",
+      "audit_status": "audited",
+      "risk_notes": [
+        "Lower APY",
+        "Higher liquidity",
+        "Simpler withdrawal profile"
+      ]
+    },
+    {
+      "id": "option_b",
+      "name": "Approved USDC Vault Fixture",
+      "estimated_apy": 6.1,
+      "liquidity": "medium",
+      "audit_status": "audited",
+      "risk_notes": [
+        "Higher APY",
+        "Medium liquidity",
+        "More strategy and withdrawal risk"
+      ]
+    }
+  ],
+  "disclaimer": "Demo fixture only. Not financial advice and not live market data."
+}

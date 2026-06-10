@@ -1,0 +1,41 @@
+export const finalEnvTemplate = `# CoboRouter final live submission env
+# Copy to .env, fill values, then run npm run submit:final.
+
+COBO_ADAPTER_MODE=live
+AGENT_WALLET_API_URL=https://api.agenticwallet.cobo.com
+AGENT_WALLET_API_KEY=
+AGENT_WALLET_WALLET_ID=
+COBO_API_KEY=
+COBO_WALLET_ID=
+COBO_POLICY_ID=
+COBO_WALLET_ADDRESS=
+COBO_DEMO_NETWORK=cobo_sandbox
+COBO_PAYMENT_ASSET=USDC
+COBO_PROOF_TYPE=cobo_operation
+
+# Choose one proof path:
+# 1. Preapproved pact/operation proof
+COBO_LIVE_PACT_ID=
+COBO_LIVE_PACT_API_KEY=
+
+# 2. Transfer settlement proof
+COBO_SETTLEMENT_MODE=
+COBO_PROVIDER_SETTLEMENT_ADDRESS=
+COBO_SETTLEMENT_TOKEN_ID=
+COBO_SETTLEMENT_CHAIN_ID=
+COBO_SETTLEMENT_AMOUNT=
+COBO_EXPLORER_TX_BASE_URL=
+
+# Live model/provider proof
+ZAI_API_KEY=
+ZAI_MODEL=glm-5.1
+
+# Application form fields
+SUBMISSION_REPO_URL=
+SUBMISSION_DEMO_VIDEO_URL=
+SUBMISSION_DEMO_URL=
+SUBMISSION_TEAM_MEMBER=
+SUBMISSION_TEAM_ROLE=
+SUBMISSION_CONTACT=
+SUBMISSION_PRIZE_WALLET=
+`;

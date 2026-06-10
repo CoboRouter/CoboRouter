@@ -1,0 +1,92 @@
+{
+  "status": "completed",
+  "task_id": "task_db9a02b55cf7",
+  "broker_decision": {
+    "task_type": "web3_tool_use",
+    "triage_source": "cached_zai_response",
+    "triage_model": "glm-5.1-cached",
+    "selected_provider": "zai",
+    "selected_model": "glm-5.1",
+    "reason": "cheapest capable paid provider under wallet budget",
+    "estimated_cost_usd": 0.08,
+    "actual_cost_usd": 0.0736,
+    "triage_cost_usd": 0,
+    "routing_mode": "cheapest_capable",
+    "quote_id": "quote_5f3e3b7418f9",
+    "route_trace": [
+      {
+        "provider_id": "zai",
+        "model": "glm-5.1",
+        "display_name": "Z.AI",
+        "estimated_cost_usd": 0.08,
+        "decision": "selected",
+        "reason": "cheapest capable paid provider under wallet budget",
+        "capable": true,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "second_real_provider",
+        "model": "configured-real-model",
+        "display_name": "Second Real Provider",
+        "estimated_cost_usd": 0.103,
+        "decision": "rejected",
+        "reason": "web3_context capability 3 below required 4",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "local_baseline",
+        "model": "local-small",
+        "display_name": "Local Baseline",
+        "estimated_cost_usd": 0,
+        "decision": "rejected",
+        "reason": "reasoning capability 2 below required 4",
+        "capable": false,
+        "requires_wallet_payment": false
+      }
+    ]
+  },
+  "wallet_policy": {
+    "result": "approved",
+    "policyId": "7da6adca-e91a-4139-85e7-146875baefdc",
+    "policyHash": "sha256:1f5f7d8b2d5be7d59421ead7aeadbfc72b9725c8b86ba21fbd16d93e7d23ed26",
+    "walletAddress": "J5AGmvxG4SMbu49HsbALFfgL5Snv9DRBTiwkDJoxrA1t",
+    "max_spend_usd": 0.25,
+    "approved_spend_usd": 0.08,
+    "provider_allowlisted": true,
+    "human_approval_required": false
+  },
+  "receipt": {
+    "receipt_id": "coborouter_demo_approved_001",
+    "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
+    "policy_hash": "sha256:1f5f7d8b2d5be7d59421ead7aeadbfc72b9725c8b86ba21fbd16d93e7d23ed26",
+    "quote_id": "quote_5f3e3b7418f9",
+    "idempotency_key": "demo-approved-001",
+    "timestamp": "2026-06-10T22:59:19.744Z",
+    "log_path": "logs/demo-run.jsonl",
+    "receipt_path": "receipts/coborouter_demo_approved_001.json"
+  },
+  "payment": {
+    "wallet_provider": "cobo_agentic_wallet",
+    "operation_id": "7da6adca-e91a-4139-85e7-146875baefdc",
+    "payment_reference": "caw_pact_7da6adca-e91a-4139-85e7-146875baefdc",
+    "tx_hash": null,
+    "explorer_url": null,
+    "proof_type": "cobo_operation",
+    "status": "authorized",
+    "refund_status": "not_required"
+  },
+  "provider_invoice": {
+    "provider_request_id": "zai_demo_req",
+    "provider_invoice_id": "zai_demo_invoice",
+    "simulated": true
+  },
+  "answer": {
+    "summary": "Using demo fixture data, Approved USDC Lending Fixture is the safer default because it has high liquidity and audited status, even though Approved USDC Vault Fixture offers a higher 6.1% estimated APY.",
+    "steps": [
+      "Start with Approved USDC Lending Fixture for the $1,000 USDC treasury because liquidity is high.",
+      "Treat Approved USDC Vault Fixture as a yield-upside option only if the agent accepts medium liquidity and extra strategy risk.",
+      "Keep the action bounded by wallet policy, log the route decision, and attach the Cobo operation proof to the receipt."
+    ]
+  }
+}

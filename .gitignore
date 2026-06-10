@@ -1,0 +1,23 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Local agent/tool state
+.omc/
+.omx/
+
+# Generated runtime output; regenerate with npm run submit:prep
+logs/*.jsonl
+submission/bundle/
+submission/*.tgz
+
+# OS/package-manager noise
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

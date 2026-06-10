@@ -1,0 +1,70 @@
+[
+  {
+    "provider_id": "zai",
+    "display_name": "Z.AI",
+    "model": "glm-5.1",
+    "capabilities": {
+      "reasoning": 4,
+      "coding": 3,
+      "long_context": 3,
+      "latency_sensitivity": 3,
+      "privacy_sensitivity": 3,
+      "web3_context": 4,
+      "structured_output": 5
+    },
+    "cost_per_1k_input_usd": 0.001,
+    "cost_per_1k_output_usd": 0.004,
+    "avg_latency_ms": 2500,
+    "quality_score": 4,
+    "allowlisted": true,
+    "requires_wallet_payment": true,
+    "payment_asset": "USDC",
+    "payment_network": "cobo_sandbox"
+  },
+  {
+    "provider_id": "second_real_provider",
+    "display_name": "Second Real Provider",
+    "model": "configured-real-model",
+    "capabilities": {
+      "reasoning": 4,
+      "coding": 3,
+      "long_context": 3,
+      "latency_sensitivity": 3,
+      "privacy_sensitivity": 3,
+      "web3_context": 3,
+      "structured_output": 4
+    },
+    "cost_per_1k_input_usd": 0.0015,
+    "cost_per_1k_output_usd": 0.005,
+    "avg_latency_ms": 2200,
+    "quality_score": 4,
+    "allowlisted": false,
+    "requires_wallet_payment": true,
+    "payment_asset": "USDC",
+    "payment_network": "cobo_sandbox",
+    "stretch_target": true
+  },
+  {
+    "provider_id": "local_baseline",
+    "display_name": "Local Baseline",
+    "model": "local-small",
+    "capabilities": {
+      "reasoning": 2,
+      "coding": 2,
+      "long_context": 2,
+      "latency_sensitivity": 4,
+      "privacy_sensitivity": 4,
+      "web3_context": 1,
+      "structured_output": 4
+    },
+    "cost_per_1k_input_usd": 0,
+    "cost_per_1k_output_usd": 0,
+    "avg_latency_ms": 500,
+    "quality_score": 2,
+    "allowlisted": true,
+    "requires_wallet_payment": false,
+    "payment_asset": null,
+    "payment_network": null,
+    "label": "local_baseline_not_paid_provider"
+  }
+]
