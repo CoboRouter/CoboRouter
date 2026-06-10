@@ -102,7 +102,7 @@ export type RouteInferenceRequest = {
   allowed_providers: string[];
   require_receipt?: boolean;
   idempotency_key?: string;
-  scenario?: "approved" | "blocked" | "custom";
+  scenario?: "approved" | "blocked" | "budget_declined" | "local" | "simple_zai" | "custom";
 };
 
 export type RouteInferenceResponse = {

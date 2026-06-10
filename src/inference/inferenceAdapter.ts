@@ -12,8 +12,9 @@ type InferenceResult = {
 };
 
 export async function runInference(provider: ProviderConfig, prompt: string, estimatedCostUsd: number): Promise<InferenceResult> {
-  if (provider.provider_id === "zai" && process.env.ZAI_API_KEY) {
+  if (provider.provider_id.startsWith("zai") && process.env.ZAI_API_KEY) {
     try {
+      const model = provider.provider_id === "zai" ? process.env.ZAI_MODEL || provider.model : provider.model;
       const response = await fetch("https://api.z.ai/api/paas/v4/chat/completions", {
         method: "POST",
         headers: {
@@ -21,12 +22,16 @@ export async function runInference(provider: ProviderConfig, prompt: string, est
           authorization: `Bearer ${process.env.ZAI_API_KEY}`
         },
         body: JSON.stringify({
-          model: process.env.ZAI_MODEL || provider.model,
+          model,
+          thinking: { type: "disabled" },
+          enable_thinking: false,
           messages: [
             {
               role: "system",
               content:
-                "You are helping a demo autonomous DAO agent compare provided DeFi fixture options. Stay concise, mention this is demo fixture data, and return a safe recommendation."
+                provider.provider_id === "zai_flash"
+                  ? "You are the lightweight Z.AI route inside CoboRouter. Keep the answer short and direct for a simple agent task."
+                  : "You are helping a demo autonomous DAO agent compare provided DeFi fixture options. Stay concise, mention this is demo fixture data, and return a safe recommendation."
             },
             { role: "user", content: prompt }
           ]
@@ -40,9 +45,13 @@ export async function runInference(provider: ProviderConfig, prompt: string, est
           return {
             summary: content.slice(0, 600),
             steps: [
-              "Use the provided fixture options only.",
-              "Prefer the option with stronger liquidity and simpler withdrawal risk unless higher yield is explicitly accepted.",
-              "Record the wallet-bounded inference procurement receipt before acting."
+              provider.provider_id === "zai_flash" ? "Use the lightweight Z.AI route because triage marked the task as simple." : "Use the provided fixture options only.",
+              provider.provider_id === "zai_flash"
+                ? "Skip GLM-5.1 because the prompt does not need flagship reasoning."
+                : "Prefer the option with stronger liquidity and simpler withdrawal risk unless higher yield is explicitly accepted.",
+              provider.requires_wallet_payment
+                ? "Record the wallet-bounded inference procurement receipt before acting."
+                : "Record the zero-spend routing receipt before acting."
             ],
             providerRequestId: shortId("zai_req"),
             providerInvoiceId: shortId("zai_invoice"),
@@ -61,14 +70,23 @@ export async function runInference(provider: ProviderConfig, prompt: string, est
   };
   const safer = fixture.options[0];
   const higherYield = fixture.options[1];
+  const localOnly = provider.provider_id === "local_baseline";
 
   return {
-    summary: `Using demo fixture data, ${safer.name} is the safer default because it has ${safer.liquidity} liquidity and audited status, even though ${higherYield.name} offers a higher ${higherYield.estimated_apy}% estimated APY.`,
-    steps: [
-      `Start with ${safer.name} for the $1,000 USDC treasury because liquidity is ${safer.liquidity}.`,
-      `Treat ${higherYield.name} as a yield-upside option only if the agent accepts medium liquidity and extra strategy risk.`,
-      "Keep the action bounded by wallet policy, log the route decision, and attach the Cobo operation proof to the receipt."
-    ],
+    summary: localOnly
+      ? "Local-only route selected: CoboRouter kept the private prompt on-device, created no provider invoice, and produced a zero-spend receipt."
+      : `Using demo fixture data, ${safer.name} is the safer default because it has ${safer.liquidity} liquidity and audited status, even though ${higherYield.name} offers a higher ${higherYield.estimated_apy}% estimated APY.`,
+    steps: localOnly
+      ? [
+          "Detect the local-only/private prompt before any remote triage call.",
+          "Select local_baseline because it satisfies the low-complexity task without wallet spend.",
+          "Return a receipt showing payment.status=not_created and provider_invoice.simulated=true."
+        ]
+      : [
+          `Start with ${safer.name} for the $1,000 USDC treasury because liquidity is ${safer.liquidity}.`,
+          `Treat ${higherYield.name} as a yield-upside option only if the agent accepts medium liquidity and extra strategy risk.`,
+          "Keep the action bounded by wallet policy, log the route decision, and attach the Cobo operation proof to the receipt."
+        ],
     providerRequestId: `${provider.provider_id}_demo_req`,
     providerInvoiceId: provider.requires_wallet_payment ? `${provider.provider_id}_demo_invoice` : null,
     simulated: provider.provider_id !== "zai" || !process.env.ZAI_API_KEY,

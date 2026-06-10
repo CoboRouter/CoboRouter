@@ -36,7 +36,7 @@ export const routeInferenceToolSchema = {
       },
       scenario: {
         type: "string",
-        enum: ["approved", "blocked", "custom"],
+        enum: ["approved", "blocked", "budget_declined", "local", "simple_zai", "custom"],
         description: "Demo helper used to choose cached triage fixtures and receipt names."
       }
     }

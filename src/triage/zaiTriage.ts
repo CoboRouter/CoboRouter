@@ -34,6 +34,93 @@ function numberScore(value: unknown, fallback: number): number {
   return Math.max(0, Math.min(5, Math.round(parsed)));
 }
 
+function localOnlyTriage(maxSpendUsd: number): TriageResult {
+  return {
+    task_type: "private_local_summary",
+    triage_source: "deterministic_fallback",
+    triage_model: "local-privacy-gate",
+    capabilities: {
+      reasoning: 2,
+      coding: 0,
+      long_context: 1,
+      latency_sensitivity: 4,
+      privacy_sensitivity: 5,
+      web3_context: 1,
+      structured_output: 2
+    },
+    routing_preference: "cheapest_capable",
+    max_spend_usd: maxSpendUsd,
+    requires_wallet_payment: false,
+    risk_level: "low",
+    recommended_policy: {
+      human_approval_required: false,
+      allowed_provider_classes: ["local"]
+    }
+  };
+}
+
+function simpleTriage(maxSpendUsd: number, source: TriageResult["triage_source"] = "deterministic_fallback"): TriageResult {
+  return {
+    task_type: "simple_text_generation",
+    triage_source: source,
+    triage_model: source === "zai_live" ? process.env.ZAI_MODEL || "glm-5.1" : "deterministic-simple-gate",
+    capabilities: {
+      reasoning: 2,
+      coding: 0,
+      long_context: 1,
+      latency_sensitivity: 5,
+      privacy_sensitivity: 1,
+      web3_context: 0,
+      structured_output: 2
+    },
+    routing_preference: "cheapest_capable",
+    max_spend_usd: maxSpendUsd,
+    requires_wallet_payment: false,
+    risk_level: "low",
+    recommended_policy: {
+      human_approval_required: false,
+      allowed_provider_classes: ["zai_lightweight", "local"]
+    }
+  };
+}
+
+function shouldStayLocal(request: RouteInferenceRequest): boolean {
+  const prompt = request.prompt.toLowerCase();
+  return request.scenario === "local" || prompt.includes("local-only") || prompt.includes("private task") || prompt.includes("confidential");
+}
+
+function simplifyTriageForSimplePrompt(triage: TriageResult, prompt: string): TriageResult {
+  const normalized = prompt.toLowerCase();
+  const simple =
+    normalized.length < 240 &&
+    (normalized.includes("summarize") || normalized.includes("one sentence") || normalized.includes("rewrite") || normalized.includes("classify"));
+
+  if (!simple) {
+    return triage;
+  }
+
+  return {
+    ...simpleTriage(triage.max_spend_usd, triage.triage_source),
+    ...triage,
+    task_type: "simple_text_generation",
+    capabilities: {
+      reasoning: Math.min(triage.capabilities.reasoning, 2),
+      coding: Math.min(triage.capabilities.coding, 1),
+      long_context: Math.min(triage.capabilities.long_context, 1),
+      latency_sensitivity: Math.max(triage.capabilities.latency_sensitivity, 4),
+      privacy_sensitivity: Math.min(triage.capabilities.privacy_sensitivity, 2),
+      web3_context: Math.min(triage.capabilities.web3_context, 1),
+      structured_output: Math.min(triage.capabilities.structured_output, 3)
+    },
+    requires_wallet_payment: false,
+    risk_level: "low",
+    recommended_policy: {
+      human_approval_required: false,
+      allowed_provider_classes: ["zai_lightweight", "local"]
+    }
+  };
+}
+
 async function readCachedTriage(scenario: RouteInferenceRequest["scenario"], maxSpendUsd: number): Promise<TriageResult> {
   const file = scenario === "blocked" ? "fixtures/cached-triage/blocked-path.json" : "fixtures/cached-triage/approved-path.json";
   const parsed = JSON.parse(await readFile(file, "utf8")) as TriageResult;
@@ -44,7 +131,7 @@ async function readCachedTriage(scenario: RouteInferenceRequest["scenario"], max
   };
 }
 
-function parseTriageJson(raw: string, maxSpendUsd: number): TriageResult {
+function parseTriageJson(raw: string, maxSpendUsd: number, prompt: string): TriageResult {
   const parsed = JSON.parse(extractJsonObject(raw)) as Partial<TriageResult>;
   const fallback = deterministicTriage(maxSpendUsd);
   const capabilities = capabilityKeys.reduce<TriageResult["capabilities"]>((result, key) => {
@@ -57,7 +144,7 @@ function parseTriageJson(raw: string, maxSpendUsd: number): TriageResult {
       : fallback.routing_preference;
   const riskLevel = parsed.risk_level === "low" || parsed.risk_level === "high" || parsed.risk_level === "medium" ? parsed.risk_level : fallback.risk_level;
 
-  return {
+  return simplifyTriageForSimplePrompt({
     task_type: parsed.task_type || fallback.task_type,
     capabilities,
     routing_preference: routingPreference,
@@ -70,10 +157,18 @@ function parseTriageJson(raw: string, maxSpendUsd: number): TriageResult {
     },
     triage_source: "zai_live",
     triage_model: process.env.ZAI_MODEL || parsed.triage_model || "glm-5.1"
-  };
+  }, prompt);
 }
 
 export async function triagePrompt(request: RouteInferenceRequest): Promise<TriageResult> {
+  if (shouldStayLocal(request)) {
+    return localOnlyTriage(request.max_spend_usd);
+  }
+
+  if (request.scenario === "simple_zai" && !process.env.ZAI_API_KEY) {
+    return simpleTriage(request.max_spend_usd);
+  }
+
   if (!process.env.ZAI_API_KEY) {
     return readCachedTriage(request.scenario, request.max_spend_usd).catch(() => deterministicTriage(request.max_spend_usd));
   }
@@ -127,7 +222,7 @@ export async function triagePrompt(request: RouteInferenceRequest): Promise<Tria
     if (!content) {
       throw new Error("Z.AI triage response did not include content");
     }
-    return parseTriageJson(content, request.max_spend_usd);
+    return parseTriageJson(content, request.max_spend_usd, request.prompt);
   } catch {
     return readCachedTriage(request.scenario, request.max_spend_usd).catch(() => deterministicTriage(request.max_spend_usd));
   } finally {

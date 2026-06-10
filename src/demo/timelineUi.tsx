@@ -68,7 +68,8 @@ export function timelineHtml(): string {
       color: #fff;
     }
     button.secondary { background: #344054; }
-    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .actions.edge-actions { grid-template-columns: 1fr; }
     .policy {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -161,6 +162,11 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
         <button id="blocked">Blocked path</button>
         <button id="approved" class="secondary">Approved path</button>
       </div>
+      <div class="actions edge-actions">
+        <button id="budget-declined" class="secondary">Budget declined</button>
+        <button id="local" class="secondary">Local model</button>
+        <button id="simple-zai" class="secondary">Z.AI Flash</button>
+      </div>
     </aside>
     <section>
       <div class="timeline" id="timeline"></div>
@@ -198,6 +204,21 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
       return '<div class="actions"><button id="copy-receipt" type="button">Copy Receipt</button><button id="download-receipt" class="secondary" type="button">Download JSON</button></div>';
     }
 
+    function setScenarioPrompt(scenario) {
+      if (scenario === "local") {
+        promptInput.value = "LOCAL-ONLY PRIVATE TASK.\\nSummarize this confidential agent wallet memo in one sentence without using any network provider:\\nThe agent should pause new paid inference if the task budget is below the quoted provider cost.";
+        budgetInput.value = "0";
+        return;
+      }
+      if (scenario === "simple_zai") {
+        promptInput.value = "Summarize this product in one friendly sentence: CoboRouter helps agents choose and pay for inference under wallet policy.";
+        budgetInput.value = "0.01";
+        return;
+      }
+      promptInput.value = "Plan a 3-step treasury action for an autonomous DAO agent with $1,000 USDC.\\nCompare these two provided low-risk DeFi yield options, explain the risks, and recommend one:\\nOption A: USDC lending on approved protocol fixture, 4.2% estimated APY, high liquidity, audited.\\nOption B: USDC vault on approved protocol fixture, 6.1% estimated APY, medium liquidity, audited.\\nUse a reasoning-capable model only if needed and return a wallet/payment receipt.";
+      budgetInput.value = scenario === "approved" ? "0.25" : "0.03";
+    }
+
     function render(response) {
       latestReceiptJson = JSON.stringify(response, null, 2);
       const blocked = response.status === "blocked";
@@ -214,7 +235,7 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
     }
 
     async function run(scenario) {
-      budgetInput.value = scenario === "blocked" ? "0.03" : "0.25";
+      setScenarioPrompt(scenario);
       timeline.innerHTML = node("Running", "Calling route_inference and Cobo policy adapter...", { className: "pending", label: "WORKING" });
       const response = await fetch("/api/route-inference", {
         method: "POST",
@@ -223,7 +244,7 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
           prompt: promptInput.value,
           routing_mode: "cheapest_capable",
           max_spend_usd: Number(budgetInput.value),
-          allowed_providers: ["zai", "second_real_provider", "local_baseline"],
+          allowed_providers: scenario === "simple_zai" ? ["zai_flash", "zai"] : ["zai", "zai_flash", "second_real_provider", "local_baseline"],
           require_receipt: true,
           idempotency_key: "demo-" + scenario + "-001",
           scenario
@@ -234,6 +255,9 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
 
     document.getElementById("blocked").addEventListener("click", () => run("blocked"));
     document.getElementById("approved").addEventListener("click", () => run("approved"));
+    document.getElementById("budget-declined").addEventListener("click", () => run("budget_declined"));
+    document.getElementById("local").addEventListener("click", () => run("local"));
+    document.getElementById("simple-zai").addEventListener("click", () => run("simple_zai"));
     timeline.addEventListener("click", async event => {
       if (event.target.id === "copy-receipt" && latestReceiptJson) {
         await navigator.clipboard.writeText(latestReceiptJson);

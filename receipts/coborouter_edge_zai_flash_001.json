@@ -1,0 +1,82 @@
+{
+  "status": "completed",
+  "task_id": "task_53a8bd9a40d7",
+  "broker_decision": {
+    "task_type": "simple_text_generation",
+    "triage_source": "zai_live",
+    "triage_model": "glm-5.1",
+    "selected_provider": "zai_flash",
+    "selected_model": "glm-4.7-flash",
+    "reason": "cheapest capable zero-spend provider",
+    "estimated_cost_usd": 0,
+    "actual_cost_usd": 0,
+    "triage_cost_usd": 0.0009,
+    "routing_mode": "cheapest_capable",
+    "quote_id": "quote_2cc4eba0d9b9",
+    "route_trace": [
+      {
+        "provider_id": "zai_flash",
+        "model": "glm-4.7-flash",
+        "display_name": "Z.AI Flash",
+        "estimated_cost_usd": 0,
+        "decision": "selected",
+        "reason": "cheapest capable zero-spend provider",
+        "capable": true,
+        "requires_wallet_payment": false
+      },
+      {
+        "provider_id": "zai",
+        "model": "glm-5.1",
+        "display_name": "Z.AI",
+        "estimated_cost_usd": 0.08,
+        "decision": "rejected",
+        "reason": "latency_sensitivity capability 3 below required 4",
+        "capable": false,
+        "requires_wallet_payment": true
+      }
+    ]
+  },
+  "wallet_policy": {
+    "result": "approved",
+    "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
+    "policyHash": "sha256:75cae5517c0d2a3d600b9593d509e13c05f4b91994795cdc48c4f4d087226a09",
+    "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
+    "max_spend_usd": 0.01,
+    "approved_spend_usd": 0,
+    "provider_allowlisted": true,
+    "human_approval_required": false
+  },
+  "receipt": {
+    "receipt_id": "coborouter_edge_zai_flash_001",
+    "prompt_hash": "sha256:5cde0ee6c7857eb545bc725faecf1c15c46f4ba2d949d7358577d1237f0b9746",
+    "policy_hash": "sha256:75cae5517c0d2a3d600b9593d509e13c05f4b91994795cdc48c4f4d087226a09",
+    "quote_id": "quote_2cc4eba0d9b9",
+    "idempotency_key": "edge-zai-flash-001",
+    "timestamp": "2026-06-10T23:47:04.476Z",
+    "log_path": "logs/demo-run.jsonl",
+    "receipt_path": "receipts/coborouter_edge_zai_flash_001.json"
+  },
+  "payment": {
+    "wallet_provider": "cobo_agentic_wallet",
+    "operation_id": null,
+    "payment_reference": null,
+    "tx_hash": null,
+    "explorer_url": null,
+    "proof_type": "cobo_operation",
+    "status": "not_created",
+    "refund_status": "not_required"
+  },
+  "provider_invoice": {
+    "provider_request_id": "zai_req_f5118ee1b412",
+    "provider_invoice_id": "zai_invoice_8c3146ecd369",
+    "simulated": false
+  },
+  "answer": {
+    "summary": "CoboRouter helps agents choose and pay for AI inference while strictly adhering to your wallet policies.",
+    "steps": [
+      "Use the lightweight Z.AI route because triage marked the task as simple.",
+      "Skip GLM-5.1 because the prompt does not need flagship reasoning.",
+      "Record the zero-spend routing receipt before acting."
+    ]
+  }
+}

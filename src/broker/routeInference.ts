@@ -7,7 +7,9 @@ import { createCoboWalletAdapter } from "../wallet/coboAdapter.js";
 import { appendJsonl } from "../utils/fs.js";
 import { sha256, shortId } from "../utils/hash.js";
 
-function defaultPrompt(): string {
+type DemoScenario = NonNullable<RouteInferenceRequest["scenario"]>;
+
+function treasuryPrompt(): string {
   return [
     "Plan a 3-step treasury action for an autonomous DAO agent with $1,000 USDC.",
     "Compare these two provided low-risk DeFi yield options, explain the risks, and recommend one:",
@@ -17,20 +19,65 @@ function defaultPrompt(): string {
   ].join("\n");
 }
 
-export function demoRequest(scenario: "approved" | "blocked"): RouteInferenceRequest {
+function localOnlyPrompt(): string {
+  return [
+    "LOCAL-ONLY PRIVATE TASK.",
+    "Summarize this confidential agent wallet memo in one sentence without using any network provider:",
+    "The agent should pause new paid inference if the task budget is below the quoted provider cost."
+  ].join("\n");
+}
+
+function simpleZaiPrompt(): string {
+  return "Summarize this product in one friendly sentence: CoboRouter helps agents choose and pay for inference under wallet policy.";
+}
+
+export function demoRequest(scenario: Exclude<DemoScenario, "custom">): RouteInferenceRequest {
+  if (scenario === "local") {
+    return {
+      prompt: localOnlyPrompt(),
+      routing_mode: "cheapest_capable",
+      max_spend_usd: 0,
+      allowed_providers: ["local_baseline", "zai_flash", "zai"],
+      require_receipt: true,
+      idempotency_key: "edge-local-001",
+      scenario
+    };
+  }
+
+  if (scenario === "simple_zai") {
+    return {
+      prompt: simpleZaiPrompt(),
+      routing_mode: "cheapest_capable",
+      max_spend_usd: 0.01,
+      allowed_providers: ["zai_flash", "zai"],
+      require_receipt: true,
+      idempotency_key: "edge-zai-flash-001",
+      scenario
+    };
+  }
+
   return {
-    prompt: defaultPrompt(),
+    prompt: treasuryPrompt(),
     routing_mode: "cheapest_capable",
-    max_spend_usd: scenario === "blocked" ? 0.03 : 0.25,
-    allowed_providers: ["zai", "second_real_provider", "local_baseline"],
+    max_spend_usd: scenario === "blocked" || scenario === "budget_declined" ? 0.03 : 0.25,
+    allowed_providers: ["zai", "zai_flash", "second_real_provider", "local_baseline"],
     require_receipt: true,
-    idempotency_key: `demo-${scenario}-001`,
-    scenario
+    idempotency_key: scenario === "budget_declined" ? "edge-budget-declined-001" : `demo-${scenario}-001`,
+    scenario: scenario === "budget_declined" ? "budget_declined" : scenario
   };
 }
 
 function routeTraceSummary(trace: RouteDecision[]): string {
   return trace.map((entry) => `${entry.provider_id}:${entry.decision}:${entry.reason}`).join(" | ");
+}
+
+function receiptIdForScenario(scenario: RouteInferenceRequest["scenario"]): string {
+  if (scenario === "blocked") return "coborouter_demo_blocked_001";
+  if (scenario === "budget_declined") return "coborouter_edge_budget_declined_001";
+  if (scenario === "local") return "coborouter_edge_local_001";
+  if (scenario === "simple_zai") return "coborouter_edge_zai_flash_001";
+  if (scenario === "custom") return "coborouter_custom_receipt";
+  return "coborouter_demo_approved_001";
 }
 
 function receiptPaths(receiptId: string): { receiptPath: string; logPath: string } {
@@ -43,7 +90,7 @@ function receiptPaths(receiptId: string): { receiptPath: string; logPath: string
 export async function routeInference(request: RouteInferenceRequest): Promise<RouteInferenceResponse> {
   const wallet = createCoboWalletAdapter();
   const taskId = shortId("task");
-  const receiptId = request.scenario === "blocked" ? "coborouter_demo_blocked_001" : "coborouter_demo_approved_001";
+  const receiptId = receiptIdForScenario(request.scenario);
   const { receiptPath, logPath } = receiptPaths(receiptId);
   const promptHash = sha256(request.prompt);
   const quoteId = shortId("quote");
@@ -65,7 +112,10 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
     maxSpendUsd: request.max_spend_usd,
     dailySpendUsedUsd: 0,
     dailySpendCapUsd: Number(process.env.COBO_DAILY_SPEND_CAP_USD || 5),
-    allowedProviders: request.allowed_providers.filter((provider) => provider !== "local_baseline"),
+    allowedProviders:
+      policyQuote && !policyQuote.requires_wallet_payment
+        ? request.allowed_providers
+        : request.allowed_providers.filter((provider) => provider !== "local_baseline"),
     humanApprovalThresholdUsd: 0.5,
     asset: "USDC" as const,
     network: policyProvider?.payment_network ?? process.env.COBO_DEMO_NETWORK ?? "cobo_sandbox",
@@ -143,6 +193,39 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
   const selectedProvider = providerById(selected.provider_id);
   if (!selectedProvider) {
     throw new Error(`Provider ${selected.provider_id} not found`);
+  }
+
+  if (!selectedProvider.requires_wallet_payment) {
+    const inference = await runInference(selectedProvider, request.prompt, selected.estimated_cost_usd);
+    const zeroSpendResponse: RouteInferenceResponse = {
+      status: "completed",
+      ...base,
+      broker_decision: {
+        ...base.broker_decision,
+        actual_cost_usd: inference.actualCostUsd
+      },
+      payment: {
+        wallet_provider: "cobo_agentic_wallet",
+        operation_id: null,
+        payment_reference: null,
+        tx_hash: null,
+        explorer_url: null,
+        proof_type: "cobo_operation",
+        status: "not_created",
+        refund_status: "not_required"
+      },
+      provider_invoice: {
+        provider_request_id: inference.providerRequestId,
+        provider_invoice_id: inference.providerInvoiceId,
+        simulated: inference.simulated
+      },
+      answer: {
+        summary: inference.summary,
+        steps: inference.steps
+      }
+    };
+    await appendJsonl(logPath, { event: "route_inference", response: zeroSpendResponse });
+    return saveReceipt(zeroSpendResponse);
   }
 
   const authorization = await wallet.authorizeSpend(policyInput);

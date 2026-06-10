@@ -64,6 +64,9 @@ try {
   const schema = await getJson<{ name?: string; input_schema?: { required?: string[] } }>("/api/tool-schema");
   const blocked = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("blocked"));
   const approved = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("approved"));
+  const budgetDeclined = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("budget_declined"));
+  const local = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("local"));
+  const simpleZai = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("simple_zai"));
 
   const assertions: Assertion[] = [
     assert("tool schema is discoverable", schema.name === "route_inference", `name=${schema.name || "missing"}`),
@@ -82,7 +85,7 @@ try {
     ),
     assert("approved path selects wallet-paid provider", approved.broker_decision.selected_provider === "zai", `provider=${approved.broker_decision.selected_provider}`),
     assert("approved path selects GLM-5.1", approved.broker_decision.selected_model === "glm-5.1", `model=${approved.broker_decision.selected_model}`),
-    assert("approved path uses real Z.AI invoice", approved.provider_invoice.simulated === false, `simulated=${approved.provider_invoice.simulated}`),
+    assert("approved path uses real Z.AI invoice when key is configured", !process.env.ZAI_API_KEY || approved.provider_invoice.simulated === false, `simulated=${approved.provider_invoice.simulated}`),
     assert(
       "approved path has Cobo proof reference",
       Boolean(approved.payment.operation_id && approved.payment.payment_reference),
@@ -99,7 +102,13 @@ try {
       process.env.COBO_ADAPTER_MODE !== "live" || approved.wallet_policy.policyId !== "cobo_policy_demo",
       `policy=${approved.wallet_policy.policyId}`
     ),
-    assert("approved path writes receipt", approved.receipt.receipt_path.endsWith(".json"), approved.receipt.receipt_path)
+    assert("approved path writes receipt", approved.receipt.receipt_path.endsWith(".json"), approved.receipt.receipt_path),
+    assert("budget edge blocks because quote exceeds wallet budget", budgetDeclined.status === "blocked" && budgetDeclined.wallet_policy.reason === "quote_exceeds_task_budget", `status=${budgetDeclined.status} reason=${budgetDeclined.wallet_policy.reason}`),
+    assert("budget edge creates no Cobo payment", budgetDeclined.payment.status === "not_created" && !budgetDeclined.payment.tx_hash, `payment=${budgetDeclined.payment.status}`),
+    assert("local edge selects local model", local.status === "completed" && local.broker_decision.selected_provider === "local_baseline", `status=${local.status} provider=${local.broker_decision.selected_provider}`),
+    assert("local edge creates no payment", local.payment.status === "not_created" && local.provider_invoice.simulated === true, `payment=${local.payment.status} simulated=${local.provider_invoice.simulated}`),
+    assert("simple Z.AI edge selects non-GLM-5.1 model", simpleZai.status === "completed" && simpleZai.broker_decision.selected_provider === "zai_flash" && simpleZai.broker_decision.selected_model === "glm-4.7-flash", `status=${simpleZai.status} provider=${simpleZai.broker_decision.selected_provider} model=${simpleZai.broker_decision.selected_model}`),
+    assert("simple Z.AI edge uses live API when key is configured", !process.env.ZAI_API_KEY || simpleZai.provider_invoice.simulated === false, `simulated=${simpleZai.provider_invoice.simulated}`)
   ];
 
   let failures = 0;

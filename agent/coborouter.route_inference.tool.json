@@ -42,7 +42,7 @@
       },
       "scenario": {
         "type": "string",
-        "enum": ["approved", "blocked", "custom"],
+        "enum": ["approved", "blocked", "budget_declined", "local", "simple_zai", "custom"],
         "description": "Demo helper. Use custom for normal agent calls."
       }
     }
@@ -57,5 +57,10 @@
     "payment.proof_type": "on_chain",
     "payment.status": "settled",
     "payment.tx_hash": "required"
+  },
+  "edge_case_proofs": {
+    "budget_declined": "wallet_policy.result=blocked, wallet_policy.reason=quote_exceeds_task_budget, payment.status=not_created",
+    "local": "selected_provider=local_baseline, selected_model=local-small, provider_invoice.simulated=true, payment.status=not_created",
+    "simple_zai": "selected_provider=zai_flash, selected_model=glm-4.7-flash, provider_invoice.simulated=false with ZAI_API_KEY, payment.status=not_created"
   }
 }

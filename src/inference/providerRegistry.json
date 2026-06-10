@@ -1,5 +1,28 @@
 [
   {
+    "provider_id": "zai_flash",
+    "display_name": "Z.AI Flash",
+    "model": "glm-4.7-flash",
+    "capabilities": {
+      "reasoning": 3,
+      "coding": 2,
+      "long_context": 3,
+      "latency_sensitivity": 5,
+      "privacy_sensitivity": 3,
+      "web3_context": 2,
+      "structured_output": 4
+    },
+    "cost_per_1k_input_usd": 0,
+    "cost_per_1k_output_usd": 0,
+    "avg_latency_ms": 900,
+    "quality_score": 3,
+    "allowlisted": true,
+    "requires_wallet_payment": false,
+    "payment_asset": null,
+    "payment_network": null,
+    "label": "zai_api_key_lightweight_route"
+  },
+  {
     "provider_id": "zai",
     "display_name": "Z.AI",
     "model": "glm-5.1",
@@ -53,7 +76,7 @@
       "coding": 2,
       "long_context": 2,
       "latency_sensitivity": 4,
-      "privacy_sensitivity": 4,
+      "privacy_sensitivity": 5,
       "web3_context": 1,
       "structured_output": 4
     },

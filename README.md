@@ -40,7 +40,8 @@ CoboRouter is not a model router. It is an **agentic resource procurement flow**
 | Agent skill manifest | [`agent/coborouter.route_inference.tool.json`](agent/coborouter.route_inference.tool.json) |
 | Blocked spend path | `npm run demo:blocked` and [`receipts/coborouter_demo_blocked_001.json`](receipts/coborouter_demo_blocked_001.json) |
 | Approved paid path | `npm run demo:approved` and [`receipts/coborouter_demo_approved_001.json`](receipts/coborouter_demo_approved_001.json) |
-| Agentic E2E proof | `npm run e2e:agent` expects `13 passed, 0 failed` |
+| Edge-case routing | `npm run demo:budget-declined`, `npm run demo:local`, `npm run demo:zai-flash` |
+| Agentic E2E proof | `npm run e2e:agent` expects `19 passed, 0 failed` |
 | Wallet proof | Cobo operation `7406658f-973a-4fa7-8a62-4c072225c107` and Sepolia tx below |
 
 ## Live proof
@@ -57,6 +58,22 @@ This repo includes receipts from a live end-to-end run.
 | Cobo operation | `7406658f-973a-4fa7-8a62-4c072225c107` |
 | On-chain tx | [`0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b`](https://sepolia.etherscan.io/tx/0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b) |
 | Receipt | [`receipts/coborouter_demo_approved_001.json`](receipts/coborouter_demo_approved_001.json) |
+
+## Edge cases
+
+CoboRouter is not a one-path happy demo. The repo includes receipts for routes where the broker chooses not to spend, or chooses a cheaper/local model.
+
+| Scenario | Command | Expected proof |
+| --- | --- | --- |
+| Wallet policy declines overspend | `npm run demo:budget-declined` | `wallet_policy.reason=quote_exceeds_task_budget`, `payment.status=not_created` |
+| Private/local prompt stays local | `npm run demo:local` | `selected_provider=local_baseline`, `selected_model=local-small`, no provider payment |
+| Simple prompt uses lighter Z.AI model | `npm run demo:zai-flash` | `selected_provider=zai_flash`, `selected_model=glm-4.7-flash`, `provider_invoice.simulated=false` with `ZAI_API_KEY` |
+
+Receipts:
+
+- [`receipts/coborouter_edge_budget_declined_001.json`](receipts/coborouter_edge_budget_declined_001.json)
+- [`receipts/coborouter_edge_local_001.json`](receipts/coborouter_edge_local_001.json)
+- [`receipts/coborouter_edge_zai_flash_001.json`](receipts/coborouter_edge_zai_flash_001.json)
 
 ## Demo screens
 
@@ -145,11 +162,14 @@ Open:
 http://localhost:4173
 ```
 
-Run the two core paths:
+Run the core and edge paths:
 
 ```bash
 npm run demo:blocked
 npm run demo:approved
+npm run demo:budget-declined
+npm run demo:local
+npm run demo:zai-flash
 ```
 
 Run the agent-style E2E:
@@ -170,7 +190,10 @@ PASS approved path uses live Z.AI triage when key is configured: triage=zai_live
 PASS approved path selects GLM-5.1: model=glm-5.1
 PASS approved path uses real Z.AI invoice: simulated=false
 PASS transfer settlement returns on-chain proof: status=settled tx=0xe90621...
-Agent E2E summary: 13 passed, 0 failed.
+PASS budget edge blocks because quote exceeds wallet budget
+PASS local edge selects local model
+PASS simple Z.AI edge selects non-GLM-5.1 model
+Agent E2E summary: 19 passed, 0 failed.
 ```
 
 ## Live mode
@@ -247,6 +270,9 @@ The receipt is designed for judges and agents to audit quickly.
 | [`src/demo/timelineUi.tsx`](src/demo/timelineUi.tsx) | Judge-facing timeline UI |
 | [`receipts/coborouter_demo_approved_001.json`](receipts/coborouter_demo_approved_001.json) | Live approved receipt |
 | [`receipts/coborouter_demo_blocked_001.json`](receipts/coborouter_demo_blocked_001.json) | Blocked no-spend receipt |
+| [`receipts/coborouter_edge_budget_declined_001.json`](receipts/coborouter_edge_budget_declined_001.json) | Explicit budget-declined receipt |
+| [`receipts/coborouter_edge_local_001.json`](receipts/coborouter_edge_local_001.json) | Local model route receipt |
+| [`receipts/coborouter_edge_zai_flash_001.json`](receipts/coborouter_edge_zai_flash_001.json) | Lightweight Z.AI model route receipt |
 
 ## Security boundaries
 

@@ -2,7 +2,9 @@ import { demoRequest, routeInference } from "../broker/routeInference.js";
 import { loadEnv } from "../config/env.js";
 
 await loadEnv();
-const scenario = process.argv[2] === "blocked" ? "blocked" : "approved";
+const allowedScenarios = ["approved", "blocked", "budget_declined", "local", "simple_zai"] as const;
+const arg = process.argv[2] || "approved";
+const scenario = allowedScenarios.includes(arg as (typeof allowedScenarios)[number]) ? (arg as (typeof allowedScenarios)[number]) : "approved";
 const response = await routeInference(demoRequest(scenario));
 
 console.log(JSON.stringify(response, null, 2));

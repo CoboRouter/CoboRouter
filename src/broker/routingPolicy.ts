@@ -3,7 +3,8 @@ import type { CapabilityKey, ProviderConfig, RouteDecision, RoutingMode, TriageR
 
 const registry = providers as ProviderConfig[];
 
-const demoSelectable = (provider: ProviderConfig): boolean => provider.requires_wallet_payment && provider.allowlisted;
+const selectableForTriage = (provider: ProviderConfig, triage: TriageResult): boolean =>
+  provider.allowlisted && (provider.requires_wallet_payment || !triage.requires_wallet_payment);
 
 function estimateCost(provider: ProviderConfig): number {
   const estimatedInputTokens = 12000;
@@ -35,13 +36,15 @@ export function quoteProviders(triage: TriageResult, allowedProviders: string[])
     .filter((provider) => allowedProviders.includes(provider.provider_id))
     .map((provider) => {
       const mismatch = capabilityReason(provider, triage);
-      const selectable = demoSelectable(provider);
+      const selectable = selectableForTriage(provider, triage);
       const capable = !mismatch && selectable;
       const reason = mismatch
         ? mismatch
         : selectable
-          ? "capable paid provider"
-          : "comparison-only local baseline for Cobo demo";
+          ? provider.requires_wallet_payment
+            ? "capable paid provider"
+            : "capable zero-spend provider"
+          : "not selectable for this wallet/payment requirement";
 
       return {
         provider_id: provider.provider_id,
@@ -77,7 +80,12 @@ export function selectRoute(trace: RouteDecision[], mode: RoutingMode, maxSpendU
     return a.estimated_cost_usd - b.estimated_cost_usd || (providerA?.avg_latency_ms ?? 999999) - (providerB?.avg_latency_ms ?? 999999);
   });
 
-  return { ...sorted[0], decision: "selected", reason: "cheapest capable paid provider under wallet budget" };
+  const winner = sorted[0];
+  return {
+    ...winner,
+    decision: "selected",
+    reason: winner.requires_wallet_payment ? "cheapest capable paid provider under wallet budget" : "cheapest capable zero-spend provider"
+  };
 }
 
 export function lowestCapablePaidQuote(trace: RouteDecision[]): RouteDecision | null {

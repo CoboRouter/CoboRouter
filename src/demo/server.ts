@@ -57,6 +57,27 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/api/demo/budget-declined") {
+      const response = await routeInference(demoRequest("budget_declined"));
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify(response));
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/demo/local") {
+      const response = await routeInference(demoRequest("local"));
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify(response));
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/demo/simple-zai") {
+      const response = await routeInference(demoRequest("simple_zai"));
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify(response));
+      return;
+    }
+
     res.writeHead(404, { "content-type": "application/json" });
     res.end(JSON.stringify({ error: "not_found" }));
   } catch (error) {

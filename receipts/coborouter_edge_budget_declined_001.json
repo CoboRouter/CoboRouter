@@ -1,6 +1,6 @@
 {
   "status": "blocked",
-  "task_id": "task_ad1da643dddc",
+  "task_id": "task_4146d1146313",
   "broker_decision": {
     "task_type": "defi_treasury_management",
     "triage_source": "zai_live",
@@ -12,7 +12,7 @@
     "actual_cost_usd": 0,
     "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_57496c9210a9",
+    "quote_id": "quote_0c575b57fb55",
     "route_trace": [
       {
         "provider_id": "zai_flash",
@@ -68,14 +68,14 @@
     "human_approval_required": false
   },
   "receipt": {
-    "receipt_id": "coborouter_demo_blocked_001",
+    "receipt_id": "coborouter_edge_budget_declined_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
     "policy_hash": "sha256:45889933cfc1e232869a6beb2c1e89d156e27b52b92d69fb857328818bc3e9d2",
-    "quote_id": "quote_57496c9210a9",
-    "idempotency_key": "demo-blocked-001",
-    "timestamp": "2026-06-10T23:47:49.144Z",
+    "quote_id": "quote_0c575b57fb55",
+    "idempotency_key": "edge-budget-declined-001",
+    "timestamp": "2026-06-10T23:47:01.820Z",
     "log_path": "logs/demo-run.jsonl",
-    "receipt_path": "receipts/coborouter_demo_blocked_001.json"
+    "receipt_path": "receipts/coborouter_edge_budget_declined_001.json"
   },
   "payment": {
     "wallet_provider": "cobo_agentic_wallet",
