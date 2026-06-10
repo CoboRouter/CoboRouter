@@ -32,7 +32,7 @@ CoboRouter is an **agentic resource procurement flow** for wallet-bound autonomo
 5. CoboRouter settles a live Cobo wallet transaction.
 6. The agent receives the answer plus a cryptographic receipt.
 
-## Judge path
+## Verification path
 
 | What to check | Where |
 | --- | --- |
@@ -231,7 +231,7 @@ npm run check:live
 
 ## Receipt shape
 
-The receipt is designed for judges and agents to audit quickly.
+The receipt is designed for operators and agents to audit quickly.
 
 ```json
 {
@@ -267,7 +267,7 @@ The receipt is designed for judges and agents to audit quickly.
 | [`src/triage/zaiTriage.ts`](src/triage/zaiTriage.ts) | GLM/Z.AI prompt triage with cached fallback |
 | [`src/inference/inferenceAdapter.ts`](src/inference/inferenceAdapter.ts) | Live provider execution and invoice boundary |
 | [`src/demo/e2eAgentClient.ts`](src/demo/e2eAgentClient.ts) | External agent-style HTTP proof |
-| [`src/demo/timelineUi.tsx`](src/demo/timelineUi.tsx) | Judge-facing timeline UI |
+| [`src/demo/timelineUi.tsx`](src/demo/timelineUi.tsx) | Timeline UI for inspecting routing, wallet policy, settlement, and receipt state |
 | [`receipts/coborouter_demo_approved_001.json`](receipts/coborouter_demo_approved_001.json) | Live approved receipt |
 | [`receipts/coborouter_demo_blocked_001.json`](receipts/coborouter_demo_blocked_001.json) | Blocked no-spend receipt |
 | [`receipts/coborouter_edge_budget_declined_001.json`](receipts/coborouter_edge_budget_declined_001.json) | Explicit budget-declined receipt |
@@ -281,11 +281,5 @@ The receipt is designed for judges and agents to audit quickly.
 - Cobo Agentic Wallet owns policy enforcement.
 - Unknown providers are denied by allowlist.
 - Overspend attempts stop before inference.
-- Transfer settlement is tiny testnet SETH for hackathon proof.
+- Transfer settlement uses tiny testnet SETH for proof.
 - Every paid path produces a receipt with prompt hash, route trace, policy hash, provider invoice, and Cobo proof.
-
-## Built for the AI x Web3 Agentic Builders Hackathon
-
-Primary track: **Cobo Track — Agentic Economy x Cobo Agentic Wallet**.
-
-CoboRouter’s wedge is narrow on purpose: make one wallet-native procurement loop impossible to miss. The demo starts with a blocked spend, reruns under policy, calls a live model, settles through Cobo, and hands the agent a receipt.
