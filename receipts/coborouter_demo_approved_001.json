@@ -1,6 +1,6 @@
 {
   "status": "completed",
-  "task_id": "task_9dafacfc5879",
+  "task_id": "task_141cef3ae2d2",
   "broker_decision": {
     "task_type": "web3_tool_use",
     "triage_source": "cached_zai_response",
@@ -12,7 +12,7 @@
     "actual_cost_usd": 0.0736,
     "triage_cost_usd": 0,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_9c108db20d62",
+    "quote_id": "quote_aea5e3063048",
     "route_trace": [
       {
         "provider_id": "zai",
@@ -60,9 +60,9 @@
     "receipt_id": "coborouter_demo_approved_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
     "policy_hash": "sha256:3fa66a5051960d8c198630f8c4068b8ecd5aafe63d2024aa53c0d44341b5f5f1",
-    "quote_id": "quote_9c108db20d62",
+    "quote_id": "quote_aea5e3063048",
     "idempotency_key": "demo-approved-001",
-    "timestamp": "2026-06-10T23:20:38.531Z",
+    "timestamp": "2026-06-10T23:24:19.211Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_demo_approved_001.json"
   },
@@ -77,12 +77,12 @@
     "refund_status": "not_required"
   },
   "provider_invoice": {
-    "provider_request_id": "zai_req_6d8b886ea407",
-    "provider_invoice_id": "zai_invoice_63276f30c180",
+    "provider_request_id": "zai_req_7301d41cf42f",
+    "provider_invoice_id": "zai_invoice_5e0fa94b0d73",
     "simulated": false
   },
   "answer": {
-    "summary": "**Demo Fixture Data Notice:** The following comparison and action plan use simulated fixture data for demonstration purposes only.\n\n**Comparison & Risk Analysis**\n*   **Option A (Lending, 4.2% APY, High Liquidity):** Lower yield, but high liquidity ensures the DAO can withdraw funds almost instantly. *Risks:* Standard smart contract risk (mitigated by audits), variable APY that may drop during low borrowing demand.\n*   **Option B (Vault, 6.1% APY, Medium Liquidity):** Higher yield, but medium liquidity means withdrawals might face delays or lockups. *Risks:* Smart contract risk, liquidity lock",
+    "summary": "**Note:** This analysis uses demo fixture data for educational purposes.\n\n**Comparison & Risks**\n*   **Option A (Lending, 4.2% APY, High Liquidity):** Prioritizes capital preservation and instant withdrawal capability. *Risks:* Base smart contract risk (mitigated by audit); lower yield may not offset opportunity costs over time.\n*   **Option B (Vault, 6.1% APY, Medium Liquidity):** Offers a higher yield but introduces liquidity constraints. *Risks:* Withdrawal delays or queue systems during high demand; vault strategies often involve additional layers of smart contract risk (despite audits).\n\n",
     "steps": [
       "Use the provided fixture options only.",
       "Prefer the option with stronger liquidity and simpler withdrawal risk unless higher yield is explicitly accepted.",

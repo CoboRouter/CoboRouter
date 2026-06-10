@@ -1,0 +1,81 @@
+<svg width="1200" height="560" viewBox="0 0 1200 560" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">CoboRouter live agent wallet inference flow</title>
+  <desc id="desc">A visual flow showing an agent prompt entering CoboRouter, being triaged to Z.AI GLM-5.1, approved by Cobo Agentic Wallet policy, settled on-chain, and returned as an answer with receipt.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#08111F"/>
+      <stop offset="0.48" stop-color="#0D1829"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="signal" x1="112" y1="165" x2="1077" y2="393" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="0.48" stop-color="#22C55E"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-30%" width="140%" height="170%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.32"/>
+    </filter>
+    <style>
+      .eyebrow { font: 700 16px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; fill: #93C5FD; }
+      .title { font: 800 58px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; fill: #F8FAFC; }
+      .sub { font: 500 23px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; fill: #CBD5E1; }
+      .label { font: 800 22px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; fill: #F8FAFC; }
+      .small { font: 600 15px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; fill: #CBD5E1; }
+      .tiny { font: 700 13px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; fill: #A7F3D0; }
+      .mono { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; letter-spacing: 0; fill: #E2E8F0; }
+    </style>
+  </defs>
+  <rect width="1200" height="560" rx="28" fill="url(#bg)"/>
+  <path d="M80 92C194 35 308 35 422 92C536 149 650 149 764 92C878 35 992 35 1120 92" stroke="#1E293B" stroke-width="2"/>
+  <path d="M80 470C194 413 308 413 422 470C536 527 650 527 764 470C878 413 992 413 1120 470" stroke="#1E293B" stroke-width="2"/>
+  <text x="70" y="82" class="eyebrow">AI x Web3 Agentic Builders Hackathon</text>
+  <text x="70" y="151" class="title">CoboRouter</text>
+  <text x="72" y="193" class="sub">Wallet-native inference procurement with live model calls, policy checks, settlement, and receipts.</text>
+  <rect x="71" y="224" width="216" height="34" rx="17" fill="#0F766E" fill-opacity="0.24" stroke="#14B8A6" stroke-opacity="0.55"/>
+  <text x="91" y="247" class="tiny">LIVE COBO WALLET PROOF</text>
+  <rect x="304" y="224" width="168" height="34" rx="17" fill="#1D4ED8" fill-opacity="0.22" stroke="#60A5FA" stroke-opacity="0.52"/>
+  <text x="325" y="247" class="tiny">Z.AI / GLM-5.1</text>
+  <rect x="489" y="224" width="188" height="34" rx="17" fill="#9A3412" fill-opacity="0.22" stroke="#FB923C" stroke-opacity="0.55"/>
+  <text x="511" y="247" class="tiny">AGENT TOOL API</text>
+
+  <path d="M140 350H1060" stroke="url(#signal)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M1057 350L1025 331V369L1057 350Z" fill="#F97316"/>
+  <g filter="url(#softShadow)">
+    <rect x="80" y="300" width="166" height="112" rx="18" fill="#0F172A" stroke="#334155"/>
+    <circle cx="112" cy="332" r="17" fill="#38BDF8"/>
+    <path d="M103 332H121M112 323V341" stroke="#08111F" stroke-width="5" stroke-linecap="round"/>
+    <text x="102" y="373" class="label">Agent</text>
+    <text x="102" y="397" class="small">prompt + spend cap</text>
+  </g>
+  <g filter="url(#softShadow)">
+    <rect x="292" y="280" width="210" height="152" rx="20" fill="#0B1220" stroke="#38BDF8" stroke-opacity="0.5"/>
+    <rect x="319" y="307" width="156" height="28" rx="14" fill="#0EA5E9" fill-opacity="0.18" stroke="#38BDF8" stroke-opacity="0.55"/>
+    <text x="337" y="327" class="tiny">route_inference</text>
+    <text x="324" y="374" class="label">CoboRouter</text>
+    <text x="324" y="401" class="small">triage + quote engine</text>
+  </g>
+  <g filter="url(#softShadow)">
+    <rect x="548" y="300" width="170" height="112" rx="18" fill="#0F172A" stroke="#2563EB" stroke-opacity="0.65"/>
+    <circle cx="580" cy="332" r="17" fill="#2563EB"/>
+    <text x="573" y="338" class="mono">Z</text>
+    <text x="577" y="373" class="label">Z.AI</text>
+    <text x="577" y="397" class="small">GLM-5.1 call</text>
+  </g>
+  <g filter="url(#softShadow)">
+    <rect x="764" y="280" width="196" height="152" rx="20" fill="#0B1220" stroke="#22C55E" stroke-opacity="0.58"/>
+    <rect x="790" y="307" width="144" height="28" rx="14" fill="#16A34A" fill-opacity="0.18" stroke="#4ADE80" stroke-opacity="0.58"/>
+    <text x="809" y="327" class="tiny">policy approved</text>
+    <text x="794" y="374" class="label">Cobo Wallet</text>
+    <text x="794" y="401" class="small">spend rules + pact</text>
+  </g>
+  <g filter="url(#softShadow)">
+    <rect x="1004" y="300" width="116" height="112" rx="18" fill="#0F172A" stroke="#FB923C" stroke-opacity="0.7"/>
+    <circle cx="1036" cy="332" r="17" fill="#F97316"/>
+    <path d="M1028 332H1044" stroke="#111827" stroke-width="5" stroke-linecap="round"/>
+    <path d="M1036 324V340" stroke="#111827" stroke-width="5" stroke-linecap="round"/>
+    <text x="1031" y="373" class="label">TX</text>
+    <text x="1030" y="397" class="small">receipt</text>
+  </g>
+  <rect x="70" y="472" width="1060" height="44" rx="22" fill="#020617" fill-opacity="0.52" stroke="#334155"/>
+  <text x="96" y="501" class="mono">agent -> prompt triage -> cheapest capable model -> Cobo policy -> live settlement -> answer + tx receipt</text>
+</svg>

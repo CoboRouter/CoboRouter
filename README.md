@@ -12,6 +12,11 @@
 ![On-chain Proof](https://img.shields.io/badge/Proof-Sepolia%20TX-16a34a?style=for-the-badge)
 ![Agent Tool](https://img.shields.io/badge/API-route__inference-f97316?style=for-the-badge)
 
+<br />
+<br />
+
+<img src="docs/brand/coborouter-hero.svg" alt="CoboRouter live agent wallet inference flow" width="100%" />
+
 </div>
 
 ---
@@ -26,6 +31,16 @@ CoboRouter is not a model router. It is an **agentic resource procurement flow**
 4. Approved jobs call live Z.AI / GLM-5.1.
 5. CoboRouter settles a live Cobo wallet transaction.
 6. The agent receives the answer plus a cryptographic receipt.
+
+## Judge path
+
+| What to check | Where |
+| --- | --- |
+| Agent-compatible API | `GET /api/tool-schema` and `POST /api/route-inference` |
+| Blocked spend path | `npm run demo:blocked` and [`receipts/coborouter_demo_blocked_001.json`](receipts/coborouter_demo_blocked_001.json) |
+| Approved paid path | `npm run demo:approved` and [`receipts/coborouter_demo_approved_001.json`](receipts/coborouter_demo_approved_001.json) |
+| Agentic E2E proof | `npm run e2e:agent` |
+| Wallet proof | Cobo operation `7406658f-973a-4fa7-8a62-4c072225c107` and Sepolia tx below |
 
 ## Live proof
 
