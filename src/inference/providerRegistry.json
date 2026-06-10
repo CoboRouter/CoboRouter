@@ -4,12 +4,12 @@
     "display_name": "Z.AI",
     "model": "glm-5.1",
     "capabilities": {
-      "reasoning": 4,
+      "reasoning": 5,
       "coding": 3,
-      "long_context": 3,
+      "long_context": 5,
       "latency_sensitivity": 3,
-      "privacy_sensitivity": 3,
-      "web3_context": 4,
+      "privacy_sensitivity": 5,
+      "web3_context": 5,
       "structured_output": 5
     },
     "cost_per_1k_input_usd": 0.001,

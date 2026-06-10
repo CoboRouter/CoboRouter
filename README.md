@@ -37,9 +37,10 @@ CoboRouter is not a model router. It is an **agentic resource procurement flow**
 | What to check | Where |
 | --- | --- |
 | Agent-compatible API | `GET /api/tool-schema` and `POST /api/route-inference` |
+| Agent skill manifest | [`agent/coborouter.route_inference.tool.json`](agent/coborouter.route_inference.tool.json) |
 | Blocked spend path | `npm run demo:blocked` and [`receipts/coborouter_demo_blocked_001.json`](receipts/coborouter_demo_blocked_001.json) |
 | Approved paid path | `npm run demo:approved` and [`receipts/coborouter_demo_approved_001.json`](receipts/coborouter_demo_approved_001.json) |
-| Agentic E2E proof | `npm run e2e:agent` |
+| Agentic E2E proof | `npm run e2e:agent` expects `13 passed, 0 failed` |
 | Wallet proof | Cobo operation `7406658f-973a-4fa7-8a62-4c072225c107` and Sepolia tx below |
 
 ## Live proof
@@ -48,6 +49,7 @@ This repo includes receipts from a live end-to-end run.
 
 | Proof | Value |
 | --- | --- |
+| Prompt triage | `zai_live` using `glm-5.1` |
 | Selected model | `zai / glm-5.1` |
 | Z.AI provider invoice | `provider_invoice.simulated=false` |
 | Cobo policy / pact | `c54ceef0-e251-4f3a-8d2d-dc2d855add43` |
@@ -92,7 +94,16 @@ flowchart LR
 
 ## Agent API
 
-Any agentic runtime can call CoboRouter over HTTP.
+Any agentic runtime can use CoboRouter as a tool over HTTP. The repo includes a portable tool manifest at [`agent/coborouter.route_inference.tool.json`](agent/coborouter.route_inference.tool.json), or agents can discover the live schema from the running server.
+
+Clone and start the tool:
+
+```bash
+git clone https://github.com/Augustas11/CoboRouter.git
+cd CoboRouter
+npm install
+npm run dev
+```
 
 ```bash
 curl http://localhost:4173/api/tool-schema
@@ -113,6 +124,7 @@ curl -X POST http://localhost:4173/api/route-inference \
 
 Expected result:
 
+- `broker_decision.triage_source = "zai_live"`
 - `broker_decision.selected_provider = "zai"`
 - `broker_decision.selected_model = "glm-5.1"`
 - `wallet_policy.result = "approved"`
@@ -147,6 +159,19 @@ npm run e2e:agent
 ```
 
 The E2E test starts the server, discovers the tool schema, calls `POST /api/route-inference`, verifies the blocked no-spend path, and verifies the approved path returns Cobo proof.
+
+Latest live E2E result:
+
+```text
+PASS tool schema is discoverable
+PASS blocked path creates no payment
+PASS approved path selects wallet-paid provider: provider=zai
+PASS approved path uses live Z.AI triage when key is configured: triage=zai_live
+PASS approved path selects GLM-5.1: model=glm-5.1
+PASS approved path uses real Z.AI invoice: simulated=false
+PASS transfer settlement returns on-chain proof: status=settled tx=0xe90621...
+Agent E2E summary: 13 passed, 0 failed.
+```
 
 ## Live mode
 
@@ -188,6 +213,7 @@ The receipt is designed for judges and agents to audit quickly.
 ```json
 {
   "broker_decision": {
+    "triage_source": "zai_live",
     "selected_provider": "zai",
     "selected_model": "glm-5.1",
     "reason": "cheapest capable paid provider under wallet budget"
@@ -213,6 +239,7 @@ The receipt is designed for judges and agents to audit quickly.
 | File | Why it matters |
 | --- | --- |
 | [`src/broker/routeInference.ts`](src/broker/routeInference.ts) | End-to-end orchestration: triage, route, wallet check, inference, receipt |
+| [`agent/coborouter.route_inference.tool.json`](agent/coborouter.route_inference.tool.json) | Portable agent tool manifest for `route_inference` |
 | [`src/wallet/coboAdapter.ts`](src/wallet/coboAdapter.ts) | Cobo Agentic Wallet policy + transfer settlement adapter |
 | [`src/triage/zaiTriage.ts`](src/triage/zaiTriage.ts) | GLM/Z.AI prompt triage with cached fallback |
 | [`src/inference/inferenceAdapter.ts`](src/inference/inferenceAdapter.ts) | Live provider execution and invoice boundary |

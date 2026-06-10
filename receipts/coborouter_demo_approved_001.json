@@ -1,18 +1,18 @@
 {
   "status": "completed",
-  "task_id": "task_141cef3ae2d2",
+  "task_id": "task_8861c53a02c5",
   "broker_decision": {
-    "task_type": "web3_tool_use",
-    "triage_source": "cached_zai_response",
-    "triage_model": "glm-5.1-cached",
+    "task_type": "defi_treasury_management",
+    "triage_source": "zai_live",
+    "triage_model": "glm-5.1",
     "selected_provider": "zai",
     "selected_model": "glm-5.1",
     "reason": "cheapest capable paid provider under wallet budget",
     "estimated_cost_usd": 0.08,
     "actual_cost_usd": 0.0736,
-    "triage_cost_usd": 0,
+    "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_aea5e3063048",
+    "quote_id": "quote_b1c9edeabc16",
     "route_trace": [
       {
         "provider_id": "zai",
@@ -30,7 +30,7 @@
         "display_name": "Second Real Provider",
         "estimated_cost_usd": 0.103,
         "decision": "rejected",
-        "reason": "web3_context capability 3 below required 4",
+        "reason": "reasoning capability 4 below required 5",
         "capable": false,
         "requires_wallet_payment": true
       },
@@ -40,7 +40,7 @@
         "display_name": "Local Baseline",
         "estimated_cost_usd": 0,
         "decision": "rejected",
-        "reason": "reasoning capability 2 below required 4",
+        "reason": "reasoning capability 2 below required 5",
         "capable": false,
         "requires_wallet_payment": false
       }
@@ -60,9 +60,9 @@
     "receipt_id": "coborouter_demo_approved_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
     "policy_hash": "sha256:3fa66a5051960d8c198630f8c4068b8ecd5aafe63d2024aa53c0d44341b5f5f1",
-    "quote_id": "quote_aea5e3063048",
+    "quote_id": "quote_b1c9edeabc16",
     "idempotency_key": "demo-approved-001",
-    "timestamp": "2026-06-10T23:24:19.211Z",
+    "timestamp": "2026-06-10T23:36:55.247Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_demo_approved_001.json"
   },
@@ -77,12 +77,12 @@
     "refund_status": "not_required"
   },
   "provider_invoice": {
-    "provider_request_id": "zai_req_7301d41cf42f",
-    "provider_invoice_id": "zai_invoice_5e0fa94b0d73",
+    "provider_request_id": "zai_req_5a598a3f3a8d",
+    "provider_invoice_id": "zai_invoice_e8ea8efd59db",
     "simulated": false
   },
   "answer": {
-    "summary": "**Note:** This analysis uses demo fixture data for educational purposes.\n\n**Comparison & Risks**\n*   **Option A (Lending, 4.2% APY, High Liquidity):** Prioritizes capital preservation and instant withdrawal capability. *Risks:* Base smart contract risk (mitigated by audit); lower yield may not offset opportunity costs over time.\n*   **Option B (Vault, 6.1% APY, Medium Liquidity):** Offers a higher yield but introduces liquidity constraints. *Risks:* Withdrawal delays or queue systems during high demand; vault strategies often involve additional layers of smart contract risk (despite audits).\n\n",
+    "summary": "**Disclaimer:** This analysis uses demo fixture data for educational purposes. Do not use for real funds.\n\n### Option Comparison & Risks\n*   **Option A (4.2% APY, High Liquidity):** Lower yield, but high liquidity ensures the DAO can withdraw funds instantly for operations. \n*   **Option B (6.1% APY, Medium Liquidity):** Higher yield, but medium liquidity introduces withdrawal delays or slippage during market volatility.\n*   **Risks:** Both carry smart contract risk (despite audits) and yield volatility. Option B adds liquidity/modular withdrawal risk.\n\n### Recommendation\n**Recommendation: Opt",
     "steps": [
       "Use the provided fixture options only.",
       "Prefer the option with stronger liquidity and simpler withdrawal risk unless higher yield is explicitly accepted.",

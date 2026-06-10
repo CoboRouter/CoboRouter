@@ -75,7 +75,14 @@ try {
     assert("blocked path blocks spend", blocked.status === "blocked", `status=${blocked.status}`),
     assert("blocked path creates no payment", blocked.payment.status === "not_created" && !blocked.payment.operation_id, `payment=${blocked.payment.status}`),
     assert("approved path completes", approved.status === "completed", `status=${approved.status}`),
+    assert(
+      "approved path uses live Z.AI triage when key is configured",
+      !process.env.ZAI_API_KEY || approved.broker_decision.triage_source === "zai_live",
+      `triage=${approved.broker_decision.triage_source}`
+    ),
     assert("approved path selects wallet-paid provider", approved.broker_decision.selected_provider === "zai", `provider=${approved.broker_decision.selected_provider}`),
+    assert("approved path selects GLM-5.1", approved.broker_decision.selected_model === "glm-5.1", `model=${approved.broker_decision.selected_model}`),
+    assert("approved path uses real Z.AI invoice", approved.provider_invoice.simulated === false, `simulated=${approved.provider_invoice.simulated}`),
     assert(
       "approved path has Cobo proof reference",
       Boolean(approved.payment.operation_id && approved.payment.payment_reference),

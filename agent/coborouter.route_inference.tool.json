@@ -1,0 +1,61 @@
+{
+  "name": "route_inference",
+  "description": "Route an autonomous agent task to a capable model, enforce Cobo Agentic Wallet spend policy, execute live inference, and return an answer with wallet/payment receipt.",
+  "transport": {
+    "type": "http",
+    "method": "POST",
+    "local_url": "http://localhost:4173/api/route-inference",
+    "schema_url": "http://localhost:4173/api/tool-schema"
+  },
+  "input_schema": {
+    "type": "object",
+    "required": ["prompt", "routing_mode", "max_spend_usd", "allowed_providers"],
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "description": "Task prompt from the autonomous agent or user."
+      },
+      "routing_mode": {
+        "type": "string",
+        "enum": ["cheapest_capable", "fastest_capable", "quality_first"],
+        "description": "Routing preference applied after capability filtering."
+      },
+      "max_spend_usd": {
+        "type": "number",
+        "minimum": 0,
+        "description": "Per-task inference spend cap enforced by CoboRouter and Cobo wallet policy."
+      },
+      "allowed_providers": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Agent-side provider allowlist. The demo paid route uses zai."
+      },
+      "require_receipt": {
+        "type": "boolean",
+        "description": "When true, persist a receipt JSON file and include receipt paths in the response."
+      },
+      "idempotency_key": {
+        "type": "string",
+        "description": "Caller-supplied replay key for agent/payment idempotency."
+      },
+      "scenario": {
+        "type": "string",
+        "enum": ["approved", "blocked", "custom"],
+        "description": "Demo helper. Use custom for normal agent calls."
+      }
+    }
+  },
+  "expected_success_proof": {
+    "broker_decision.triage_source": "zai_live",
+    "broker_decision.selected_provider": "zai",
+    "broker_decision.selected_model": "glm-5.1",
+    "wallet_policy.result": "approved",
+    "provider_invoice.simulated": false,
+    "payment.wallet_provider": "cobo_agentic_wallet",
+    "payment.proof_type": "on_chain",
+    "payment.status": "settled",
+    "payment.tx_hash": "required"
+  }
+}
