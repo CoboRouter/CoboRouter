@@ -166,6 +166,10 @@
       min-width: 0;
       overflow: hidden;
     }
+    .node.focus {
+      border-color: #9dc3e6;
+      background: #f7fbff;
+    }
     .node h3 {
       margin: 0 0 8px;
       font-size: 16px;
@@ -187,6 +191,12 @@
     }
     .badge.good { background: var(--green); }
     .badge.bad { background: var(--red); }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
     .mono {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
@@ -235,7 +245,7 @@
       .top { align-items: flex-start; flex-direction: column; }
       .links { justify-content: flex-start; }
       aside { position: static; }
-      .proof-grid { grid-template-columns: 1fr; }
+      .proof-grid, .summary-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -325,6 +335,10 @@
       return '<article class="node"><h3>' + esc(title) + '</h3><p>' + body + '</p>' + detail + '</article>';
     }
 
+    function focusNode(title, body, detail = "") {
+      return '<article class="node focus"><h3>' + esc(title) + '</h3><p>' + body + '</p>' + detail + '</article>';
+    }
+
     function quoteTable(receipt) {
       const selected = receipt.broker_decision.selected_provider;
       const rows = receipt.broker_decision.route_trace.slice(0, 8).map(row => (
@@ -344,10 +358,37 @@
         '<br>' + tx + '</p>';
     }
 
-    function render(receipt, path) {
+    function updateHero(receipt) {
+      document.getElementById("hero-provider").textContent = receipt.broker_decision.selected_provider || "none";
+      document.getElementById("hero-model").textContent = receipt.broker_decision.selected_model || "none";
+      document.getElementById("hero-operation").textContent = receipt.payment.operation_id || "no spend";
+      document.getElementById("hero-hash").textContent = receipt.receipt.receipt_hash;
+    }
+
+    function scenarioTitle(id) {
+      return scenarios.find(item => item[0] === id)?.[1] || "Selected route";
+    }
+
+    function summaryGrid(receipt) {
+      const authority = receipt.wallet_policy.policyAuthority === "cobo_agentic_wallet"
+        ? "CAW authorized"
+        : receipt.wallet_policy.policyAuthority === "coborouter_policy_engine"
+          ? "CoboRouter preflight"
+          : "local demo";
+      return '<div class="summary-grid">' +
+        '<div class="proof"><strong>Outcome</strong><span>' + esc(receipt.status) + '</span></div>' +
+        '<div class="proof"><strong>Provider</strong><span>' + esc(receipt.broker_decision.selected_provider || "none") + '</span></div>' +
+        '<div class="proof"><strong>Spend authority</strong><span>' + esc(authority) + '</span></div>' +
+        '<div class="proof"><strong>Payment</strong><span>' + esc(receipt.payment.status) + '</span></div>' +
+      '</div>';
+    }
+
+    function render(receipt, path, id) {
+      updateHero(receipt);
       const answer = receipt.answer ? receipt.answer.summary : "No provider inference ran for this route.";
       const source = "https://github.com/CoboRouter/CoboRouter/blob/main/" + path;
       timeline.innerHTML = [
+        focusNode("Selected route: " + scenarioTitle(id), badgeFor(receipt) + "<br>" + esc(receipt.wallet_policy.reason || receipt.broker_decision.reason || "Approved paid route with Cobo authorization evidence."), summaryGrid(receipt)),
         node("1. Agent Task", "Prompt hash <span class='mono'>" + esc(receipt.receipt.prompt_hash) + "</span>"),
         node("2. Z.AI Triage", esc(receipt.broker_decision.triage_source) + " using " + esc(receipt.broker_decision.triage_model)),
         node("3. Provider Quotes", "Capability, cost, latency, and wallet-payment requirement are compared before provider execution.", quoteTable(receipt)),
@@ -359,13 +400,15 @@
     }
 
     async function loadScenario(id, path) {
+      timeline.innerHTML = focusNode("Loading route: " + scenarioTitle(id), "Fetching the committed receipt from GitHub...");
       if (!loaded.has(path)) {
         const response = await fetch(repoRaw + path);
         if (!response.ok) throw new Error("Could not load " + path);
         loaded.set(path, await response.json());
       }
       document.querySelectorAll("button[data-scenario]").forEach(button => button.classList.toggle("active", button.dataset.scenario === id));
-      render(loaded.get(path), path);
+      render(loaded.get(path), path, id);
+      history.replaceState(null, "", "#" + id);
     }
 
     for (const [id, label, path] of scenarios) {
@@ -373,17 +416,14 @@
       button.type = "button";
       button.dataset.scenario = id;
       button.textContent = label;
-      button.addEventListener("click", () => loadScenario(id, path));
+      button.addEventListener("click", () => loadScenario(id, path).catch(error => {
+        timeline.innerHTML = focusNode("Route failed to load", esc(error.message));
+      }));
       list.appendChild(button);
     }
 
-    loadScenario("approved", scenarios[0][2]).then(() => {
-      const receipt = loaded.get(scenarios[0][2]);
-      document.getElementById("hero-provider").textContent = receipt.broker_decision.selected_provider;
-      document.getElementById("hero-model").textContent = receipt.broker_decision.selected_model;
-      document.getElementById("hero-operation").textContent = receipt.payment.operation_id;
-      document.getElementById("hero-hash").textContent = receipt.receipt.receipt_hash;
-    }).catch(error => {
+    const initialScenario = scenarios.find(item => "#" + item[0] === window.location.hash) || scenarios[0];
+    loadScenario(initialScenario[0], initialScenario[2]).catch(error => {
       timeline.innerHTML = node("Demo load failed", esc(error.message));
     });
   </script>
