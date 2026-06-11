@@ -1,5 +1,6 @@
 import { mkdir, access } from "node:fs/promises";
 import { spawn } from "node:child_process";
+import { once } from "node:events";
 import { setTimeout as sleep } from "node:timers/promises";
 
 const port = Number(process.env.SCREENSHOT_PORT || 4183);
@@ -73,10 +74,47 @@ async function capture(chrome: string, scenario: "blocked" | "approved"): Promis
 
 await mkdir("docs/screenshots", { recursive: true });
 const chrome = await findChrome();
-const server = spawn("npm", ["run", "dev"], {
+const server = spawn(process.execPath, ["--import", "tsx", "src/demo/server.ts"], {
   env: { ...process.env, PORT: String(port) },
-  stdio: ["ignore", "pipe", "pipe"]
+  stdio: ["ignore", "pipe", "pipe"],
+  detached: process.platform !== "win32"
 });
+
+server.stdout.on("data", () => {
+  // Drain stdout so a child process cannot block on a full pipe.
+});
+server.stderr.on("data", () => {
+  // Drain stderr for the same reason; Chrome failures are captured separately.
+});
+
+async function stopServer(): Promise<void> {
+  if (server.exitCode !== null || server.signalCode !== null) return;
+
+  try {
+    if (process.platform === "win32") {
+      server.kill("SIGTERM");
+    } else if (server.pid) {
+      process.kill(-server.pid, "SIGTERM");
+    }
+  } catch {
+    // The server may have already exited.
+  }
+
+  await Promise.race([
+    once(server, "close"),
+    sleep(3000).then(() => {
+      try {
+        if (process.platform === "win32") {
+          server.kill("SIGKILL");
+        } else if (server.pid) {
+          process.kill(-server.pid, "SIGKILL");
+        }
+      } catch {
+        // The server may have already exited.
+      }
+    })
+  ]);
+}
 
 try {
   await waitForServer();
@@ -85,5 +123,5 @@ try {
   console.log("Wrote docs/screenshots/blocked.png");
   console.log("Wrote docs/screenshots/approved.png");
 } finally {
-  server.kill("SIGTERM");
+  await stopServer();
 }

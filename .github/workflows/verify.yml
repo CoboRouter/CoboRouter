@@ -8,6 +8,7 @@ on:
 jobs:
   local-demo-gate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,5 +22,28 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Verify local demo submission pack
-        run: npm run ci:local
+      - name: TypeScript check
+        run: npm run check
+
+      - name: Secret scan
+        run: npm run secret:scan
+
+      - name: Smoke receipts
+        run: npm run smoke
+
+      - name: Agent E2E
+        run: npm run e2e:agent
+
+      - name: Evidence pack
+        run: |
+          npm run evidence
+          npm run packet:application
+          npm run audit:submission
+          npm run env:final-template
+          npm run blockers:final
+          npm run artifact:index
+          npm run bundle:submission
+          npm run bundle:archive
+
+      - name: Verify submission pack
+        run: npm run verify:submission
