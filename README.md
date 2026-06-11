@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/brand/coborouter-icon.svg" alt="CoboRouter logo" width="96" />
+
 # CoboRouter
 
 ### Wallet-native inference procurement for autonomous agents

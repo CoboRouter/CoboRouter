@@ -28,7 +28,7 @@
   <rect width="1200" height="560" rx="28" fill="url(#bg)"/>
   <path d="M80 92C194 35 308 35 422 92C536 149 650 149 764 92C878 35 992 35 1120 92" stroke="#1E293B" stroke-width="2"/>
   <path d="M80 470C194 413 308 413 422 470C536 527 650 527 764 470C878 413 992 413 1120 470" stroke="#1E293B" stroke-width="2"/>
-  <text x="70" y="82" class="eyebrow">AI x Web3 Agentic Builders Hackathon</text>
+  <text x="70" y="82" class="eyebrow">Live agent wallet router</text>
   <text x="70" y="151" class="title">CoboRouter</text>
   <text x="72" y="193" class="sub">Wallet-native inference procurement with live model calls, policy checks, settlement, and receipts.</text>
   <rect x="71" y="224" width="216" height="34" rx="17" fill="#0F766E" fill-opacity="0.24" stroke="#14B8A6" stroke-opacity="0.55"/>

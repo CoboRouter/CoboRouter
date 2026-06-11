@@ -1,4 +1,5 @@
 import http from "node:http";
+import { readFile } from "node:fs/promises";
 import { demoRequest, routeInference } from "../broker/routeInference.js";
 import { routeInferenceToolSchema } from "../broker/toolSchema.js";
 import { loadEnv } from "../config/env.js";
@@ -26,6 +27,13 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/") {
       res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       res.end(timelineHtml());
+      return;
+    }
+
+    if ((req.method === "GET" || req.method === "HEAD") && (url.pathname === "/favicon.svg" || url.pathname === "/favicon.ico")) {
+      const icon = await readFile("docs/brand/coborouter-icon.svg", "utf8");
+      res.writeHead(200, { "content-type": "image/svg+xml; charset=utf-8" });
+      res.end(req.method === "HEAD" ? undefined : icon);
       return;
     }
 
