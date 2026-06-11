@@ -76,7 +76,7 @@ export function demoRequest(scenario: Exclude<DemoScenario, "custom">): RouteInf
     routing_mode: "cheapest_capable",
     max_spend_usd:
       scenario === "blocked" || scenario === "budget_declined"
-        ? 0.02
+        ? 0.0001
         : scenario === "human_approval"
           ? 0.25
           : 0.25,

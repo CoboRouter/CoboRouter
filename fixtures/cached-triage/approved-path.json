@@ -3,13 +3,13 @@
   "triage_source": "cached_zai_response",
   "triage_model": "glm-5.1-cached",
   "capabilities": {
-    "reasoning": 4,
+    "reasoning": 5,
     "coding": 1,
-    "long_context": 2,
+    "long_context": 5,
     "latency_sensitivity": 2,
-    "privacy_sensitivity": 3,
-    "web3_context": 4,
-    "structured_output": 4
+    "privacy_sensitivity": 5,
+    "web3_context": 5,
+    "structured_output": 5
   },
   "routing_preference": "cheapest_capable",
   "max_spend_usd": 0.25,
