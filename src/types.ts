@@ -113,7 +113,16 @@ export type RouteInferenceRequest = {
   allowed_providers: string[];
   require_receipt?: boolean;
   idempotency_key?: string;
-  scenario?: "approved" | "blocked" | "budget_declined" | "local" | "simple_zai" | "custom";
+  scenario?:
+    | "approved"
+    | "blocked"
+    | "budget_declined"
+    | "local"
+    | "simple_zai"
+    | "provider_not_allowlisted"
+    | "human_approval"
+    | "settlement_failure"
+    | "custom";
 };
 
 export type RouteInferenceResponse = {
@@ -131,6 +140,7 @@ export type RouteInferenceResponse = {
     triage_cost_usd: number;
     routing_mode: RoutingMode;
     quote_id: string;
+    quote_hash: string;
     route_trace: RouteDecision[];
   };
   wallet_policy: WalletPolicyResult & {
@@ -162,6 +172,8 @@ export type RouteInferenceResponse = {
     receipt_id: string;
     prompt_hash: string;
     policy_hash: string;
+    quote_hash: string;
+    route_trace_hash: string;
     quote_id: string;
     idempotency_key?: string;
     timestamp: string;

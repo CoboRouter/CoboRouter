@@ -1,6 +1,6 @@
 {
   "status": "completed",
-  "task_id": "task_0d5f25138b6a",
+  "task_id": "task_d3f2637fa65f",
   "broker_decision": {
     "task_type": "private_local_summary",
     "triage_source": "deterministic_fallback",
@@ -12,7 +12,8 @@
     "actual_cost_usd": 0,
     "triage_cost_usd": 0,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_d274318303d7",
+    "quote_id": "quote_e619393232d2",
+    "quote_hash": "sha256:c4510a049200759c5a09e546631b85d14fd37fe84a9176ba872cbfc8f829853a",
     "route_trace": [
       {
         "provider_id": "zai_flash",
@@ -75,12 +76,14 @@
     "receipt_id": "coborouter_edge_local_001",
     "prompt_hash": "sha256:5817b458f8703d0d6e729fbf55b8c43aeb3ba6fb87617f190d5044d521f24ff4",
     "policy_hash": "sha256:e42767f9d46706c607d1246098c38ae9a91afd169bb47267e977ba68c7a2fa50",
-    "quote_id": "quote_d274318303d7",
+    "quote_hash": "sha256:c4510a049200759c5a09e546631b85d14fd37fe84a9176ba872cbfc8f829853a",
+    "route_trace_hash": "sha256:d4e4142930ed6ebd5b65fc64690d2c3d25e351cdfa067fa421e0b9baa61fce89",
+    "quote_id": "quote_e619393232d2",
     "idempotency_key": "edge-local-001",
-    "timestamp": "2026-06-11T00:24:36.960Z",
+    "timestamp": "2026-06-11T00:58:13.617Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_edge_local_001.json",
-    "archive_path": "receipts/archive/coborouter_edge_local_001/2026-06-11T00-24-36-960Z.json",
+    "archive_path": "receipts/archive/coborouter_edge_local_001/2026-06-11T00-58-13-617Z.json",
     "execution_mode": "demo"
   },
   "payment": {

@@ -132,13 +132,43 @@ function checkReceipt(receipt: RouteInferenceResponse | null, expectedStatus: Ro
       },
       {
         name: `${name}: block reason`,
-        status: receipt.wallet_policy.reason === "quote_exceeds_task_budget" ? "pass" : "fail",
+        status: receipt.wallet_policy.reason ? "pass" : "fail",
         detail: receipt.wallet_policy.reason || "missing"
       },
       {
         name: `${name}: receipt brand`,
-        status: receipt.receipt.receipt_id.startsWith("coborouter_demo_") ? "pass" : "fail",
+        status: receipt.receipt.receipt_id.startsWith("coborouter_demo_") || receipt.receipt.receipt_id.startsWith("coborouter_edge_") ? "pass" : "fail",
         detail: receipt.receipt.receipt_id
+      }
+    );
+  }
+
+  if (expectedStatus === "requires_human_approval") {
+    checks.push(
+      {
+        name: `${name}: no spend before human approval`,
+        status: receipt.payment.status === "not_created" && !receipt.payment.operation_id ? "pass" : "fail",
+        detail: `payment status=${receipt.payment.status}`
+      },
+      {
+        name: `${name}: approval reason`,
+        status: receipt.wallet_policy.reason === "human_approval_threshold_exceeded" ? "pass" : "fail",
+        detail: receipt.wallet_policy.reason || "missing"
+      }
+    );
+  }
+
+  if (expectedStatus === "paid_failed") {
+    checks.push(
+      {
+        name: `${name}: settlement failed safely`,
+        status: receipt.payment.status === "failed" && receipt.payment.refund_status === "manual_reconciliation_required" ? "pass" : "fail",
+        detail: `payment=${receipt.payment.status}, refund=${receipt.payment.refund_status}`
+      },
+      {
+        name: `${name}: no inference after failed settlement`,
+        status: receipt.answer === null && !receipt.provider_invoice.provider_request_id ? "pass" : "fail",
+        detail: receipt.answer ? "answer unexpectedly present" : "no answer/provider invoice"
       }
     );
   }
@@ -165,11 +195,15 @@ const productFiles = [
   "src/inference/providerRegistry.json",
   "src/receipts/receiptGenerator.ts",
   "src/demo/timelineUi.tsx",
+  "src/demo/verifyReceipt.ts",
   "fixtures/defi-yield-options.json",
   "fixtures/cached-triage/approved-path.json",
   "fixtures/cached-triage/blocked-path.json",
   "receipts/coborouter_demo_approved_001.json",
-  "receipts/coborouter_demo_blocked_001.json"
+  "receipts/coborouter_demo_blocked_001.json",
+  "receipts/coborouter_edge_provider_not_allowlisted_001.json",
+  "receipts/coborouter_edge_human_approval_001.json",
+  "receipts/coborouter_edge_settlement_failure_001.json"
 ];
 
 const generatedFiles = [
@@ -204,8 +238,14 @@ for (const file of generatedFiles) {
 
 const approved = await readReceipt("receipts/coborouter_demo_approved_001.json");
 const blocked = await readReceipt("receipts/coborouter_demo_blocked_001.json");
+const providerDenied = await readReceipt("receipts/coborouter_edge_provider_not_allowlisted_001.json");
+const humanApproval = await readReceipt("receipts/coborouter_edge_human_approval_001.json");
+const settlementFailure = await readReceipt("receipts/coborouter_edge_settlement_failure_001.json");
 checks.push(...checkReceipt(approved, "completed", "approved receipt"));
 checks.push(...checkReceipt(blocked, "blocked", "blocked receipt"));
+checks.push(...checkReceipt(providerDenied, "blocked", "provider-denied receipt"));
+checks.push(...checkReceipt(humanApproval, "requires_human_approval", "human-approval receipt"));
+checks.push(...checkReceipt(settlementFailure, "paid_failed", "settlement-failure receipt"));
 
 checks.push({
   name: "Z.AI live key",

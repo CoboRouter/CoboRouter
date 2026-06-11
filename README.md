@@ -4,9 +4,9 @@
 
 # CoboRouter
 
-### Wallet-native inference procurement for autonomous agents
+### Wallet-governed inference procurement for autonomous agents
 
-**Agents ask for outcomes, not models. CoboRouter triages the prompt, chooses the model, calls live Z.AI, settles through Cobo Agentic Wallet policy, and returns an answer with a receipt.**
+**CoboRouter lets autonomous agents safely buy intelligence. It combines model routing with wallet-native spend policy, so every inference purchase is governed, paid, and receipted.**
 
 [![Verify CoboRouter](https://github.com/Augustas11/CoboRouter/actions/workflows/verify.yml/badge.svg)](https://github.com/Augustas11/CoboRouter/actions/workflows/verify.yml)
 ![Cobo Agentic Wallet](https://img.shields.io/badge/Cobo-Agentic%20Wallet-111827?style=for-the-badge)
@@ -34,6 +34,8 @@ CoboRouter is an **agentic resource procurement flow** for wallet-bound autonomo
 5. CoboRouter settles a live Cobo wallet transaction.
 6. The agent receives the answer plus a cryptographic receipt.
 
+Agents will need to spend money autonomously. Wallet policy without model-routing intelligence is too dumb; model routing without wallet-native controls is too unsafe. CoboRouter joins them.
+
 ## Verification path
 
 | What to check | Where |
@@ -43,7 +45,9 @@ CoboRouter is an **agentic resource procurement flow** for wallet-bound autonomo
 | Blocked spend path | `npm run demo:blocked` and [`receipts/coborouter_demo_blocked_001.json`](receipts/coborouter_demo_blocked_001.json) |
 | Approved paid path | `npm run demo:approved` and [`receipts/coborouter_demo_approved_001.json`](receipts/coborouter_demo_approved_001.json) |
 | Edge-case routing | `npm run demo:budget-declined`, `npm run demo:local`, `npm run demo:zai-flash` |
-| Agentic E2E proof | `npm run e2e:agent` expects `19 passed, 0 failed` |
+| Safe failure modes | `npm run demo:provider-denied`, `npm run demo:human-approval`, `npm run demo:settlement-failure` |
+| Receipt verifier | `npm run verify:receipt -- receipts/coborouter_demo_approved_001.json` |
+| Agentic E2E proof | `npm run e2e:agent` expects `25 passed, 0 failed` |
 | Wallet proof | Cobo operation `7406658f-973a-4fa7-8a62-4c072225c107` and Sepolia tx below |
 
 ## Product Hardening
@@ -51,6 +55,8 @@ CoboRouter is an **agentic resource procurement flow** for wallet-bound autonomo
 Receipts now make the live boundary explicit. Each run records `receipt.execution_mode`, Z.AI invoice simulation status, Cobo policy authority/source, prompt-derived token estimates, and an immutable archive path under `receipts/archive/...`.
 
 The demo API also includes submission-grade guardrails: bounded request bodies, bounded prompt length, per-client rate limiting, and idempotency-key conflict detection for replay safety.
+
+For live judging, run `npm run dev`, open `http://localhost:4173`, and click **Run live approved route**. The timeline shows `Agent Task -> Z.AI Triage -> Provider Quotes -> Cobo Policy -> Payment/Block -> Inference -> Receipt`, then links the fresh Cobo tx proof from the receipt panel.
 
 ## Live proof
 
@@ -74,12 +80,18 @@ CoboRouter handles successful procurement, wallet-policy denial, local execution
 | Scenario | Command | Expected proof |
 | --- | --- | --- |
 | Wallet policy declines overspend | `npm run demo:budget-declined` | `wallet_policy.reason=quote_exceeds_task_budget`, `payment.status=not_created` |
+| Provider is not allowlisted | `npm run demo:provider-denied` | `wallet_policy.reason=provider_not_allowlisted`, no inference |
+| Human approval is required | `npm run demo:human-approval` | `wallet_policy.result=requires_human_approval`, no payment |
+| Settlement fails safely | `npm run demo:settlement-failure` | `status=paid_failed`, no provider call, reconciliation receipt |
 | Private/local prompt stays local | `npm run demo:local` | `selected_provider=local_baseline`, `selected_model=local-small`, no provider payment |
 | Simple prompt uses lighter Z.AI model | `npm run demo:zai-flash` | `selected_provider=zai_flash`, `selected_model=glm-4.7-flash`, `provider_invoice.simulated=false` with `ZAI_API_KEY` |
 
 Receipts:
 
 - [`receipts/coborouter_edge_budget_declined_001.json`](receipts/coborouter_edge_budget_declined_001.json)
+- [`receipts/coborouter_edge_provider_not_allowlisted_001.json`](receipts/coborouter_edge_provider_not_allowlisted_001.json)
+- [`receipts/coborouter_edge_human_approval_001.json`](receipts/coborouter_edge_human_approval_001.json)
+- [`receipts/coborouter_edge_settlement_failure_001.json`](receipts/coborouter_edge_settlement_failure_001.json)
 - [`receipts/coborouter_edge_local_001.json`](receipts/coborouter_edge_local_001.json)
 - [`receipts/coborouter_edge_zai_flash_001.json`](receipts/coborouter_edge_zai_flash_001.json)
 
@@ -189,8 +201,17 @@ Run the core and edge paths:
 npm run demo:blocked
 npm run demo:approved
 npm run demo:budget-declined
+npm run demo:provider-denied
+npm run demo:human-approval
+npm run demo:settlement-failure
 npm run demo:local
 npm run demo:zai-flash
+```
+
+Verify a tamper-evident receipt:
+
+```bash
+npm run verify:receipt -- receipts/coborouter_demo_approved_001.json
 ```
 
 Run the agent-style E2E:
@@ -199,7 +220,7 @@ Run the agent-style E2E:
 npm run e2e:agent
 ```
 
-The E2E test starts the server, discovers the tool schema, calls `POST /api/route-inference`, verifies the blocked no-spend path, and verifies the approved path returns Cobo proof.
+The E2E test starts the server, discovers the tool schema, calls `POST /api/route-inference`, verifies the blocked no-spend path, verifies the approved path returns Cobo proof, and checks safe failures for allowlist denial, human approval, and settlement failure.
 
 Latest live E2E result:
 
@@ -214,7 +235,10 @@ PASS transfer settlement returns on-chain proof: status=settled tx=0xe90621...
 PASS budget edge blocks because quote exceeds wallet budget
 PASS local edge selects local model
 PASS simple Z.AI edge selects non-GLM-5.1 model
-Agent E2E summary: 19 passed, 0 failed.
+PASS provider allowlist blocks selected provider
+PASS human approval pauses before spend
+PASS settlement failure skips inference
+Agent E2E summary: 25 passed, 0 failed.
 ```
 
 ## Live mode
@@ -260,6 +284,7 @@ The receipt is designed for operators and agents to audit quickly.
     "triage_source": "zai_live",
     "selected_provider": "zai",
     "selected_model": "glm-5.1",
+    "quote_hash": "sha256:...",
     "reason": "cheapest capable paid provider under wallet budget"
   },
   "wallet_policy": {
@@ -274,6 +299,10 @@ The receipt is designed for operators and agents to audit quickly.
   },
   "provider_invoice": {
     "simulated": false
+  },
+  "receipt": {
+    "route_trace_hash": "sha256:...",
+    "quote_hash": "sha256:..."
   }
 }
 ```
@@ -288,10 +317,14 @@ The receipt is designed for operators and agents to audit quickly.
 | [`src/triage/zaiTriage.ts`](src/triage/zaiTriage.ts) | GLM/Z.AI prompt triage with cached fallback |
 | [`src/inference/inferenceAdapter.ts`](src/inference/inferenceAdapter.ts) | Live provider execution and invoice boundary |
 | [`src/demo/e2eAgentClient.ts`](src/demo/e2eAgentClient.ts) | External agent-style HTTP proof |
+| [`src/demo/verifyReceipt.ts`](src/demo/verifyReceipt.ts) | Offline receipt hash and proof verifier |
 | [`src/demo/timelineUi.tsx`](src/demo/timelineUi.tsx) | Timeline UI for inspecting routing, wallet policy, settlement, and receipt state |
 | [`receipts/coborouter_demo_approved_001.json`](receipts/coborouter_demo_approved_001.json) | Live approved receipt |
 | [`receipts/coborouter_demo_blocked_001.json`](receipts/coborouter_demo_blocked_001.json) | Blocked no-spend receipt |
 | [`receipts/coborouter_edge_budget_declined_001.json`](receipts/coborouter_edge_budget_declined_001.json) | Explicit budget-declined receipt |
+| [`receipts/coborouter_edge_provider_not_allowlisted_001.json`](receipts/coborouter_edge_provider_not_allowlisted_001.json) | Provider allowlist denial receipt |
+| [`receipts/coborouter_edge_human_approval_001.json`](receipts/coborouter_edge_human_approval_001.json) | Human approval required receipt |
+| [`receipts/coborouter_edge_settlement_failure_001.json`](receipts/coborouter_edge_settlement_failure_001.json) | Settlement failure recovery receipt |
 | [`receipts/coborouter_edge_local_001.json`](receipts/coborouter_edge_local_001.json) | Local model route receipt |
 | [`receipts/coborouter_edge_zai_flash_001.json`](receipts/coborouter_edge_zai_flash_001.json) | Lightweight Z.AI model route receipt |
 

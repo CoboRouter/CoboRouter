@@ -165,7 +165,7 @@ export function timelineHtml(): string {
       <img src="/favicon.svg" alt="" />
       <div>
         <h1>CoboRouter</h1>
-        <p class="pitch">Agents ask for outcomes, not models. CoboRouter procures inference through policy-bound Cobo Agentic Wallet controls and returns wallet-native receipts.</p>
+        <p class="pitch">Wallet-governed inference procurement for autonomous agents: route the prompt, authorize spend, settle through Cobo, and return a verifiable receipt.</p>
       </div>
     </div>
     <div class="trustbar" aria-label="CoboRouter proof points">
@@ -192,11 +192,14 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
         <span>Mode: cheapest</span>
       </div>
       <div class="actions">
-        <button id="blocked">Blocked path</button>
-        <button id="approved" class="secondary">Approved path</button>
+        <button id="approved">Run live approved route</button>
+        <button id="blocked" class="secondary">Budget block</button>
       </div>
       <div class="actions edge-actions">
         <button id="budget-declined" class="secondary">Budget declined</button>
+        <button id="provider-not-allowlisted" class="secondary">Provider denied</button>
+        <button id="human-approval" class="secondary">Human approval</button>
+        <button id="settlement-failure" class="secondary">Settlement failure</button>
         <button id="local" class="secondary">Local model</button>
         <button id="simple-zai" class="secondary">Z.AI Flash</button>
       </div>
@@ -265,19 +268,42 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
       }
       promptInput.value = "Plan a 3-step treasury action for an autonomous DAO agent with $1,000 USDC.\\nCompare these two provided low-risk DeFi yield options, explain the risks, and recommend one:\\nOption A: USDC lending on approved protocol fixture, 4.2% estimated APY, high liquidity, audited.\\nOption B: USDC vault on approved protocol fixture, 6.1% estimated APY, medium liquidity, audited.\\nUse a reasoning-capable model only if needed and return a wallet/payment receipt.";
       budgetInput.value = scenario === "approved" ? "0.25" : "0.02";
+      if (scenario === "provider_not_allowlisted" || scenario === "human_approval" || scenario === "settlement_failure") {
+        budgetInput.value = "0.25";
+      }
+    }
+
+    function paymentDetail(payment) {
+      const tx = payment.tx_hash && payment.explorer_url
+        ? '<br>tx: <a href="' + esc(payment.explorer_url) + '" target="_blank" rel="noreferrer">' + esc(payment.tx_hash) + '</a>'
+        : '<br>tx: ' + esc(payment.tx_hash || "none");
+      return '<p class="mono">operation: ' + esc(payment.operation_id || "none") + '<br>reference: ' + esc(payment.payment_reference || "none") + tx + '</p>';
     }
 
     function render(response) {
       latestReceiptJson = JSON.stringify(response, null, 2);
-      const blocked = response.status === "blocked";
-      const walletStatus = blocked ? { className: "blocked", label: "BLOCKED BY WALLET POLICY" } : { className: "approved", label: "APPROVED BY WALLET POLICY" };
+      const blocked = response.status === "blocked" || response.status === "requires_human_approval" || response.status === "paid_failed" || response.status === "failed";
+      const walletStatus = response.status === "requires_human_approval"
+        ? { className: "pending", label: "HUMAN APPROVAL REQUIRED" }
+        : response.status === "paid_failed" || response.status === "failed"
+          ? { className: "blocked", label: "FAILED SAFELY" }
+          : response.status === "blocked"
+            ? { className: "blocked", label: "BLOCKED BY WALLET POLICY" }
+            : { className: "approved", label: "APPROVED BY WALLET POLICY" };
+      const paymentStatus = response.payment.status === "settled"
+        ? { className: "approved", label: "ON-CHAIN PROOF" }
+        : response.payment.status === "failed"
+          ? { className: "blocked", label: "SETTLEMENT FAILED SAFELY" }
+          : response.payment.status === "not_created"
+            ? { className: "blocked", label: "NO SPEND" }
+            : { className: "pending", label: response.payment.status.toUpperCase() };
       timeline.innerHTML = [
         node("1. Agent Task", "Agent asks for an outcome and supplies a spend cap.", null, '<pre>' + esc(promptInput.value) + '</pre>'),
-        node("2. Live Boundary", "Execution mode " + response.receipt.execution_mode + "; triage " + response.broker_decision.triage_source + "; provider invoice simulated=" + response.provider_invoice.simulated, response.receipt.execution_mode === "live" ? { className: "approved", label: "LIVE PATH" } : { className: "pending", label: "DEMO/LOCAL PATH" }, '<p class="mono">archive: ' + esc(response.receipt.archive_path) + '</p>'),
+        node("2. Live Boundary", "Fresh run at " + response.receipt.timestamp + "; execution mode " + response.receipt.execution_mode + "; triage " + response.broker_decision.triage_source + "; provider invoice simulated=" + response.provider_invoice.simulated, response.receipt.execution_mode === "live" ? { className: "approved", label: "LIVE PATH" } : { className: "pending", label: "DEMO/LOCAL PATH" }, '<p class="mono">archive: ' + esc(response.receipt.archive_path) + '<br>quote: ' + esc(response.receipt.quote_hash) + '</p>'),
         node("3. GLM/Z.AI Triage", response.broker_decision.task_type + " via " + response.broker_decision.triage_source, { className: "pending", label: response.broker_decision.triage_model }),
         node("4. Provider Quotes", "CoboRouter estimates tokens from this prompt, then compares capability, price, and wallet eligibility.", null, quoteTable(response.broker_decision.route_trace)),
-        node("5. Cobo Wallet Policy", response.wallet_policy.reason || "policy approved spend within boundaries", walletStatus, '<p class="mono">authority: ' + esc(response.wallet_policy.policyAuthority) + '<br>source: ' + esc(response.wallet_policy.policySource) + '<br>policy: ' + esc(response.wallet_policy.policyHash) + '<br>wallet: ' + esc(response.wallet_policy.walletAddress) + '<br>pact: ' + esc(response.wallet_policy.evidence.coboPactId || "none") + '</p>'),
-        node("6. Payment Proof", response.payment.status + " / " + response.payment.proof_type, blocked ? { className: "blocked", label: "NO SPEND" } : { className: "approved", label: "OPERATION RECORDED" }, '<p class="mono">operation: ' + esc(response.payment.operation_id || "none") + '<br>reference: ' + esc(response.payment.payment_reference || "none") + '</p>'),
+        node("5. Cobo Wallet Policy", response.wallet_policy.reason || "policy approved spend within boundaries", walletStatus, '<p class="mono">authority: ' + esc(response.wallet_policy.policyAuthority) + '<br>source: ' + esc(response.wallet_policy.policySource) + '<br>policy: ' + esc(response.wallet_policy.policyHash) + '<br>wallet: ' + esc(response.wallet_policy.walletAddress) + '<br>pact: ' + esc(response.wallet_policy.evidence.coboPactId || "none") + '<br>authorized quote: $' + esc(response.wallet_policy.approved_spend_usd) + '</p>'),
+        node("6. Payment Proof", response.payment.status + " / " + response.payment.proof_type, paymentStatus, paymentDetail(response.payment)),
         node("7. Answer", response.answer ? response.answer.summary : "No inference ran because wallet policy blocked the spend.", response.answer ? { className: "approved", label: "ANSWER RETURNED" } : { className: "blocked", label: "NO INFERENCE" }),
         node("8. Receipt", "Latest receipt saved to " + response.receipt.receipt_path + "; immutable archive saved to " + response.receipt.archive_path, null, receiptTools() + '<pre>' + esc(latestReceiptJson) + '</pre>')
       ].join("");
@@ -305,6 +331,9 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
     document.getElementById("blocked").addEventListener("click", () => run("blocked"));
     document.getElementById("approved").addEventListener("click", () => run("approved"));
     document.getElementById("budget-declined").addEventListener("click", () => run("budget_declined"));
+    document.getElementById("provider-not-allowlisted").addEventListener("click", () => run("provider_not_allowlisted"));
+    document.getElementById("human-approval").addEventListener("click", () => run("human_approval"));
+    document.getElementById("settlement-failure").addEventListener("click", () => run("settlement_failure"));
     document.getElementById("local").addEventListener("click", () => run("local"));
     document.getElementById("simple-zai").addEventListener("click", () => run("simple_zai"));
     timeline.addEventListener("click", async event => {

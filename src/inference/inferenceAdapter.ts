@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { setTimeout as sleep } from "node:timers/promises";
 import type { ProviderConfig } from "../types.js";
 import { shortId } from "../utils/hash.js";
 
@@ -36,7 +37,19 @@ export async function runInference(provider: ProviderConfig, prompt: string, est
           body: JSON.stringify(body)
         });
 
-      let response = await callZai({
+      const callZaiWithRetry = async (body: Record<string, unknown>) => {
+        let response = await callZai(body);
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          if (response.ok || ![408, 409, 425, 429, 500, 502, 503, 504].includes(response.status)) {
+            return response;
+          }
+          await sleep(700 * (attempt + 1));
+          response = await callZai(body);
+        }
+        return response;
+      };
+
+      let response = await callZaiWithRetry({
           model,
           thinking: { type: "disabled" },
           enable_thinking: false,
@@ -44,7 +57,7 @@ export async function runInference(provider: ProviderConfig, prompt: string, est
       });
 
       if (!response.ok) {
-        response = await callZai({ model, messages });
+        response = await callZaiWithRetry({ model, messages });
       }
 
       if (response.ok) {

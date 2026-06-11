@@ -1,19 +1,19 @@
 {
-  "status": "blocked",
-  "task_id": "task_3d011afe9780",
+  "status": "requires_human_approval",
+  "task_id": "task_849ae781510c",
   "broker_decision": {
     "task_type": "defi_treasury_management",
     "triage_source": "zai_live",
     "triage_model": "glm-5.1",
-    "selected_provider": null,
-    "selected_model": null,
-    "reason": "quote_exceeds_task_budget",
+    "selected_provider": "zai",
+    "selected_model": "glm-5.1",
+    "reason": "cheapest capable paid provider under wallet budget",
     "estimated_cost_usd": 0.0299,
     "actual_cost_usd": 0,
     "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_3bf7eef40718",
-    "quote_hash": "sha256:00e6afab08dfb6cafdbef9cc333279c0bd302f70381a51d1cf129d52123e822b",
+    "quote_id": "quote_25bb28fbc2e2",
+    "quote_hash": "sha256:5413e7abb52bbf8578ad37b688d226c4d2c1c62054a109dd7d3f8250ef8d8ce8",
     "route_trace": [
       {
         "provider_id": "zai_flash",
@@ -142,8 +142,8 @@
         "estimated_input_tokens": 3412,
         "estimated_output_tokens": 5700,
         "estimated_cost_usd": 0.0299,
-        "decision": "rejected",
-        "reason": "quote exceeds task budget",
+        "decision": "selected",
+        "reason": "cheapest capable paid provider under wallet budget",
         "capable": true,
         "requires_wallet_payment": true
       },
@@ -198,10 +198,10 @@
     ]
   },
   "wallet_policy": {
-    "result": "blocked",
-    "reason": "quote_exceeds_task_budget",
+    "result": "requires_human_approval",
+    "reason": "human_approval_threshold_exceeded",
     "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
-    "policyHash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
+    "policyHash": "sha256:878b72b61257a62723f1c439dc60b39015c3a81b263696f974c926e7fcfd393b",
     "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
     "policySource": "cobo_pact_preflight",
     "policyAuthority": "cobo_agentic_wallet",
@@ -212,23 +212,23 @@
       "spendCapUsd": 5,
       "providerAllowlistHash": "sha256:423ab56d55ae8a8815fe0968d0b3e118f5fa111867b5f0f90948f9bae39b8e08"
     },
-    "max_spend_usd": 0.02,
+    "max_spend_usd": 0.25,
     "approved_spend_usd": 0,
     "provider_allowlisted": true,
-    "human_approval_required": false
+    "human_approval_required": true
   },
   "receipt": {
-    "receipt_id": "coborouter_demo_blocked_001",
+    "receipt_id": "coborouter_edge_human_approval_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
-    "policy_hash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
-    "quote_hash": "sha256:00e6afab08dfb6cafdbef9cc333279c0bd302f70381a51d1cf129d52123e822b",
-    "route_trace_hash": "sha256:f46bc611e6de86c81547faf827437921704affff9ba2da00ca04e23f04546543",
-    "quote_id": "quote_3bf7eef40718",
-    "idempotency_key": "demo-blocked-001",
-    "timestamp": "2026-06-11T01:00:12.517Z",
+    "policy_hash": "sha256:878b72b61257a62723f1c439dc60b39015c3a81b263696f974c926e7fcfd393b",
+    "quote_hash": "sha256:5413e7abb52bbf8578ad37b688d226c4d2c1c62054a109dd7d3f8250ef8d8ce8",
+    "route_trace_hash": "sha256:f42817f6e43816d345b7b3ceb9bfc850e2f4ba6018cbb0710ea1ae786d73345f",
+    "quote_id": "quote_25bb28fbc2e2",
+    "idempotency_key": "edge-human-approval-001",
+    "timestamp": "2026-06-11T00:58:27.355Z",
     "log_path": "logs/demo-run.jsonl",
-    "receipt_path": "receipts/coborouter_demo_blocked_001.json",
-    "archive_path": "receipts/archive/coborouter_demo_blocked_001/2026-06-11T01-00-12-517Z.json",
+    "receipt_path": "receipts/coborouter_edge_human_approval_001.json",
+    "archive_path": "receipts/archive/coborouter_edge_human_approval_001/2026-06-11T00-58-27-355Z.json",
     "execution_mode": "live"
   },
   "payment": {

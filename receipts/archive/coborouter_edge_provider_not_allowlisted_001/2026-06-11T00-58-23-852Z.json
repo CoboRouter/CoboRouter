@@ -1,18 +1,19 @@
 {
-  "status": "completed",
-  "task_id": "task_1d4b5db3d0d2",
+  "status": "blocked",
+  "task_id": "task_f4e65ae4cf4f",
   "broker_decision": {
-    "task_type": "defi_treasury_management",
+    "task_type": "treasury_management",
     "triage_source": "zai_live",
     "triage_model": "glm-5.1",
     "selected_provider": "zai",
     "selected_model": "glm-5.1",
     "reason": "cheapest capable paid provider under wallet budget",
     "estimated_cost_usd": 0.0299,
-    "actual_cost_usd": 0.0275,
+    "actual_cost_usd": 0,
     "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_20afa2062773",
+    "quote_id": "quote_963f151f457c",
+    "quote_hash": "sha256:de3d55f6ee028f46688867d8f6170ffe1790a7933cad04431247a5cca00fab8e",
     "route_trace": [
       {
         "provider_id": "zai_flash",
@@ -197,9 +198,10 @@
     ]
   },
   "wallet_policy": {
-    "result": "approved",
+    "result": "blocked",
+    "reason": "provider_not_allowlisted",
     "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
-    "policyHash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
+    "policyHash": "sha256:36ff2af4d3f31ea1bd6ebe04233f2df91b9235d0a90b198705c693516ee31698",
     "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
     "policySource": "cobo_pact_preflight",
     "policyAuthority": "cobo_agentic_wallet",
@@ -208,46 +210,41 @@
       "live": true,
       "coboPactId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
       "spendCapUsd": 5,
-      "providerAllowlistHash": "sha256:423ab56d55ae8a8815fe0968d0b3e118f5fa111867b5f0f90948f9bae39b8e08"
+      "providerAllowlistHash": "sha256:93e27feaf1d7017e9f401e7b7b9a960224bdc9f48c964b50a64a6b52809ccbdf"
     },
     "max_spend_usd": 0.25,
-    "approved_spend_usd": 0.0299,
+    "approved_spend_usd": 0,
     "provider_allowlisted": true,
     "human_approval_required": false
   },
   "receipt": {
-    "receipt_id": "coborouter_demo_approved_001",
+    "receipt_id": "coborouter_edge_provider_not_allowlisted_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
-    "policy_hash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
-    "quote_id": "quote_20afa2062773",
-    "idempotency_key": "demo-approved-001",
-    "timestamp": "2026-06-11T00:24:17.862Z",
+    "policy_hash": "sha256:36ff2af4d3f31ea1bd6ebe04233f2df91b9235d0a90b198705c693516ee31698",
+    "quote_hash": "sha256:de3d55f6ee028f46688867d8f6170ffe1790a7933cad04431247a5cca00fab8e",
+    "route_trace_hash": "sha256:f42817f6e43816d345b7b3ceb9bfc850e2f4ba6018cbb0710ea1ae786d73345f",
+    "quote_id": "quote_963f151f457c",
+    "idempotency_key": "edge-provider-not-allowlisted-001",
+    "timestamp": "2026-06-11T00:58:23.852Z",
     "log_path": "logs/demo-run.jsonl",
-    "receipt_path": "receipts/coborouter_demo_approved_001.json",
-    "archive_path": "receipts/archive/coborouter_demo_approved_001/2026-06-11T00-24-17-862Z.json",
+    "receipt_path": "receipts/coborouter_edge_provider_not_allowlisted_001.json",
+    "archive_path": "receipts/archive/coborouter_edge_provider_not_allowlisted_001/2026-06-11T00-58-23-852Z.json",
     "execution_mode": "live"
   },
   "payment": {
     "wallet_provider": "cobo_agentic_wallet",
-    "operation_id": "7406658f-973a-4fa7-8a62-4c072225c107",
-    "payment_reference": "coborouter_c54ceef0-e251-4f3a-8d2d-dc2d855add43",
-    "tx_hash": "0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b",
-    "explorer_url": "https://sepolia.etherscan.io/tx/0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b",
-    "proof_type": "on_chain",
-    "status": "settled",
+    "operation_id": null,
+    "payment_reference": null,
+    "tx_hash": null,
+    "explorer_url": null,
+    "proof_type": "cobo_operation",
+    "status": "not_created",
     "refund_status": "not_required"
   },
   "provider_invoice": {
-    "provider_request_id": "zai_req_8b825cb84619",
-    "provider_invoice_id": "zai_invoice_ba5b4102406c",
+    "provider_request_id": null,
+    "provider_invoice_id": null,
     "simulated": false
   },
-  "answer": {
-    "summary": "**Demo Fixture Data Notice:** The rates and protocols referenced below are simulated fixture data for demonstration purposes only.\n\n**Comparison & Risk Explanation**\n*   **Option A (4.2% APY, High Liquidity):** Presents minimal smart contract risk due to its audited status. High liquidity ensures negligible slippage and immediate withdrawal capability. Primary risk is opportunity cost (lower yield). \n*   **Option B (6.1% APY, Medium Liquidity):** Also carries minimal smart contract risk from audits, but the medium liquidity introduces withdrawal delays or slippage during high network congestio",
-    "steps": [
-      "Use the provided fixture options only.",
-      "Prefer the option with stronger liquidity and simpler withdrawal risk unless higher yield is explicitly accepted.",
-      "Record the wallet-bounded inference procurement receipt before acting."
-    ]
-  }
+  "answer": null
 }

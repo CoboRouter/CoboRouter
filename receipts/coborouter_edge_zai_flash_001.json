@@ -1,6 +1,6 @@
 {
   "status": "completed",
-  "task_id": "task_f2114b2dc471",
+  "task_id": "task_d46967388790",
   "broker_decision": {
     "task_type": "simple_text_generation",
     "triage_source": "zai_live",
@@ -12,7 +12,8 @@
     "actual_cost_usd": 0,
     "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_c866b0c09cc7",
+    "quote_id": "quote_3f1b40495750",
+    "quote_hash": "sha256:cea9d6a1bba11fdff1feabab43739c30fba48a554c34151b36a7eec4e2cf82cf",
     "route_trace": [
       {
         "provider_id": "zai_flash",
@@ -195,12 +196,14 @@
     "receipt_id": "coborouter_edge_zai_flash_001",
     "prompt_hash": "sha256:5cde0ee6c7857eb545bc725faecf1c15c46f4ba2d949d7358577d1237f0b9746",
     "policy_hash": "sha256:71f9bae9fa1d7202f7fea96d674e423fabde3d159c5203bdf312e5a9557b39fb",
-    "quote_id": "quote_c866b0c09cc7",
+    "quote_hash": "sha256:cea9d6a1bba11fdff1feabab43739c30fba48a554c34151b36a7eec4e2cf82cf",
+    "route_trace_hash": "sha256:aae525c6b21476b462acb3cd35ca790367f5bf88fb2fd5f18c55df1d7c3ac7fa",
+    "quote_id": "quote_3f1b40495750",
     "idempotency_key": "edge-zai-flash-001",
-    "timestamp": "2026-06-11T00:24:36.963Z",
+    "timestamp": "2026-06-11T00:58:13.623Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_edge_zai_flash_001.json",
-    "archive_path": "receipts/archive/coborouter_edge_zai_flash_001/2026-06-11T00-24-36-963Z.json",
+    "archive_path": "receipts/archive/coborouter_edge_zai_flash_001/2026-06-11T00-58-13-623Z.json",
     "execution_mode": "live"
   },
   "payment": {
@@ -214,12 +217,12 @@
     "refund_status": "not_required"
   },
   "provider_invoice": {
-    "provider_request_id": "zai_req_3a27027e9659",
-    "provider_invoice_id": "zai_invoice_cf52b17cf90e",
+    "provider_request_id": "zai_req_ed22a0fbc143",
+    "provider_invoice_id": "zai_invoice_ff9574577957",
     "simulated": false
   },
   "answer": {
-    "summary": "CoboRouter helps agents pick and pay for AI model inference that matches their wallet rules.",
+    "summary": "CoboRouter helps agents easily select and pay for AI inference services that comply with their wallet policies.",
     "steps": [
       "Use the lightweight Z.AI route because triage marked the task as simple.",
       "Skip GLM-5.1 because the prompt does not need flagship reasoning.",

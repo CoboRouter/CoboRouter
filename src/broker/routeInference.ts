@@ -74,11 +74,25 @@ export function demoRequest(scenario: Exclude<DemoScenario, "custom">): RouteInf
   return {
     prompt: treasuryPrompt(),
     routing_mode: "cheapest_capable",
-    max_spend_usd: scenario === "blocked" || scenario === "budget_declined" ? 0.02 : 0.25,
+    max_spend_usd:
+      scenario === "blocked" || scenario === "budget_declined"
+        ? 0.02
+        : scenario === "human_approval"
+          ? 0.25
+          : 0.25,
     allowed_providers: [...zaiProviderIds, "second_real_provider", "local_baseline"],
     require_receipt: true,
-    idempotency_key: scenario === "budget_declined" ? "edge-budget-declined-001" : `demo-${scenario}-001`,
-    scenario: scenario === "budget_declined" ? "budget_declined" : scenario
+    idempotency_key:
+      scenario === "budget_declined"
+        ? "edge-budget-declined-001"
+        : scenario === "provider_not_allowlisted"
+          ? "edge-provider-not-allowlisted-001"
+          : scenario === "human_approval"
+            ? "edge-human-approval-001"
+            : scenario === "settlement_failure"
+              ? "edge-settlement-failure-001"
+              : `demo-${scenario}-001`,
+    scenario
   };
 }
 
@@ -92,6 +106,9 @@ function receiptIdForRequest(request: RouteInferenceRequest): string {
   if (request.scenario === "budget_declined") return "coborouter_edge_budget_declined_001";
   if (request.scenario === "local") return "coborouter_edge_local_001";
   if (request.scenario === "simple_zai") return "coborouter_edge_zai_flash_001";
+  if (request.scenario === "provider_not_allowlisted") return "coborouter_edge_provider_not_allowlisted_001";
+  if (request.scenario === "human_approval") return "coborouter_edge_human_approval_001";
+  if (request.scenario === "settlement_failure") return "coborouter_edge_settlement_failure_001";
 
   const seed = request.idempotency_key || request.prompt;
   return `coborouter_custom_${sha256(seed).replace("sha256:", "").slice(0, 16)}`;
@@ -122,8 +139,20 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
   const lowestQuote = lowestCapablePaidQuote(trace);
   const policyQuote = selected ?? lowestQuote;
   const routeTrace = markSelected(trace, selected, request.max_spend_usd);
+  const routeTraceHash = sha256(JSON.stringify(routeTrace));
+  const quoteForHash =
+    routeTrace.find((entry) => entry.decision === "selected") ??
+    [...routeTrace].filter((entry) => entry.capable).sort((a, b) => a.estimated_cost_usd - b.estimated_cost_usd)[0] ??
+    null;
+  const quoteHash = sha256(JSON.stringify({ quoteId, quote: quoteForHash, routeTraceHash }));
   const policyProviderId = policyQuote?.provider_id ?? "none";
   const policyProvider = policyQuote ? providerById(policyQuote.provider_id) : undefined;
+  const policyAllowedProviders =
+    request.scenario === "provider_not_allowlisted"
+      ? request.allowed_providers.filter((provider) => provider !== policyProviderId)
+      : policyQuote && !policyQuote.requires_wallet_payment
+        ? request.allowed_providers
+        : request.allowed_providers.filter((provider) => provider !== "local_baseline");
 
   const policyInput = {
     taskId,
@@ -134,11 +163,8 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
     maxSpendUsd: request.max_spend_usd,
     dailySpendUsedUsd: 0,
     dailySpendCapUsd: Number(process.env.COBO_DAILY_SPEND_CAP_USD || 5),
-    allowedProviders:
-      policyQuote && !policyQuote.requires_wallet_payment
-        ? request.allowed_providers
-        : request.allowed_providers.filter((provider) => provider !== "local_baseline"),
-    humanApprovalThresholdUsd: 0.5,
+    allowedProviders: policyAllowedProviders,
+    humanApprovalThresholdUsd: request.scenario === "human_approval" ? 0.01 : 0.5,
     asset: "USDC" as const,
     network: policyProvider?.payment_network ?? process.env.COBO_DEMO_NETWORK ?? "cobo_sandbox",
     routingMode: request.routing_mode,
@@ -166,6 +192,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
       triage_cost_usd: triage.triage_source === "zai_live" ? 0.0009 : 0,
       routing_mode: request.routing_mode,
       quote_id: quoteId,
+      quote_hash: quoteHash,
       route_trace: routeTrace
     },
     wallet_policy: {
@@ -179,6 +206,8 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
       receipt_id: receiptId,
       prompt_hash: promptHash,
       policy_hash: walletPolicy.policyHash,
+      quote_hash: quoteHash,
+      route_trace_hash: routeTraceHash,
       quote_id: quoteId,
       idempotency_key: request.idempotency_key,
       timestamp,
@@ -276,6 +305,36 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
     };
     await appendJsonl(logPath, { event: "route_inference", response: pendingResponse });
     return saveReceipt(pendingResponse);
+  }
+
+  if (request.scenario === "settlement_failure") {
+    const failedSettlement = await wallet.voidAuthorization(authorization.operationId);
+    const settlementFailureResponse: RouteInferenceResponse = {
+      status: "paid_failed",
+      ...base,
+      broker_decision: {
+        ...base.broker_decision,
+        reason: "settlement_failed_before_inference"
+      },
+      payment: {
+        wallet_provider: "cobo_agentic_wallet",
+        operation_id: failedSettlement.operationId,
+        payment_reference: failedSettlement.paymentReference,
+        tx_hash: failedSettlement.txHash ?? null,
+        explorer_url: failedSettlement.explorerUrl ?? null,
+        proof_type: failedSettlement.proofType,
+        status: "failed",
+        refund_status: "manual_reconciliation_required"
+      },
+      provider_invoice: {
+        provider_request_id: null,
+        provider_invoice_id: null,
+        simulated: false
+      },
+      answer: null
+    };
+    await appendJsonl(logPath, { event: "route_inference", response: settlementFailureResponse });
+    return saveReceipt(settlementFailureResponse);
   }
 
   const inference = await runInference(selectedProvider, request.prompt, selected.estimated_cost_usd);

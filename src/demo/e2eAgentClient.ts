@@ -70,6 +70,9 @@ try {
   const budgetDeclined = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("budget_declined"));
   const local = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("local"));
   const simpleZai = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("simple_zai"));
+  const providerDenied = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("provider_not_allowlisted"));
+  const humanApproval = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("human_approval"));
+  const settlementFailure = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("settlement_failure"));
 
   const assertions: Assertion[] = [
     assert("tool schema is discoverable", schema.name === "route_inference", `name=${schema.name || "missing"}`),
@@ -111,7 +114,13 @@ try {
     assert("local edge selects local model", local.status === "completed" && local.broker_decision.selected_provider === "local_baseline", `status=${local.status} provider=${local.broker_decision.selected_provider}`),
     assert("local edge creates no payment", local.payment.status === "not_created" && local.provider_invoice.simulated === true, `payment=${local.payment.status} simulated=${local.provider_invoice.simulated}`),
     assert("simple Z.AI edge selects non-GLM-5.1 model", simpleZai.status === "completed" && simpleZai.broker_decision.selected_provider === "zai_flash" && simpleZai.broker_decision.selected_model === "glm-4.7-flash", `status=${simpleZai.status} provider=${simpleZai.broker_decision.selected_provider} model=${simpleZai.broker_decision.selected_model}`),
-    assert("simple Z.AI edge uses live API when key is configured", !process.env.ZAI_API_KEY || simpleZai.provider_invoice.simulated === false, `simulated=${simpleZai.provider_invoice.simulated}`)
+    assert("simple Z.AI edge uses live API when key is configured", !process.env.ZAI_API_KEY || simpleZai.provider_invoice.simulated === false, `simulated=${simpleZai.provider_invoice.simulated}`),
+    assert("provider allowlist edge blocks selected provider", providerDenied.status === "blocked" && providerDenied.wallet_policy.reason === "provider_not_allowlisted", `status=${providerDenied.status} reason=${providerDenied.wallet_policy.reason}`),
+    assert("provider allowlist edge creates no payment", providerDenied.payment.status === "not_created" && !providerDenied.provider_invoice.provider_request_id, `payment=${providerDenied.payment.status}`),
+    assert("human approval edge pauses before spend", humanApproval.status === "requires_human_approval" && humanApproval.wallet_policy.reason === "human_approval_threshold_exceeded", `status=${humanApproval.status} reason=${humanApproval.wallet_policy.reason}`),
+    assert("human approval edge creates no payment", humanApproval.payment.status === "not_created" && !humanApproval.provider_invoice.provider_request_id, `payment=${humanApproval.payment.status}`),
+    assert("settlement failure edge fails safely", settlementFailure.status === "paid_failed" && settlementFailure.payment.status === "failed", `status=${settlementFailure.status} payment=${settlementFailure.payment.status}`),
+    assert("settlement failure edge skips inference", !settlementFailure.answer && !settlementFailure.provider_invoice.provider_request_id, `answer=${Boolean(settlementFailure.answer)} provider=${settlementFailure.provider_invoice.provider_request_id || "none"}`)
   ];
 
   let failures = 0;
