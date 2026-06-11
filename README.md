@@ -231,25 +231,6 @@ npm run e2e:agent
 
 The E2E test starts the server, discovers the tool schema, calls `POST /api/route-inference`, verifies the blocked no-spend path, verifies the approved path returns Cobo proof, and checks safe failures for allowlist denial, human approval, and settlement failure.
 
-Latest live E2E result:
-
-```text
-PASS tool schema is discoverable
-PASS blocked path creates no payment
-PASS approved path selects wallet-paid provider: provider=zai
-PASS approved path uses live Z.AI triage when key is configured: triage=zai_live
-PASS approved path selects GLM-5.1: model=glm-5.1
-PASS approved path uses real Z.AI invoice: simulated=false
-PASS transfer settlement returns on-chain proof: status=settled tx=0xe90621...
-PASS budget edge blocks because quote exceeds wallet budget
-PASS local edge selects local model
-PASS simple Z.AI edge selects non-GLM-5.1 model
-PASS provider allowlist blocks selected provider
-PASS human approval pauses before spend
-PASS settlement failure skips inference
-Agent E2E summary: 25 passed, 0 failed.
-```
-
 ## Live mode
 
 Copy the template and fill local-only credentials:
