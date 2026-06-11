@@ -11,10 +11,14 @@ dist/
 .omc/
 .omx/
 
-# Generated runtime output; regenerate with npm run submit:prep
+# Generated local runtime and operator notes
 logs/*.jsonl
 submission/bundle/
 submission/*.tgz
+docs/*.md
+submission/*.md
+submission/*.json
+submission/*.env
 
 # OS/package-manager noise
 .DS_Store

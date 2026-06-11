@@ -122,6 +122,10 @@ function simplifyTriageForSimplePrompt(triage: TriageResult, prompt: string): Tr
 }
 
 async function readCachedTriage(scenario: RouteInferenceRequest["scenario"], maxSpendUsd: number): Promise<TriageResult> {
+  if (scenario === "simple_zai") {
+    return simpleTriage(maxSpendUsd, "cached_zai_response");
+  }
+
   const file = scenario === "blocked" ? "fixtures/cached-triage/blocked-path.json" : "fixtures/cached-triage/approved-path.json";
   const parsed = JSON.parse(await readFile(file, "utf8")) as TriageResult;
   return {
