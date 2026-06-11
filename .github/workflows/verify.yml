@@ -20,7 +20,16 @@ jobs:
           cache: npm
 
       - name: Install
-        run: npm ci
+        env:
+          NPM_CONFIG_FETCH_RETRIES: 5
+          NPM_CONFIG_FETCH_RETRY_MINTIMEOUT: 20000
+          NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT: 120000
+        run: |
+          for attempt in 1 2 3; do
+            npm ci && exit 0
+            sleep $((attempt * 10))
+          done
+          npm ci
 
       - name: TypeScript check
         run: npm run check
