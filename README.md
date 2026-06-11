@@ -14,6 +14,8 @@
 ![On-chain Proof](https://img.shields.io/badge/Proof-Sepolia%20TX-16a34a?style=for-the-badge)
 ![Agent Tool](https://img.shields.io/badge/API-route__inference-f97316?style=for-the-badge)
 
+### [Open the no-install demo](https://coborouter.github.io/CoboRouter/) · [View the live Sepolia tx](https://sepolia.etherscan.io/tx/0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b) · [Use as an agent tool](agent/coborouter.route_inference.tool.json)
+
 <br />
 <br />
 
@@ -37,6 +39,8 @@ CoboRouter is an **agentic resource procurement flow** for wallet-bound autonomo
 Agents will need to spend money autonomously. Model routing without spend governance is too unsafe; wallet authorization without prompt intelligence is too blunt. CoboRouter joins them.
 
 ## Use CoboRouter
+
+Fastest path for judges: open the [GitHub-hosted product demo](https://coborouter.github.io/CoboRouter/) and click through approved, blocked, local, lightweight Z.AI, human-approval, and settlement-failure routes. It replays committed product receipts, including the live Cobo/Z.AI receipt and Sepolia transaction proof, without requiring local keys.
 
 Any agentic runtime can use CoboRouter as a tool over HTTP. The repo includes a portable tool manifest at [`agent/coborouter.route_inference.tool.json`](agent/coborouter.route_inference.tool.json), or agents can discover the live schema from the running server.
 

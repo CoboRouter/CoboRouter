@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CoboRouter Demo</title>
+  <meta name="description" content="CoboRouter live receipt demo for wallet-governed inference procurement." />
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --ink: #111827;
+      --muted: #5b6678;
+      --line: #d6dde8;
+      --panel: #ffffff;
+      --accent: #1769aa;
+      --green: #087443;
+      --red: #b42318;
+      --orange: #b54708;
+      --navy: #0b1324;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: var(--accent); font-weight: 800; text-decoration: none; }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px 0;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand img {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 58px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .tagline {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      max-width: 760px;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .pill, button {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      padding: 10px 13px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    button {
+      cursor: pointer;
+      border-radius: 8px;
+      width: 100%;
+      text-align: left;
+    }
+    button.active {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .hero {
+      padding: 30px 0 24px;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .hero-card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 22px;
+    }
+    .proof-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .proof {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcff;
+    }
+    .proof strong { display: block; font-size: 13px; }
+    .proof span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+    main {
+      padding: 0 0 40px;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      gap: 18px;
+    }
+    aside, section {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 16px;
+      min-width: 0;
+    }
+    aside {
+      height: fit-content;
+      position: sticky;
+      top: 16px;
+    }
+    .scenario-list {
+      display: grid;
+      gap: 8px;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin: 12px 0 0;
+    }
+    .timeline {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .node {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .node h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+    .node p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .badge {
+      display: inline-flex;
+      margin: 0 0 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--orange);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .badge.good { background: var(--green); }
+    .badge.bad { background: var(--red); }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    pre {
+      margin: 10px 0 0;
+      border-radius: 8px;
+      padding: 12px;
+      max-height: 300px;
+      overflow: auto;
+      color: #f2f4f7;
+      background: var(--navy);
+      font-size: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .actions a {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px 12px;
+      color: var(--ink);
+      font-size: 13px;
+    }
+    @media (max-width: 880px) {
+      .top, .hero, .app { grid-template-columns: 1fr; }
+      .top { align-items: flex-start; flex-direction: column; }
+      .links { justify-content: flex-start; }
+      aside { position: static; }
+      .proof-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap top">
+      <div class="brand">
+        <img src="https://raw.githubusercontent.com/CoboRouter/CoboRouter/main/docs/brand/coborouter-logo.png" alt="" />
+        <div>
+          <strong>CoboRouter</strong>
+          <p class="tagline">Wallet-governed inference procurement for autonomous agents.</p>
+        </div>
+      </div>
+      <nav class="links" aria-label="Project links">
+        <a class="pill" href="https://github.com/CoboRouter/CoboRouter">GitHub</a>
+        <a class="pill" href="https://github.com/CoboRouter/CoboRouter/blob/main/agent/coborouter.route_inference.tool.json">Agent Tool</a>
+        <a class="pill" href="https://github.com/CoboRouter/CoboRouter/actions/workflows/verify.yml">Verify CI</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap hero">
+    <div>
+      <h1>Agents buy intelligence with wallet receipts.</h1>
+      <p class="tagline">Try CoboRouter directly from GitHub: pick a route, inspect Z.AI triage, provider quotes, spend governance, Cobo payment proof, and the receipt hash chain.</p>
+      <div class="actions">
+        <a href="#demo">Open Interactive Demo</a>
+        <a href="https://sepolia.etherscan.io/tx/0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b">View Sepolia Tx</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <strong>Live receipt proof</strong>
+      <div class="proof-grid">
+        <div class="proof"><strong>Provider</strong><span id="hero-provider">loading</span></div>
+        <div class="proof"><strong>Model</strong><span id="hero-model">loading</span></div>
+        <div class="proof"><strong>Cobo operation</strong><span id="hero-operation">loading</span></div>
+        <div class="proof"><strong>Receipt hash</strong><span id="hero-hash">loading</span></div>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap app" id="demo">
+    <aside>
+      <strong>Demo routes</strong>
+      <p class="hint">This GitHub Pages demo replays committed product receipts. Clone the repo for a fresh live run with your Cobo and Z.AI keys.</p>
+      <div class="scenario-list" id="scenario-list"></div>
+    </aside>
+    <section>
+      <div class="timeline" id="timeline"></div>
+    </section>
+  </main>
+
+  <script>
+    const repoRaw = "https://raw.githubusercontent.com/CoboRouter/CoboRouter/main/";
+    const scenarios = [
+      ["approved", "Live approved route", "receipts/coborouter_demo_approved_001.json"],
+      ["blocked", "Budget blocked", "receipts/coborouter_demo_blocked_001.json"],
+      ["budget", "Budget declined edge", "receipts/coborouter_edge_budget_declined_001.json"],
+      ["provider", "Provider denied", "receipts/coborouter_edge_provider_not_allowlisted_001.json"],
+      ["human", "Human approval", "receipts/coborouter_edge_human_approval_001.json"],
+      ["settlement", "Settlement failure", "receipts/coborouter_edge_settlement_failure_001.json"],
+      ["local", "Private local route", "receipts/coborouter_edge_local_001.json"],
+      ["flash", "Simple Z.AI Flash", "receipts/coborouter_edge_zai_flash_001.json"]
+    ];
+    const loaded = new Map();
+    const timeline = document.getElementById("timeline");
+    const list = document.getElementById("scenario-list");
+
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function badgeFor(receipt) {
+      if (receipt.status === "completed") return '<span class="badge good">COMPLETED</span>';
+      if (receipt.status === "blocked") return '<span class="badge bad">BLOCKED BEFORE SPEND</span>';
+      if (receipt.status === "paid_failed" || receipt.status === "failed") return '<span class="badge bad">FAILED SAFELY</span>';
+      return '<span class="badge">HUMAN APPROVAL</span>';
+    }
+
+    function node(title, body, detail = "") {
+      return '<article class="node"><h3>' + esc(title) + '</h3><p>' + body + '</p>' + detail + '</article>';
+    }
+
+    function quoteTable(receipt) {
+      const selected = receipt.broker_decision.selected_provider;
+      const rows = receipt.broker_decision.route_trace.slice(0, 8).map(row => (
+        '<tr><td>' + esc(row.provider_id) + '<br><span class="mono">' + esc(row.model) + '</span></td><td>$' + Number(row.estimated_cost_usd).toFixed(4) + '</td><td>' + esc(row.provider_id === selected ? "selected" : row.decision) + '</td><td>' + esc(row.reason) + '</td></tr>'
+      )).join("");
+      return '<table><thead><tr><th>Provider / Model</th><th>Quote</th><th>Decision</th><th>Reason</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+
+    function paymentDetail(receipt) {
+      const tx = receipt.payment.explorer_url
+        ? '<a href="' + esc(receipt.payment.explorer_url) + '">view tx</a>'
+        : 'no tx for this path';
+      return '<p class="mono">operation: ' + esc(receipt.payment.operation_id || "none") +
+        '<br>reference: ' + esc(receipt.payment.payment_reference || "none") +
+        '<br>proof: ' + esc(receipt.payment.proof_type) +
+        '<br>status: ' + esc(receipt.payment.status) +
+        '<br>' + tx + '</p>';
+    }
+
+    function render(receipt, path) {
+      const answer = receipt.answer ? receipt.answer.summary : "No provider inference ran for this route.";
+      const source = "https://github.com/CoboRouter/CoboRouter/blob/main/" + path;
+      timeline.innerHTML = [
+        node("1. Agent Task", "Prompt hash <span class='mono'>" + esc(receipt.receipt.prompt_hash) + "</span>"),
+        node("2. Z.AI Triage", esc(receipt.broker_decision.triage_source) + " using " + esc(receipt.broker_decision.triage_model)),
+        node("3. Provider Quotes", "Capability, cost, latency, and wallet-payment requirement are compared before provider execution.", quoteTable(receipt)),
+        node("4. Spend Governance + CAW", badgeFor(receipt) + "<br>" + esc(receipt.wallet_policy.reason || "Approved paid route with Cobo authorization evidence."), '<p class="mono">authority: ' + esc(receipt.wallet_policy.policyAuthority) + '<br>source: ' + esc(receipt.wallet_policy.policySource) + '<br>policy hash: ' + esc(receipt.wallet_policy.policyHash) + '</p>'),
+        node("5. Payment Proof", "CoboRouter records whether a Cobo operation, tx hash, or no-spend proof was produced.", paymentDetail(receipt)),
+        node("6. Answer", esc(answer)),
+        node("7. Receipt", "Receipt hash <span class='mono'>" + esc(receipt.receipt.receipt_hash) + "</span>", '<div class="actions"><a href="' + source + '">Open receipt JSON</a><a href="https://github.com/CoboRouter/CoboRouter#use-coborouter">Run live from repo</a></div><pre>' + esc(JSON.stringify(receipt, null, 2)) + '</pre>')
+      ].join("");
+    }
+
+    async function loadScenario(id, path) {
+      if (!loaded.has(path)) {
+        const response = await fetch(repoRaw + path);
+        if (!response.ok) throw new Error("Could not load " + path);
+        loaded.set(path, await response.json());
+      }
+      document.querySelectorAll("button[data-scenario]").forEach(button => button.classList.toggle("active", button.dataset.scenario === id));
+      render(loaded.get(path), path);
+    }
+
+    for (const [id, label, path] of scenarios) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.scenario = id;
+      button.textContent = label;
+      button.addEventListener("click", () => loadScenario(id, path));
+      list.appendChild(button);
+    }
+
+    loadScenario("approved", scenarios[0][2]).then(() => {
+      const receipt = loaded.get(scenarios[0][2]);
+      document.getElementById("hero-provider").textContent = receipt.broker_decision.selected_provider;
+      document.getElementById("hero-model").textContent = receipt.broker_decision.selected_model;
+      document.getElementById("hero-operation").textContent = receipt.payment.operation_id;
+      document.getElementById("hero-hash").textContent = receipt.receipt.receipt_hash;
+    }).catch(error => {
+      timeline.innerHTML = node("Demo load failed", esc(error.message));
+    });
+  </script>
+</body>
+</html>
