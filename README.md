@@ -8,7 +8,7 @@
 
 **CoboRouter lets autonomous agents safely buy intelligence. It combines model routing with wallet-native spend policy, so every inference purchase is governed, paid, and receipted.**
 
-[![Verify CoboRouter](https://github.com/Augustas11/CoboRouter/actions/workflows/verify.yml/badge.svg)](https://github.com/Augustas11/CoboRouter/actions/workflows/verify.yml)
+[![Verify CoboRouter](https://github.com/CoboRouter/CoboRouter/actions/workflows/verify.yml/badge.svg)](https://github.com/CoboRouter/CoboRouter/actions/workflows/verify.yml)
 ![Cobo Agentic Wallet](https://img.shields.io/badge/Cobo-Agentic%20Wallet-111827?style=for-the-badge)
 ![Z.AI GLM](https://img.shields.io/badge/Z.AI-GLM--5.1-2563eb?style=for-the-badge)
 ![On-chain Proof](https://img.shields.io/badge/Proof-Sepolia%20TX-16a34a?style=for-the-badge)
@@ -41,7 +41,7 @@ Agents will need to spend money autonomously. Wallet policy without model-routin
 Any agentic runtime can use CoboRouter as a tool over HTTP. The repo includes a portable tool manifest at [`agent/coborouter.route_inference.tool.json`](agent/coborouter.route_inference.tool.json), or agents can discover the live schema from the running server.
 
 ```bash
-git clone https://github.com/Augustas11/CoboRouter.git
+git clone https://github.com/CoboRouter/CoboRouter.git
 cd CoboRouter
 npm install
 npm run dev
