@@ -35,8 +35,32 @@ export function timelineHtml(): string {
       justify-content: space-between;
       gap: 16px;
     }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand img {
+      width: 52px;
+      height: 52px;
+    }
     h1 { margin: 0; font-size: 24px; line-height: 1.15; }
     .pitch { margin: 6px 0 0; color: var(--muted); max-width: 880px; }
+    .trustbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      max-width: 540px;
+    }
+    .trustbar span {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 900;
+      background: #f8fafc;
+    }
     main {
       display: grid;
       grid-template-columns: minmax(280px, 360px) 1fr;
@@ -137,11 +161,19 @@ export function timelineHtml(): string {
 </head>
 <body>
   <header>
-    <div>
-      <h1>CoboRouter</h1>
-      <p class="pitch">Agents ask for outcomes, not models. CoboRouter procures inference through policy-bound Cobo Agentic Wallet controls and returns wallet-native receipts.</p>
+    <div class="brand">
+      <img src="/favicon.svg" alt="" />
+      <div>
+        <h1>CoboRouter</h1>
+        <p class="pitch">Agents ask for outcomes, not models. CoboRouter procures inference through policy-bound Cobo Agentic Wallet controls and returns wallet-native receipts.</p>
+      </div>
     </div>
-    <strong class="mono">Live Wallet Router</strong>
+    <div class="trustbar" aria-label="CoboRouter proof points">
+      <span>Live Z.AI route</span>
+      <span>Cobo policy authority</span>
+      <span>On-chain proof</span>
+      <span>Immutable receipt archive</span>
+    </div>
   </header>
   <main>
     <aside>
@@ -211,8 +243,8 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
     }
 
     function quoteTable(trace) {
-      return '<table><thead><tr><th>Provider</th><th>Quote</th><th>Decision</th><th>Reason</th></tr></thead><tbody>' +
-        trace.map(row => '<tr><td>' + esc(row.provider_id) + '</td><td>$' + row.estimated_cost_usd.toFixed(4) + '</td><td>' + esc(row.decision) + '</td><td>' + esc(row.reason) + '</td></tr>').join("") +
+      return '<table><thead><tr><th>Provider</th><th>Tokens</th><th>Quote</th><th>Decision</th><th>Reason</th></tr></thead><tbody>' +
+        trace.map(row => '<tr><td>' + esc(row.provider_id) + '</td><td>' + esc(row.estimated_input_tokens + "/" + row.estimated_output_tokens) + '</td><td>$' + row.estimated_cost_usd.toFixed(4) + '</td><td>' + esc(row.decision) + '</td><td>' + esc(row.reason) + '</td></tr>').join("") +
         '</tbody></table>';
     }
 
@@ -232,7 +264,7 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
         return;
       }
       promptInput.value = "Plan a 3-step treasury action for an autonomous DAO agent with $1,000 USDC.\\nCompare these two provided low-risk DeFi yield options, explain the risks, and recommend one:\\nOption A: USDC lending on approved protocol fixture, 4.2% estimated APY, high liquidity, audited.\\nOption B: USDC vault on approved protocol fixture, 6.1% estimated APY, medium liquidity, audited.\\nUse a reasoning-capable model only if needed and return a wallet/payment receipt.";
-      budgetInput.value = scenario === "approved" ? "0.25" : "0.03";
+      budgetInput.value = scenario === "approved" ? "0.25" : "0.02";
     }
 
     function render(response) {
@@ -241,12 +273,13 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
       const walletStatus = blocked ? { className: "blocked", label: "BLOCKED BY WALLET POLICY" } : { className: "approved", label: "APPROVED BY WALLET POLICY" };
       timeline.innerHTML = [
         node("1. Agent Task", "Agent asks for an outcome and supplies a spend cap.", null, '<pre>' + esc(promptInput.value) + '</pre>'),
-        node("2. GLM/Z.AI Triage", response.broker_decision.task_type + " via " + response.broker_decision.triage_source, { className: "pending", label: response.broker_decision.triage_model }),
-        node("3. Provider Quotes", "CoboRouter compares capability, price, and wallet eligibility.", null, quoteTable(response.broker_decision.route_trace)),
-        node("4. Cobo Wallet Policy", response.wallet_policy.reason || "policy approved spend within boundaries", walletStatus, '<p class="mono">policy: ' + esc(response.wallet_policy.policyHash) + '<br>wallet: ' + esc(response.wallet_policy.walletAddress) + '</p>'),
-        node("5. Payment Proof", response.payment.status + " / " + response.payment.proof_type, blocked ? { className: "blocked", label: "NO SPEND" } : { className: "approved", label: "OPERATION RECORDED" }, '<p class="mono">operation: ' + esc(response.payment.operation_id || "none") + '<br>reference: ' + esc(response.payment.payment_reference || "none") + '</p>'),
-        node("6. Answer", response.answer ? response.answer.summary : "No inference ran because wallet policy blocked the spend.", response.answer ? { className: "approved", label: "ANSWER RETURNED" } : { className: "blocked", label: "NO INFERENCE" }),
-        node("7. Receipt", "Receipt saved to " + response.receipt.receipt_path, null, receiptTools() + '<pre>' + esc(latestReceiptJson) + '</pre>')
+        node("2. Live Boundary", "Execution mode " + response.receipt.execution_mode + "; triage " + response.broker_decision.triage_source + "; provider invoice simulated=" + response.provider_invoice.simulated, response.receipt.execution_mode === "live" ? { className: "approved", label: "LIVE PATH" } : { className: "pending", label: "DEMO/LOCAL PATH" }, '<p class="mono">archive: ' + esc(response.receipt.archive_path) + '</p>'),
+        node("3. GLM/Z.AI Triage", response.broker_decision.task_type + " via " + response.broker_decision.triage_source, { className: "pending", label: response.broker_decision.triage_model }),
+        node("4. Provider Quotes", "CoboRouter estimates tokens from this prompt, then compares capability, price, and wallet eligibility.", null, quoteTable(response.broker_decision.route_trace)),
+        node("5. Cobo Wallet Policy", response.wallet_policy.reason || "policy approved spend within boundaries", walletStatus, '<p class="mono">authority: ' + esc(response.wallet_policy.policyAuthority) + '<br>source: ' + esc(response.wallet_policy.policySource) + '<br>policy: ' + esc(response.wallet_policy.policyHash) + '<br>wallet: ' + esc(response.wallet_policy.walletAddress) + '<br>pact: ' + esc(response.wallet_policy.evidence.coboPactId || "none") + '</p>'),
+        node("6. Payment Proof", response.payment.status + " / " + response.payment.proof_type, blocked ? { className: "blocked", label: "NO SPEND" } : { className: "approved", label: "OPERATION RECORDED" }, '<p class="mono">operation: ' + esc(response.payment.operation_id || "none") + '<br>reference: ' + esc(response.payment.payment_reference || "none") + '</p>'),
+        node("7. Answer", response.answer ? response.answer.summary : "No inference ran because wallet policy blocked the spend.", response.answer ? { className: "approved", label: "ANSWER RETURNED" } : { className: "blocked", label: "NO INFERENCE" }),
+        node("8. Receipt", "Latest receipt saved to " + response.receipt.receipt_path + "; immutable archive saved to " + response.receipt.archive_path, null, receiptTools() + '<pre>' + esc(latestReceiptJson) + '</pre>')
       ].join("");
     }
 

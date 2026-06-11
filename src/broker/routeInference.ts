@@ -74,7 +74,7 @@ export function demoRequest(scenario: Exclude<DemoScenario, "custom">): RouteInf
   return {
     prompt: treasuryPrompt(),
     routing_mode: "cheapest_capable",
-    max_spend_usd: scenario === "blocked" || scenario === "budget_declined" ? 0.03 : 0.25,
+    max_spend_usd: scenario === "blocked" || scenario === "budget_declined" ? 0.02 : 0.25,
     allowed_providers: [...zaiProviderIds, "second_real_provider", "local_baseline"],
     require_receipt: true,
     idempotency_key: scenario === "budget_declined" ? "edge-budget-declined-001" : `demo-${scenario}-001`,
@@ -86,13 +86,15 @@ function routeTraceSummary(trace: RouteDecision[]): string {
   return trace.map((entry) => `${entry.provider_id}:${entry.decision}:${entry.reason}`).join(" | ");
 }
 
-function receiptIdForScenario(scenario: RouteInferenceRequest["scenario"]): string {
-  if (scenario === "blocked") return "coborouter_demo_blocked_001";
-  if (scenario === "budget_declined") return "coborouter_edge_budget_declined_001";
-  if (scenario === "local") return "coborouter_edge_local_001";
-  if (scenario === "simple_zai") return "coborouter_edge_zai_flash_001";
-  if (scenario === "custom") return "coborouter_custom_receipt";
-  return "coborouter_demo_approved_001";
+function receiptIdForRequest(request: RouteInferenceRequest): string {
+  if (request.scenario === "approved") return "coborouter_demo_approved_001";
+  if (request.scenario === "blocked") return "coborouter_demo_blocked_001";
+  if (request.scenario === "budget_declined") return "coborouter_edge_budget_declined_001";
+  if (request.scenario === "local") return "coborouter_edge_local_001";
+  if (request.scenario === "simple_zai") return "coborouter_edge_zai_flash_001";
+
+  const seed = request.idempotency_key || request.prompt;
+  return `coborouter_custom_${sha256(seed).replace("sha256:", "").slice(0, 16)}`;
 }
 
 function receiptPaths(receiptId: string): { receiptPath: string; logPath: string } {
@@ -105,12 +107,17 @@ function receiptPaths(receiptId: string): { receiptPath: string; logPath: string
 export async function routeInference(request: RouteInferenceRequest): Promise<RouteInferenceResponse> {
   const wallet = createCoboWalletAdapter();
   const taskId = shortId("task");
-  const receiptId = receiptIdForScenario(request.scenario);
+  const receiptId = receiptIdForRequest(request);
   const { receiptPath, logPath } = receiptPaths(receiptId);
+  const timestamp = new Date().toISOString();
   const promptHash = sha256(request.prompt);
   const quoteId = shortId("quote");
   const triage = await triagePrompt(request);
-  const trace = quoteProviders(triage, request.allowed_providers);
+  const executionMode: RouteInferenceResponse["receipt"]["execution_mode"] =
+    process.env.COBO_ADAPTER_MODE === "live" && triage.triage_source === "zai_live"
+      ? "live"
+      : "demo";
+  const trace = quoteProviders(triage, request.allowed_providers, request.prompt);
   const selected = selectRoute(trace, request.routing_mode, request.max_spend_usd);
   const lowestQuote = lowestCapablePaidQuote(trace);
   const policyQuote = selected ?? lowestQuote;
@@ -174,9 +181,11 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
       policy_hash: walletPolicy.policyHash,
       quote_id: quoteId,
       idempotency_key: request.idempotency_key,
-      timestamp: new Date().toISOString(),
+      timestamp,
       log_path: logPath,
-      receipt_path: receiptPath
+      receipt_path: receiptPath,
+      archive_path: `receipts/archive/${receiptId}/${timestamp.replace(/[:.]/g, "-")}.json`,
+      execution_mode: executionMode
     }
   };
 

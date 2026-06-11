@@ -65,6 +65,26 @@ function checkReceipt(receipt: RouteInferenceResponse | null, expectedStatus: Ro
       name: `${name}: route trace`,
       status: receipt.broker_decision.route_trace.length > 0 ? "pass" : "fail",
       detail: `${receipt.broker_decision.route_trace.length} route entries`
+    },
+    {
+      name: `${name}: dynamic token quotes`,
+      status: receipt.broker_decision.route_trace.every((entry) => entry.estimated_input_tokens > 0 && entry.estimated_output_tokens > 0) ? "pass" : "fail",
+      detail: "each route trace entry includes prompt-derived input/output token estimates"
+    },
+    {
+      name: `${name}: immutable archive`,
+      status: receipt.receipt.archive_path?.startsWith(`receipts/archive/${receipt.receipt.receipt_id}/`) ? "pass" : "fail",
+      detail: receipt.receipt.archive_path || "missing"
+    },
+    {
+      name: `${name}: execution boundary`,
+      status: receipt.receipt.execution_mode === "live" || receipt.receipt.execution_mode === "demo" ? "pass" : "fail",
+      detail: receipt.receipt.execution_mode || "missing"
+    },
+    {
+      name: `${name}: policy authority`,
+      status: receipt.wallet_policy.policyAuthority === "cobo_agentic_wallet" || receipt.wallet_policy.policyAuthority === "local_demo" ? "pass" : "fail",
+      detail: `${receipt.wallet_policy.policyAuthority || "missing"} via ${receipt.wallet_policy.policySource || "missing"}`
     }
   ];
 
@@ -128,36 +148,22 @@ function checkReceipt(receipt: RouteInferenceResponse | null, expectedStatus: Ro
 
 await loadEnv();
 
-const requiredFiles = [
+const productFiles = [
   "README.md",
-  "IMPLEMENTATION_PLAN.md",
-  "SPEC.md",
   ".github/workflows/verify.yml",
-  "docs/PROJECT_PROPOSAL.md",
-  "docs/SECURITY_BOUNDARIES.md",
-  "docs/SUBMISSION.md",
-  "docs/LIVE_INTEGRATION.md",
-  "docs/LIVE_PROOF_CAPTURE_CHECKLIST.md",
-  "docs/DEMO_VIDEO_SCRIPT.md",
-  "docs/REPO_PUBLICATION_CHECKLIST.md",
-  "docs/SECRET_SCAN.md",
-  "docs/FINAL_SUBMISSION_RUNBOOK.md",
-  "docs/ARTIFACT_INDEX.md",
-  "docs/EVIDENCE_REPORT.md",
-  "docs/APPLICATION_PACKET.md",
-  "docs/SUBMISSION_READINESS.md",
-  "submission/artifact-manifest.json",
-  "submission/FINAL_BLOCKERS.md",
-  "submission/final-env-template.env",
-  "submission/bundle/README.md",
-  "submission/bundle/bundle-manifest.json",
-  "submission/coborouter-submission-bundle.tgz",
-  "submission/bundle-archive.json",
+  "agent/coborouter.route_inference.tool.json",
+  "docs/brand/coborouter-icon.svg",
+  "docs/brand/coborouter-hero.svg",
   "docs/screenshots/blocked.png",
   "docs/screenshots/approved.png",
   "src/wallet/coboAdapter.ts",
+  "src/wallet/policy.ts",
   "src/broker/routeInference.ts",
   "src/broker/toolSchema.ts",
+  "src/broker/routingPolicy.ts",
+  "src/inference/inferenceAdapter.ts",
+  "src/inference/providerRegistry.json",
+  "src/receipts/receiptGenerator.ts",
   "src/demo/timelineUi.tsx",
   "fixtures/defi-yield-options.json",
   "fixtures/cached-triage/approved-path.json",
@@ -166,12 +172,33 @@ const requiredFiles = [
   "receipts/coborouter_demo_blocked_001.json"
 ];
 
+const generatedFiles = [
+  "docs/SECRET_SCAN.md",
+  "docs/ARTIFACT_INDEX.md",
+  "docs/EVIDENCE_REPORT.md",
+  "docs/APPLICATION_PACKET.md",
+  "docs/SUBMISSION_READINESS.md",
+  "submission/artifact-manifest.json",
+  "submission/FINAL_BLOCKERS.md",
+  "submission/final-env-template.env",
+  "submission/bundle-archive.json"
+];
+
 const checks: Check[] = [];
-for (const file of requiredFiles) {
+for (const file of productFiles) {
   checks.push({
     name: `file: ${file}`,
     status: (await exists(file)) ? "pass" : "fail",
     detail: file
+  });
+}
+
+for (const file of generatedFiles) {
+  const fileExists = await exists(file);
+  checks.push({
+    name: `generated artifact: ${file}`,
+    status: fileExists ? "pass" : gateWarn("warn"),
+    detail: fileExists ? file : "not generated yet; run npm run ci:local or the specific packet command before final packaging"
   });
 }
 

@@ -46,6 +46,12 @@ CoboRouter is an **agentic resource procurement flow** for wallet-bound autonomo
 | Agentic E2E proof | `npm run e2e:agent` expects `19 passed, 0 failed` |
 | Wallet proof | Cobo operation `7406658f-973a-4fa7-8a62-4c072225c107` and Sepolia tx below |
 
+## Product Hardening
+
+Receipts now make the live boundary explicit. Each run records `receipt.execution_mode`, Z.AI invoice simulation status, Cobo policy authority/source, prompt-derived token estimates, and an immutable archive path under `receipts/archive/...`.
+
+The demo API also includes submission-grade guardrails: bounded request bodies, bounded prompt length, per-client rate limiting, and idempotency-key conflict detection for replay safety.
+
 ## Live proof
 
 This repo includes receipts from a live end-to-end run.

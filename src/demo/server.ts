@@ -8,12 +8,38 @@ import type { RouteInferenceRequest } from "../types.js";
 
 await loadEnv();
 const port = Number(process.env.PORT || 4173);
+const maxBodyChars = 128_000;
+const maxPromptChars = 12_000;
+const rateWindowMs = 60_000;
+const maxRequestsPerWindow = 60;
+const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+const idempotencyHashes = new Map<string, string>();
+
+function rateLimitKey(req: http.IncomingMessage): string {
+  return String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "local").split(",")[0].trim();
+}
+
+function withinRateLimit(req: http.IncomingMessage): boolean {
+  const now = Date.now();
+  const key = rateLimitKey(req);
+  const bucket = rateBuckets.get(key);
+  if (!bucket || bucket.resetAt <= now) {
+    rateBuckets.set(key, { count: 1, resetAt: now + rateWindowMs });
+    return true;
+  }
+  bucket.count += 1;
+  return bucket.count <= maxRequestsPerWindow;
+}
 
 function readBody(req: http.IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
     let data = "";
     req.on("data", (chunk) => {
       data += chunk;
+      if (data.length > maxBodyChars) {
+        reject(new Error("request_body_too_large"));
+        req.destroy();
+      }
     });
     req.on("end", () => resolve(data));
     req.on("error", reject);
@@ -44,7 +70,30 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "POST" && url.pathname === "/api/route-inference") {
+      if (!withinRateLimit(req)) {
+        res.writeHead(429, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "rate_limited", detail: `limit ${maxRequestsPerWindow} requests per minute` }));
+        return;
+      }
+
       const body = JSON.parse(await readBody(req)) as RouteInferenceRequest;
+      if (typeof body.prompt !== "string" || body.prompt.length === 0 || body.prompt.length > maxPromptChars) {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "invalid_prompt", detail: `prompt must be 1-${maxPromptChars} characters` }));
+        return;
+      }
+
+      if (body.idempotency_key) {
+        const requestHash = `${body.idempotency_key}:${body.prompt}:${body.max_spend_usd}:${body.routing_mode}`;
+        const previousHash = idempotencyHashes.get(body.idempotency_key);
+        if (previousHash && previousHash !== requestHash) {
+          res.writeHead(409, { "content-type": "application/json" });
+          res.end(JSON.stringify({ error: "idempotency_conflict", detail: "same idempotency_key was already used for a different request" }));
+          return;
+        }
+        idempotencyHashes.set(body.idempotency_key, requestHash);
+      }
+
       const response = await routeInference(body);
       res.writeHead(200, { "content-type": "application/json" });
       res.end(JSON.stringify(response));

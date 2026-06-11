@@ -63,9 +63,19 @@ function parseCoboError(error: unknown): string {
 function localPolicyDecision(
   input: WalletPolicyInput,
   policyId: string,
-  walletAddress: string
+  walletAddress: string,
+  authority: WalletPolicyResult["policyAuthority"],
+  source: WalletPolicyResult["policySource"],
+  coboPactId?: string
 ): WalletPolicyResult {
   const hash = policyHash(policyId, input.dailySpendCapUsd, input.humanApprovalThresholdUsd, input.allowedProviders);
+  const evidence = {
+    source,
+    live: authority === "cobo_agentic_wallet",
+    coboPactId,
+    spendCapUsd: input.dailySpendCapUsd,
+    providerAllowlistHash: policyHash("provider_allowlist", 0, 0, input.allowedProviders)
+  };
 
   if (!input.allowedProviders.includes(input.providerId)) {
     return {
@@ -73,7 +83,10 @@ function localPolicyDecision(
       reason: "provider_not_allowlisted",
       policyId,
       policyHash: hash,
-      walletAddress
+      walletAddress,
+      policySource: source,
+      policyAuthority: authority,
+      evidence
     };
   }
 
@@ -83,7 +96,10 @@ function localPolicyDecision(
       reason: "quote_exceeds_task_budget",
       policyId,
       policyHash: hash,
-      walletAddress
+      walletAddress,
+      policySource: source,
+      policyAuthority: authority,
+      evidence
     };
   }
 
@@ -93,7 +109,10 @@ function localPolicyDecision(
       reason: "daily_wallet_cap_exceeded",
       policyId,
       policyHash: hash,
-      walletAddress
+      walletAddress,
+      policySource: source,
+      policyAuthority: authority,
+      evidence
     };
   }
 
@@ -103,7 +122,10 @@ function localPolicyDecision(
       reason: "human_approval_threshold_exceeded",
       policyId,
       policyHash: hash,
-      walletAddress
+      walletAddress,
+      policySource: source,
+      policyAuthority: authority,
+      evidence
     };
   }
 
@@ -111,7 +133,10 @@ function localPolicyDecision(
     result: "approved",
     policyId,
     policyHash: hash,
-    walletAddress
+    walletAddress,
+    policySource: source,
+    policyAuthority: authority,
+    evidence
   };
 }
 
@@ -121,7 +146,7 @@ export class DemoCoboWalletAdapter implements CoboWalletAdapter {
   private readonly proofType = process.env.COBO_PROOF_TYPE === "on_chain" ? "on_chain" : "cobo_operation";
 
   async checkPolicy(input: WalletPolicyInput): Promise<WalletPolicyResult> {
-    return localPolicyDecision(input, this.policyId, this.walletAddress);
+    return localPolicyDecision(input, this.policyId, this.walletAddress, "local_demo", "local_policy_guard");
   }
 
   async authorizeSpend(_input: WalletPolicyInput): Promise<WalletAuthorization> {
@@ -194,7 +219,14 @@ export class LiveCoboWalletAdapter implements CoboWalletAdapter {
   }
 
   async checkPolicy(input: WalletPolicyInput): Promise<WalletPolicyResult> {
-    return localPolicyDecision(input, this.policyId, this.walletAddress);
+    return localPolicyDecision(
+      input,
+      this.policyId,
+      this.walletAddress,
+      "cobo_agentic_wallet",
+      "cobo_pact_preflight",
+      process.env.COBO_LIVE_PACT_ID || this.policyId
+    );
   }
 
   async authorizeSpend(input: WalletPolicyInput): Promise<WalletAuthorization> {

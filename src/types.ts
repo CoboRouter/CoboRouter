@@ -49,6 +49,8 @@ export type RouteDecision = {
   provider_id: string;
   model: string;
   display_name: string;
+  estimated_input_tokens: number;
+  estimated_output_tokens: number;
   estimated_cost_usd: number;
   decision: "selected" | "rejected";
   reason: string;
@@ -84,6 +86,15 @@ export type WalletPolicyResult = {
   policyId: string;
   policyHash: string;
   walletAddress?: string;
+  policySource: "cobo_pact_preflight" | "local_policy_guard";
+  policyAuthority: "cobo_agentic_wallet" | "local_demo";
+  evidence: {
+    source: string;
+    live: boolean;
+    coboPactId?: string;
+    spendCapUsd: number;
+    providerAllowlistHash: string;
+  };
 };
 
 export type WalletAuthorization = {
@@ -156,5 +167,7 @@ export type RouteInferenceResponse = {
     timestamp: string;
     log_path: string;
     receipt_path: string;
+    archive_path: string;
+    execution_mode: "live" | "demo";
   };
 };

@@ -1,9 +1,12 @@
 import { spawn } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
 import { demoRequest } from "../broker/routeInference.js";
+import { loadEnv } from "../config/env.js";
 import type { RouteInferenceResponse } from "../types.js";
 
-const port = Number(process.env.E2E_PORT || 4193);
+await loadEnv();
+
+const port = Number(process.env.E2E_PORT || 4200 + Math.floor(Math.random() * 1000));
 const baseUrl = `http://localhost:${port}`;
 
 type Assertion = {

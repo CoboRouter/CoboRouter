@@ -15,28 +15,37 @@ export async function runInference(provider: ProviderConfig, prompt: string, est
   if (provider.provider_id.startsWith("zai") && process.env.ZAI_API_KEY) {
     try {
       const model = provider.provider_id === "zai" ? process.env.ZAI_MODEL || provider.model : provider.model;
-      const response = await fetch("https://api.z.ai/api/paas/v4/chat/completions", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          authorization: `Bearer ${process.env.ZAI_API_KEY}`
+      const messages = [
+        {
+          role: "system",
+          content:
+            provider.provider_id === "zai_flash"
+              ? "You are the lightweight Z.AI route inside CoboRouter. Keep the answer short and direct for a simple agent task."
+              : "You are helping a demo autonomous DAO agent compare provided DeFi fixture options. Stay concise, mention this is demo fixture data, and return a safe recommendation."
         },
-        body: JSON.stringify({
+        { role: "user", content: prompt }
+      ];
+
+      const callZai = (body: Record<string, unknown>) =>
+        fetch("https://api.z.ai/api/paas/v4/chat/completions", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${process.env.ZAI_API_KEY}`
+          },
+          body: JSON.stringify(body)
+        });
+
+      let response = await callZai({
           model,
           thinking: { type: "disabled" },
           enable_thinking: false,
-          messages: [
-            {
-              role: "system",
-              content:
-                provider.provider_id === "zai_flash"
-                  ? "You are the lightweight Z.AI route inside CoboRouter. Keep the answer short and direct for a simple agent task."
-                  : "You are helping a demo autonomous DAO agent compare provided DeFi fixture options. Stay concise, mention this is demo fixture data, and return a safe recommendation."
-            },
-            { role: "user", content: prompt }
-          ]
-        })
+          messages
       });
+
+      if (!response.ok) {
+        response = await callZai({ model, messages });
+      }
 
       if (response.ok) {
         const json = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };

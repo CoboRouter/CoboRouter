@@ -6,15 +6,28 @@ const registry = providers as ProviderConfig[];
 const selectableForTriage = (provider: ProviderConfig, triage: TriageResult): boolean =>
   provider.allowlisted && (provider.requires_wallet_payment || !triage.requires_wallet_payment);
 
-function estimateCost(provider: ProviderConfig): number {
-  const estimatedInputTokens = 12000;
-  const estimatedOutputTokens = 17000;
-  return Number(
+function tokenEstimate(prompt: string, triage: TriageResult): { inputTokens: number; outputTokens: number } {
+  const promptTokens = Math.max(1, Math.ceil(prompt.length / 4));
+  const reasoningLoad = Math.max(0, triage.capabilities.reasoning - 2);
+  const codingLoad = Math.max(0, triage.capabilities.coding - 2);
+  const web3Load = Math.max(0, triage.capabilities.web3_context - 2);
+  const structuredLoad = Math.max(0, triage.capabilities.structured_output - 2);
+
+  return {
+    inputTokens: Math.ceil((promptTokens + 900 + reasoningLoad * 450 + web3Load * 350) * (triage.capabilities.long_context >= 5 ? 1.25 : 1)),
+    outputTokens: Math.ceil(450 + reasoningLoad * 900 + codingLoad * 700 + web3Load * 650 + structuredLoad * 300)
+  };
+}
+
+function estimateCost(provider: ProviderConfig, prompt: string, triage: TriageResult): { costUsd: number; inputTokens: number; outputTokens: number } {
+  const { inputTokens, outputTokens } = tokenEstimate(prompt, triage);
+  const costUsd = Number(
     (
-      (estimatedInputTokens / 1000) * provider.cost_per_1k_input_usd +
-      (estimatedOutputTokens / 1000) * provider.cost_per_1k_output_usd
+      (inputTokens / 1000) * provider.cost_per_1k_input_usd +
+      (outputTokens / 1000) * provider.cost_per_1k_output_usd
     ).toFixed(4)
   );
+  return { costUsd, inputTokens, outputTokens };
 }
 
 function capabilityReason(provider: ProviderConfig, triage: TriageResult): string | null {
@@ -31,13 +44,14 @@ function capabilityReason(provider: ProviderConfig, triage: TriageResult): strin
   return null;
 }
 
-export function quoteProviders(triage: TriageResult, allowedProviders: string[]): RouteDecision[] {
+export function quoteProviders(triage: TriageResult, allowedProviders: string[], prompt: string): RouteDecision[] {
   return registry
     .filter((provider) => allowedProviders.includes(provider.provider_id))
     .map((provider) => {
       const mismatch = capabilityReason(provider, triage);
       const selectable = selectableForTriage(provider, triage);
       const capable = !mismatch && selectable;
+      const estimate = estimateCost(provider, prompt, triage);
       const reason = mismatch
         ? mismatch
         : selectable
@@ -50,7 +64,9 @@ export function quoteProviders(triage: TriageResult, allowedProviders: string[])
         provider_id: provider.provider_id,
         model: provider.model,
         display_name: provider.display_name,
-        estimated_cost_usd: estimateCost(provider),
+        estimated_input_tokens: estimate.inputTokens,
+        estimated_output_tokens: estimate.outputTokens,
+        estimated_cost_usd: estimate.costUsd,
         decision: "rejected",
         reason,
         capable,
