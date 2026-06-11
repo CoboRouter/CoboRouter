@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/brand/coborouter-icon.svg" alt="CoboRouter logo" width="96" />
+<img src="docs/brand/coborouter-logo.png" alt="CoboRouter logo" width="96" />
 
 # CoboRouter
 
