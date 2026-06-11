@@ -170,9 +170,10 @@ export function timelineHtml(): string {
     </div>
     <div class="trustbar" aria-label="CoboRouter proof points">
       <span>Live Z.AI route</span>
-      <span>Cobo policy authority</span>
-      <span>On-chain proof</span>
-      <span>Immutable receipt archive</span>
+      <span>Provider catalog</span>
+      <span>CAW authorization</span>
+      <span>Receipt hash</span>
+      <span>Dispute trail</span>
     </div>
   </header>
   <main>
@@ -280,6 +281,18 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
       return '<p class="mono">operation: ' + esc(payment.operation_id || "none") + '<br>reference: ' + esc(payment.payment_reference || "none") + tx + '</p>';
     }
 
+    function boundaryDetail(response) {
+      return '<p class="mono">CAW: ' + esc(response.control_boundary.cobo_agentic_wallet_enforces.join(", ")) +
+        '<br>CoboRouter preflight: ' + esc(response.control_boundary.coborouter_enforces_before_wallet.join(", ")) +
+        '<br>Not CAW-enforced: ' + esc(response.control_boundary.not_cobo_enforced.join(", ")) + '</p>';
+    }
+
+    function reconciliationDetail(response) {
+      return '<p class="mono">status: ' + esc(response.reconciliation.status) +
+        '<br>dispute window: ' + esc(response.reconciliation.dispute_window_hours + "h") +
+        '<br>refund policy: ' + esc(response.reconciliation.refund_policy) + '</p>';
+    }
+
     function render(response) {
       latestReceiptJson = JSON.stringify(response, null, 2);
       const blocked = response.status === "blocked" || response.status === "requires_human_approval" || response.status === "paid_failed" || response.status === "failed";
@@ -302,10 +315,10 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
         node("2. Live Boundary", "Fresh run at " + response.receipt.timestamp + "; execution mode " + response.receipt.execution_mode + "; triage " + response.broker_decision.triage_source + "; provider invoice simulated=" + response.provider_invoice.simulated, response.receipt.execution_mode === "live" ? { className: "approved", label: "LIVE PATH" } : { className: "pending", label: "DEMO/LOCAL PATH" }, '<p class="mono">archive: ' + esc(response.receipt.archive_path) + '<br>quote: ' + esc(response.receipt.quote_hash) + '</p>'),
         node("3. GLM/Z.AI Triage", response.broker_decision.task_type + " via " + response.broker_decision.triage_source, { className: "pending", label: response.broker_decision.triage_model }),
         node("4. Provider Quotes", "CoboRouter estimates tokens from this prompt, then compares capability, price, and wallet eligibility.", null, quoteTable(response.broker_decision.route_trace)),
-        node("5. Cobo Wallet Policy", response.wallet_policy.reason || "policy approved spend within boundaries", walletStatus, '<p class="mono">authority: ' + esc(response.wallet_policy.policyAuthority) + '<br>source: ' + esc(response.wallet_policy.policySource) + '<br>policy: ' + esc(response.wallet_policy.policyHash) + '<br>wallet: ' + esc(response.wallet_policy.walletAddress) + '<br>pact: ' + esc(response.wallet_policy.evidence.coboPactId || "none") + '<br>authorized quote: $' + esc(response.wallet_policy.approved_spend_usd) + '</p>'),
+        node("5. Cobo Wallet Policy", response.wallet_policy.reason || "policy approved spend within boundaries", walletStatus, '<p class="mono">authority: ' + esc(response.wallet_policy.policyAuthority) + '<br>source: ' + esc(response.wallet_policy.policySource) + '<br>policy: ' + esc(response.wallet_policy.policyHash) + '<br>wallet: ' + esc(response.wallet_policy.walletAddress) + '<br>pact: ' + esc(response.wallet_policy.evidence.coboPactId || "none") + '<br>authorized quote: $' + esc(response.wallet_policy.approved_spend_usd) + '</p>' + boundaryDetail(response)),
         node("6. Payment Proof", response.payment.status + " / " + response.payment.proof_type, paymentStatus, paymentDetail(response.payment)),
         node("7. Answer", response.answer ? response.answer.summary : "No inference ran because wallet policy blocked the spend.", response.answer ? { className: "approved", label: "ANSWER RETURNED" } : { className: "blocked", label: "NO INFERENCE" }),
-        node("8. Receipt", "Latest receipt saved to " + response.receipt.receipt_path + "; immutable archive saved to " + response.receipt.archive_path, null, receiptTools() + '<pre>' + esc(latestReceiptJson) + '</pre>')
+        node("8. Receipt", "Latest receipt saved to " + response.receipt.receipt_path + "; archive copy saved to " + response.receipt.archive_path, null, reconciliationDetail(response) + receiptTools() + '<pre>' + esc(latestReceiptJson) + '</pre>')
       ].join("");
     }
 

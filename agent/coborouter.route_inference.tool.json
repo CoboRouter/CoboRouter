@@ -5,7 +5,8 @@
     "type": "http",
     "method": "POST",
     "local_url": "http://localhost:4173/api/route-inference",
-    "schema_url": "http://localhost:4173/api/tool-schema"
+    "schema_url": "http://localhost:4173/api/tool-schema",
+    "provider_catalog_url": "http://localhost:4173/api/providers"
   },
   "input_schema": {
     "type": "object",
@@ -52,7 +53,9 @@
     "payment.proof_type": "on_chain",
     "payment.status": "settled",
     "payment.tx_hash": "required",
-    "receipt.receipt_hash": "required"
+    "receipt.receipt_hash": "required",
+    "control_boundary.cobo_agentic_wallet_enforces": "wallet identity, Cobo pact authorization, settlement operation, on-chain or Cobo operation proof",
+    "reconciliation.status": "ready_for_audit"
   },
   "edge_case_proofs": {
     "budget_declined": "wallet_policy.result=blocked, wallet_policy.reason=quote_exceeds_task_budget, payment.status=not_created",

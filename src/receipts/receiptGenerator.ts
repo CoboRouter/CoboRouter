@@ -6,6 +6,13 @@ export function receiptHash(response: RouteInferenceResponse): string {
   return sha256(
     JSON.stringify({
       ...response,
+      reconciliation: {
+        ...response.reconciliation,
+        evidence: {
+          ...response.reconciliation.evidence,
+          receipt_hash: ""
+        }
+      },
       receipt: {
         ...response.receipt,
         receipt_hash: ""
@@ -17,6 +24,13 @@ export function receiptHash(response: RouteInferenceResponse): string {
 export async function saveReceipt(response: RouteInferenceResponse): Promise<RouteInferenceResponse> {
   const signedResponse: RouteInferenceResponse = {
     ...response,
+    reconciliation: {
+      ...response.reconciliation,
+      evidence: {
+        ...response.reconciliation.evidence,
+        receipt_hash: receiptHash(response)
+      }
+    },
     receipt: {
       ...response.receipt,
       receipt_hash: receiptHash(response)

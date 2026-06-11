@@ -8,6 +8,7 @@ import { appendJsonl } from "../utils/fs.js";
 import { sha256, shortId } from "../utils/hash.js";
 
 type DemoScenario = NonNullable<RouteInferenceRequest["scenario"]>;
+type ResponseWithoutLifecycle = Omit<RouteInferenceResponse, "control_boundary" | "reconciliation">;
 const zaiProviderIds = [
   "zai",
   "zai_glm_5_turbo",
@@ -142,6 +143,77 @@ function withAuthorizationEvidence(
   };
 }
 
+function controlBoundary(
+  walletPolicy: RouteInferenceResponse["wallet_policy"],
+  selectedProviderId: string | null,
+  payment: RouteInferenceResponse["payment"]
+): RouteInferenceResponse["control_boundary"] {
+  return {
+    cobo_agentic_wallet_enforces:
+      walletPolicy.policyAuthority === "cobo_agentic_wallet"
+        ? [
+            "wallet identity",
+            "Cobo pact authorization",
+            "settlement operation",
+            "on-chain or Cobo operation proof"
+          ]
+        : payment.operation_id
+          ? ["demo Cobo-compatible wallet operation", "payment reference", "operation status"]
+        : ["no Cobo spend operation was created for this route"],
+    coborouter_enforces_before_wallet: [
+      "prompt triage",
+      "provider allowlist preflight",
+      "per-task budget preflight",
+      "human approval threshold preflight",
+      "idempotency and request bounds",
+      "receipt hash chain"
+    ],
+    provider_enforces:
+      selectedProviderId === "local_baseline"
+        ? ["local execution boundary"]
+        : ["provider API authentication", "provider request/invoice reference"],
+    not_cobo_enforced: [
+      "model capability scoring",
+      "estimated token quote",
+      "local/private route selection",
+      "provider answer quality"
+    ]
+  };
+}
+
+function reconciliation(
+  status: RouteInferenceResponse["status"],
+  payment: RouteInferenceResponse["payment"],
+  providerInvoice: RouteInferenceResponse["provider_invoice"]
+): RouteInferenceResponse["reconciliation"] {
+  const manualReview = status === "paid_failed" || payment.refund_status === "manual_reconciliation_required";
+  const paid = Boolean(payment.operation_id || payment.tx_hash);
+  return {
+    status: manualReview ? "manual_review_required" : paid ? "ready_for_audit" : "not_required",
+    dispute_window_hours: paid ? 24 : 0,
+    refund_policy: manualReview
+      ? "Settlement failed before inference; use the Cobo operation and receipt hash for manual reconciliation."
+      : paid
+        ? "Provider completion is settled through Cobo; disputes use provider invoice, Cobo operation, tx hash, and receipt hash."
+        : "No Cobo payment was created, so there is no wallet refund path.",
+    evidence: {
+      receipt_hash: "",
+      provider_invoice_id: providerInvoice.provider_invoice_id,
+      provider_request_id: providerInvoice.provider_request_id,
+      cobo_operation_id: payment.operation_id,
+      tx_hash: payment.tx_hash
+    }
+  };
+}
+
+function withLifecycle(response: ResponseWithoutLifecycle): RouteInferenceResponse {
+  return {
+    ...response,
+    control_boundary: controlBoundary(response.wallet_policy, response.broker_decision.selected_provider, response.payment),
+    reconciliation: reconciliation(response.status, response.payment, response.provider_invoice)
+  };
+}
+
 export async function routeInference(request: RouteInferenceRequest): Promise<RouteInferenceResponse> {
   const wallet = createCoboWalletAdapter();
   const taskId = shortId("task");
@@ -241,7 +313,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
   };
 
   if (!selected || walletPolicy.result !== "approved") {
-    const blockedResponse: RouteInferenceResponse = {
+    const blockedResponse = withLifecycle({
       status: walletPolicy.result === "requires_human_approval" ? "requires_human_approval" : "blocked",
       ...base,
       payment: {
@@ -260,7 +332,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
         simulated: false
       },
       answer: null
-    };
+    });
     await appendJsonl(logPath, { event: "route_inference", response: blockedResponse });
     return saveReceipt(blockedResponse);
   }
@@ -272,7 +344,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
 
   if (!selectedProvider.requires_wallet_payment) {
     const inference = await runInference(selectedProvider, request.prompt, selected.estimated_cost_usd);
-    const zeroSpendResponse: RouteInferenceResponse = {
+    const zeroSpendResponse = withLifecycle({
       status: "completed",
       ...base,
       broker_decision: {
@@ -298,14 +370,14 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
         summary: inference.summary,
         steps: inference.steps
       }
-    };
+    });
     await appendJsonl(logPath, { event: "route_inference", response: zeroSpendResponse });
     return saveReceipt(zeroSpendResponse);
   }
 
   const authorization = await wallet.authorizeSpend(policyInput);
   if (authorization.status === "pending_approval" || authorization.status === "blocked" || authorization.status === "failed") {
-    const pendingResponse: RouteInferenceResponse = {
+    const pendingResponse = withLifecycle({
       status: authorization.status === "pending_approval" ? "requires_human_approval" : "failed",
       ...base,
       wallet_policy: withAuthorizationEvidence(base.wallet_policy, authorization),
@@ -325,14 +397,14 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
         simulated: false
       },
       answer: null
-    };
+    });
     await appendJsonl(logPath, { event: "route_inference", response: pendingResponse });
     return saveReceipt(pendingResponse);
   }
 
   if (request.scenario === "settlement_failure") {
     const failedSettlement = await wallet.voidAuthorization(authorization.operationId);
-    const settlementFailureResponse: RouteInferenceResponse = {
+    const settlementFailureResponse = withLifecycle({
       status: "paid_failed",
       ...base,
       wallet_policy: withAuthorizationEvidence(base.wallet_policy, authorization),
@@ -356,7 +428,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
         simulated: false
       },
       answer: null
-    };
+    });
     await appendJsonl(logPath, { event: "route_inference", response: settlementFailureResponse });
     return saveReceipt(settlementFailureResponse);
   }
@@ -364,7 +436,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
   const inference = await runInference(selectedProvider, request.prompt, selected.estimated_cost_usd);
   const settlement = await wallet.settleSpend(authorization.operationId, inference.actualCostUsd);
 
-  const completedResponse: RouteInferenceResponse = {
+  const completedResponse = withLifecycle({
     status: "completed",
     ...base,
     wallet_policy: withAuthorizationEvidence(base.wallet_policy, authorization),
@@ -391,7 +463,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
       summary: inference.summary,
       steps: inference.steps
     }
-  };
+  });
 
   await appendJsonl(logPath, { event: "route_inference", response: completedResponse });
   return saveReceipt(completedResponse);

@@ -1,5 +1,6 @@
 import http from "node:http";
 import { readFile } from "node:fs/promises";
+import { providerCatalog } from "../broker/providerCatalog.js";
 import { demoRequest, routeInference } from "../broker/routeInference.js";
 import { routeInferenceToolSchema } from "../broker/toolSchema.js";
 import { loadEnv } from "../config/env.js";
@@ -74,6 +75,16 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/api/tool-schema") {
       res.writeHead(200, { "content-type": "application/json" });
       res.end(JSON.stringify(routeInferenceToolSchema, null, 2));
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/providers") {
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({
+        updated_at: new Date().toISOString(),
+        pricing_note: "Demo registry quotes are operator-controlled estimates. Live provider invoices are recorded per route receipt.",
+        providers: providerCatalog()
+      }, null, 2));
       return;
     }
 

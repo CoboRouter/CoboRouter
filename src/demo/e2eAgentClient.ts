@@ -3,7 +3,7 @@ import { once } from "node:events";
 import { setTimeout as sleep } from "node:timers/promises";
 import { demoRequest } from "../broker/routeInference.js";
 import { loadEnv } from "../config/env.js";
-import type { RouteInferenceResponse } from "../types.js";
+import type { ProviderCatalogItem, RouteInferenceResponse } from "../types.js";
 
 await loadEnv();
 
@@ -99,6 +99,7 @@ try {
   await waitForServer();
 
   const schema = await getJson<{ name?: string; input_schema?: { required?: string[] } }>("/api/tool-schema");
+  const catalog = await getJson<{ providers?: ProviderCatalogItem[] }>("/api/providers");
   const blocked = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("blocked"));
   const approved = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("approved"));
   const budgetDeclined = await postJson<RouteInferenceResponse>("/api/route-inference", demoRequest("budget_declined"));
@@ -115,8 +116,15 @@ try {
       ["prompt", "routing_mode", "max_spend_usd", "allowed_providers"].every((key) => schema.input_schema?.required?.includes(key)),
       `required=${schema.input_schema?.required?.join(",") || "missing"}`
     ),
+    assert("provider catalog is discoverable", Boolean(catalog.providers?.some((provider) => provider.provider_id === "zai")), `providers=${catalog.providers?.length || 0}`),
+    assert(
+      "provider catalog exposes pricing and settlement",
+      Boolean(catalog.providers?.every((provider) => provider.pricing_source && provider.settlement && provider.sla.refund_policy)),
+      "pricing_source, settlement, sla"
+    ),
     assert("blocked path blocks spend", blocked.status === "blocked", `status=${blocked.status}`),
     assert("blocked path creates no payment", blocked.payment.status === "not_created" && !blocked.payment.operation_id, `payment=${blocked.payment.status}`),
+    assert("blocked path states no Cobo spend was created", blocked.control_boundary.cobo_agentic_wallet_enforces.includes("no Cobo spend operation was created for this route"), blocked.control_boundary.cobo_agentic_wallet_enforces.join(", ")),
     assert("approved path completes", approved.status === "completed", `status=${approved.status}`),
     assert(
       "approved path uses live Z.AI triage when key is configured",
@@ -131,6 +139,13 @@ try {
       Boolean(approved.payment.operation_id && approved.payment.payment_reference),
       `operation=${approved.payment.operation_id || "missing"} payment=${approved.payment.payment_reference || "missing"}`
     ),
+    assert(
+      "approved path records CAW authority boundary",
+      (process.env.COBO_ADAPTER_MODE !== "live" || approved.control_boundary.cobo_agentic_wallet_enforces.includes("Cobo pact authorization")) &&
+        approved.control_boundary.not_cobo_enforced.includes("model capability scoring"),
+      approved.control_boundary.cobo_agentic_wallet_enforces.join(", ")
+    ),
+    assert("approved path is ready for audit", approved.reconciliation.status === "ready_for_audit", `reconciliation=${approved.reconciliation.status}`),
     assert(
       "transfer settlement returns on-chain proof",
       process.env.COBO_SETTLEMENT_MODE !== "transfer" ||
@@ -154,7 +169,8 @@ try {
     assert("human approval edge pauses before spend", humanApproval.status === "requires_human_approval" && humanApproval.wallet_policy.reason === "human_approval_threshold_exceeded", `status=${humanApproval.status} reason=${humanApproval.wallet_policy.reason}`),
     assert("human approval edge creates no payment", humanApproval.payment.status === "not_created" && !humanApproval.provider_invoice.provider_request_id, `payment=${humanApproval.payment.status}`),
     assert("settlement failure edge fails safely", settlementFailure.status === "paid_failed" && settlementFailure.payment.status === "failed", `status=${settlementFailure.status} payment=${settlementFailure.payment.status}`),
-    assert("settlement failure edge skips inference", !settlementFailure.answer && !settlementFailure.provider_invoice.provider_request_id, `answer=${Boolean(settlementFailure.answer)} provider=${settlementFailure.provider_invoice.provider_request_id || "none"}`)
+    assert("settlement failure edge skips inference", !settlementFailure.answer && !settlementFailure.provider_invoice.provider_request_id, `answer=${Boolean(settlementFailure.answer)} provider=${settlementFailure.provider_invoice.provider_request_id || "none"}`),
+    assert("settlement failure edge enters reconciliation", settlementFailure.reconciliation.status === "manual_review_required", `reconciliation=${settlementFailure.reconciliation.status}`)
   ];
 
   let failures = 0;

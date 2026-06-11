@@ -65,6 +65,12 @@ Call it as an agent tool:
 curl http://localhost:4173/api/tool-schema
 ```
 
+Discover the current provider market:
+
+```bash
+curl http://localhost:4173/api/providers
+```
+
 ```bash
 curl -X POST http://localhost:4173/api/route-inference \
   -H "content-type: application/json" \
@@ -88,6 +94,19 @@ Expected result:
 - `payment.proof_type = "on_chain"`
 - `payment.tx_hash` points to Sepolia
 
+## Who Runs It
+
+CoboRouter is deployed by an agent operator: a DAO treasury bot, trading agent team, automation platform, or agent wallet developer that wants autonomous inference spend to go through policy before provider execution.
+
+The operator configures:
+
+- Cobo Agentic Wallet credentials, policy ID, wallet address, and settlement address.
+- Provider allowlist and price registry under [`src/inference/providerRegistry.json`](src/inference/providerRegistry.json).
+- Optional `COBOROUTER_API_KEY` for agent access control.
+- Z.AI API key for live GLM triage and execution.
+
+Agents call only `route_inference`. They do not need provider keys, wallet keys, or settlement logic.
+
 ## What agents get
 
 | Capability | What it means |
@@ -97,6 +116,21 @@ Expected result:
 | Wallet policy | Cobo Agentic Wallet approves, blocks, or pauses spend. |
 | Live execution | Approved paid routes call Z.AI / GLM and settle through Cobo. |
 | Receipts | Every route returns a prompt hash, quote hash, route trace, policy result, provider invoice, payment proof, and receipt hash. |
+
+## Provider Discovery
+
+`GET /api/providers` returns the model catalog that agents and operators can inspect before routing:
+
+- provider ID and model name
+- capability scores
+- estimated input/output pricing
+- latency and quality score
+- wallet-payment requirement
+- settlement mode
+- pricing source and last update time
+- dispute/refund policy
+
+Pricing in this hackathon build is operator-controlled registry data. Live execution receipts still record the actual provider request/invoice reference and the Cobo payment operation, so a judge can distinguish quote estimates from execution evidence.
 
 ## Why it matters
 
@@ -111,6 +145,21 @@ CoboRouter answers: **Can this autonomous agent procure this inference under wal
 | No spend boundary | Per-task cap, allowlist, daily cap, human-approval threshold |
 | No wallet proof | Cobo operation + Sepolia transaction proof |
 | Hard to audit | Prompt hash, quote ID, route trace, provider invoice, tx hash |
+
+Compared with a simple wallet-gated API proxy, CoboRouter adds prompt triage, provider quotes, model selection, local/private routing, blocked-spend receipts, reconciliation status, and a verifier command for the receipt hash chain.
+
+## Control Boundary
+
+CoboRouter is explicit about which controls are wallet-native and which controls happen before wallet authorization.
+
+| Layer | Enforced there |
+| --- | --- |
+| Cobo Agentic Wallet | Wallet identity, Cobo pact authorization, settlement operation, on-chain or Cobo operation proof |
+| CoboRouter before wallet | Prompt triage, provider allowlist preflight, task budget preflight, human approval threshold preflight, idempotency/request bounds, receipt hash chain |
+| Provider | API authentication, provider request ID, provider invoice/reference |
+| Not CAW-enforced | Model quality scoring, estimated token quote, local/private route selection, provider answer quality |
+
+Receipts include `control_boundary` so this is visible in every approved, blocked, local, and failed path.
 
 ## Architecture
 
@@ -189,6 +238,7 @@ Operators can verify the agent tool surface, wallet policy outcomes, payment pro
 | What to check | Where |
 | --- | --- |
 | Agent-compatible API | `GET /api/tool-schema` and `POST /api/route-inference` |
+| Provider discovery API | `GET /api/providers` |
 | Agent skill manifest | [`agent/coborouter.route_inference.tool.json`](agent/coborouter.route_inference.tool.json) |
 | Blocked spend path | `npm run demo:blocked` and [`receipts/coborouter_demo_blocked_001.json`](receipts/coborouter_demo_blocked_001.json) |
 | Approved paid path | `npm run demo:approved` and [`receipts/coborouter_demo_approved_001.json`](receipts/coborouter_demo_approved_001.json) |
@@ -198,9 +248,21 @@ Operators can verify the agent tool surface, wallet policy outcomes, payment pro
 | Agentic E2E proof | `npm run e2e:agent` expects `25 passed, 0 failed` |
 | Wallet proof | Cobo operation `7406658f-973a-4fa7-8a62-4c072225c107` and Sepolia tx above |
 
-Receipts record `receipt.execution_mode`, Z.AI invoice status, Cobo policy authority/source, prompt-derived token estimates, `receipt.receipt_hash`, and an archive copy under `receipts/archive/...`.
+Receipts record `receipt.execution_mode`, Z.AI invoice status, Cobo policy authority/source, prompt-derived token estimates, `control_boundary`, `reconciliation`, `receipt.receipt_hash`, and an archive copy under `receipts/archive/...`.
 
 The demo API also includes product guardrails: bounded request bodies, bounded prompt length, optional `COBOROUTER_API_KEY` bearer auth, per-client rate limiting, and idempotency-key conflict detection for replay safety.
+
+## Operating Lifecycle
+
+1. Configure wallet policy, settlement destination, provider allowlist, and API access.
+2. Agents discover `/api/tool-schema` and `/api/providers`.
+3. Agents call `/api/route-inference` with a prompt, routing preference, provider allowlist, spend cap, and idempotency key.
+4. CoboRouter triages the prompt, quotes providers, and runs pre-wallet safety checks.
+5. Paid routes request Cobo authorization and settle after provider completion.
+6. Every run writes a receipt with receipt hash, provider evidence, Cobo proof, and reconciliation status.
+7. Operators verify receipts with `npm run verify:receipt -- <receipt.json>`.
+
+Blocked routes create no payment. Settlement failures skip provider inference and return `reconciliation.status=manual_review_required`.
 
 ## Developer commands
 
@@ -290,6 +352,15 @@ The receipt is designed for operators and agents to audit quickly.
   "provider_invoice": {
     "simulated": false
   },
+  "control_boundary": {
+    "cobo_agentic_wallet_enforces": ["wallet identity", "Cobo pact authorization"],
+    "coborouter_enforces_before_wallet": ["prompt triage", "provider allowlist preflight"],
+    "not_cobo_enforced": ["model capability scoring", "estimated token quote"]
+  },
+  "reconciliation": {
+    "status": "ready_for_audit",
+    "dispute_window_hours": 24
+  },
   "receipt": {
     "route_trace_hash": "sha256:...",
     "quote_hash": "sha256:...",
@@ -326,5 +397,7 @@ The receipt is designed for operators and agents to audit quickly.
 - CoboRouter performs deterministic preflight checks before spend; Cobo Agentic Wallet authorization/settlement is recorded when a live pact or transfer is used.
 - Unknown providers are denied by allowlist.
 - Overspend attempts stop before inference.
+- Receipts explicitly separate Cobo Agentic Wallet controls from CoboRouter pre-wallet controls.
+- Provider pricing is registry-based for the hackathon demo; provider invoices and Cobo operations are execution evidence.
 - Transfer settlement uses tiny testnet SETH for proof.
-- Every paid path produces a receipt with prompt hash, route trace, policy hash, provider invoice, Cobo proof, and a verifier-checked receipt hash.
+- Every paid path produces a receipt with prompt hash, route trace, policy hash, provider invoice, Cobo proof, reconciliation status, and a verifier-checked receipt hash.

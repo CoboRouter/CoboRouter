@@ -45,6 +45,7 @@ function checkReceipt(receipt: RouteInferenceResponse | null, expectedStatus: Ro
     return [{ name, status: "fail", detail: "receipt file missing or invalid JSON" }];
   }
 
+  const expectsCoboAuthority = receipt.payment.status === "settled" || receipt.status === "paid_failed";
   const checks: Check[] = [
     {
       name: `${name}: status`,
@@ -83,8 +84,28 @@ function checkReceipt(receipt: RouteInferenceResponse | null, expectedStatus: Ro
     },
     {
       name: `${name}: policy authority`,
-      status: receipt.wallet_policy.policyAuthority === "cobo_agentic_wallet" || receipt.wallet_policy.policyAuthority === "local_demo" ? "pass" : "fail",
+      status: expectsCoboAuthority
+        ? receipt.wallet_policy.policyAuthority === "cobo_agentic_wallet"
+          ? "pass"
+          : "fail"
+        : receipt.wallet_policy.policyAuthority === "coborouter_policy_engine" || receipt.wallet_policy.policyAuthority === "local_demo"
+          ? "pass"
+          : "fail",
       detail: `${receipt.wallet_policy.policyAuthority || "missing"} via ${receipt.wallet_policy.policySource || "missing"}`
+    },
+    {
+      name: `${name}: control boundary`,
+      status:
+        receipt.control_boundary?.coborouter_enforces_before_wallet?.length > 0 &&
+        receipt.control_boundary?.not_cobo_enforced?.length > 0
+          ? "pass"
+          : "fail",
+      detail: receipt.control_boundary?.coborouter_enforces_before_wallet?.join(", ") || "missing"
+    },
+    {
+      name: `${name}: reconciliation status`,
+      status: receipt.reconciliation?.status ? "pass" : "fail",
+      detail: receipt.reconciliation?.status || "missing"
     }
   ];
 
@@ -116,6 +137,11 @@ function checkReceipt(receipt: RouteInferenceResponse | null, expectedStatus: Ro
             : `wallet=${receipt.wallet_policy.walletAddress}, policy=${receipt.wallet_policy.policyId}`
       },
       {
+        name: `${name}: audit-ready reconciliation`,
+        status: receipt.reconciliation.status === "ready_for_audit" ? "pass" : "fail",
+        detail: receipt.reconciliation.status
+      },
+      {
         name: `${name}: receipt brand`,
         status: receipt.receipt.receipt_id.startsWith("coborouter_demo_") ? "pass" : "fail",
         detail: receipt.receipt.receipt_id
@@ -129,6 +155,11 @@ function checkReceipt(receipt: RouteInferenceResponse | null, expectedStatus: Ro
         name: `${name}: no spend created`,
         status: receipt.payment.status === "not_created" && !receipt.payment.operation_id ? "pass" : "fail",
         detail: `payment status=${receipt.payment.status}`
+      },
+      {
+        name: `${name}: pre-wallet boundary`,
+        status: receipt.control_boundary.cobo_agentic_wallet_enforces.includes("no Cobo spend operation was created for this route") ? "pass" : "fail",
+        detail: receipt.control_boundary.cobo_agentic_wallet_enforces.join(", ")
       },
       {
         name: `${name}: block reason`,
@@ -151,6 +182,11 @@ function checkReceipt(receipt: RouteInferenceResponse | null, expectedStatus: Ro
         detail: `payment status=${receipt.payment.status}`
       },
       {
+        name: `${name}: pre-wallet approval boundary`,
+        status: receipt.control_boundary.cobo_agentic_wallet_enforces.includes("no Cobo spend operation was created for this route") ? "pass" : "fail",
+        detail: receipt.control_boundary.cobo_agentic_wallet_enforces.join(", ")
+      },
+      {
         name: `${name}: approval reason`,
         status: receipt.wallet_policy.reason === "human_approval_threshold_exceeded" ? "pass" : "fail",
         detail: receipt.wallet_policy.reason || "missing"
@@ -169,6 +205,11 @@ function checkReceipt(receipt: RouteInferenceResponse | null, expectedStatus: Ro
         name: `${name}: no inference after failed settlement`,
         status: receipt.answer === null && !receipt.provider_invoice.provider_request_id ? "pass" : "fail",
         detail: receipt.answer ? "answer unexpectedly present" : "no answer/provider invoice"
+      },
+      {
+        name: `${name}: manual reconciliation state`,
+        status: receipt.reconciliation.status === "manual_review_required" ? "pass" : "fail",
+        detail: receipt.reconciliation.status
       }
     );
   }
@@ -189,6 +230,7 @@ const productFiles = [
   "src/wallet/coboAdapter.ts",
   "src/wallet/policy.ts",
   "src/broker/routeInference.ts",
+  "src/broker/providerCatalog.ts",
   "src/broker/toolSchema.ts",
   "src/broker/routingPolicy.ts",
   "src/inference/inferenceAdapter.ts",

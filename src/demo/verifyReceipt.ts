@@ -69,6 +69,7 @@ const checks: Check[] = [
   check("route trace hash", receipt.receipt.route_trace_hash === routeTraceHash, `${receipt.receipt.route_trace_hash} expected ${routeTraceHash}`),
   check("quote hash", receipt.receipt.quote_hash === quoteHash && receipt.broker_decision.quote_hash === quoteHash, `${receipt.receipt.quote_hash} expected ${quoteHash}`),
   check("receipt hash", receipt.receipt.receipt_hash === receiptHash(receipt), `${receipt.receipt.receipt_hash || "missing"} expected ${receiptHash(receipt)}`),
+  check("reconciliation receipt hash", receipt.reconciliation.evidence.receipt_hash === receipt.receipt.receipt_hash, receipt.reconciliation.evidence.receipt_hash || "missing"),
   check("route trace has quotes", receipt.broker_decision.route_trace.length > 0, `${receipt.broker_decision.route_trace.length} entries`),
   check(
     "token estimates present",
@@ -76,6 +77,9 @@ const checks: Check[] = [
     "every quote includes input/output token estimates"
   ),
   check("policy authority recorded", Boolean(receipt.wallet_policy.policyAuthority && receipt.wallet_policy.policySource), `${receipt.wallet_policy.policyAuthority} / ${receipt.wallet_policy.policySource}`),
+  check("control boundary recorded", receipt.control_boundary.coborouter_enforces_before_wallet.length > 0 && receipt.control_boundary.not_cobo_enforced.length > 0, "CoboRouter and non-Cobo controls are explicit"),
+  check("Cobo authority boundary recorded", receipt.control_boundary.cobo_agentic_wallet_enforces.length > 0, receipt.control_boundary.cobo_agentic_wallet_enforces.join(", ")),
+  check("reconciliation status recorded", ["not_required", "ready_for_audit", "manual_review_required"].includes(receipt.reconciliation.status), receipt.reconciliation.status),
   check("archive path present", Boolean(receipt.receipt.archive_path), receipt.receipt.archive_path),
   check("archive copy matches", await archiveMatches(receipt, path), receipt.receipt.archive_path)
 ];

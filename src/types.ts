@@ -32,6 +32,7 @@ export type ProviderConfig = {
   provider_id: string;
   display_name: string;
   model: string;
+  provider_type?: "zai_api" | "local";
   capabilities: Partial<Record<CapabilityKey, number>>;
   cost_per_1k_input_usd: number;
   cost_per_1k_output_usd: number;
@@ -41,8 +42,38 @@ export type ProviderConfig = {
   requires_wallet_payment: boolean;
   payment_asset: "USDC" | null;
   payment_network: string | null;
+  pricing_source?: "registry" | "zai_public_docs" | "operator_override" | "local";
+  pricing_updated_at?: string;
+  settlement?: "cobo_wallet_transfer" | "zai_api_key" | "local_no_payment";
+  sla?: {
+    dispute_window_hours: number;
+    refund_policy: string;
+  };
   label?: string;
   stretch_target?: boolean;
+};
+
+export type ProviderCatalogItem = {
+  provider_id: string;
+  display_name: string;
+  model: string;
+  provider_type: "zai_api" | "local";
+  capabilities: Partial<Record<CapabilityKey, number>>;
+  cost_per_1k_input_usd: number;
+  cost_per_1k_output_usd: number;
+  avg_latency_ms: number;
+  quality_score: number;
+  allowlisted: boolean;
+  requires_wallet_payment: boolean;
+  payment_asset: "USDC" | null;
+  payment_network: string | null;
+  pricing_source: "registry" | "zai_public_docs" | "operator_override" | "local";
+  pricing_updated_at: string;
+  settlement: "cobo_wallet_transfer" | "zai_api_key" | "local_no_payment";
+  sla: {
+    dispute_window_hours: number;
+    refund_policy: string;
+  };
 };
 
 export type RouteDecision = {
@@ -106,6 +137,26 @@ export type WalletAuthorization = {
   explorerUrl?: string | null;
 };
 
+export type ControlBoundary = {
+  cobo_agentic_wallet_enforces: string[];
+  coborouter_enforces_before_wallet: string[];
+  provider_enforces: string[];
+  not_cobo_enforced: string[];
+};
+
+export type ReconciliationState = {
+  status: "not_required" | "ready_for_audit" | "manual_review_required";
+  dispute_window_hours: number;
+  refund_policy: string;
+  evidence: {
+    receipt_hash: string;
+    provider_invoice_id: string | null;
+    provider_request_id: string | null;
+    cobo_operation_id: string | null;
+    tx_hash: string | null;
+  };
+};
+
 export type RouteInferenceRequest = {
   prompt: string;
   routing_mode: RoutingMode;
@@ -164,6 +215,8 @@ export type RouteInferenceResponse = {
     provider_invoice_id: string | null;
     simulated: boolean;
   };
+  control_boundary: ControlBoundary;
+  reconciliation: ReconciliationState;
   answer: {
     summary: string;
     steps: string[];
