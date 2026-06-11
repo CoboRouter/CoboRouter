@@ -14,6 +14,7 @@ const rateWindowMs = 60_000;
 const maxRequestsPerWindow = 60;
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 const idempotencyHashes = new Map<string, string>();
+const apiKey = process.env.COBOROUTER_API_KEY;
 
 function rateLimitKey(req: http.IncomingMessage): string {
   return String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "local").split(",")[0].trim();
@@ -29,6 +30,13 @@ function withinRateLimit(req: http.IncomingMessage): boolean {
   }
   bucket.count += 1;
   return bucket.count <= maxRequestsPerWindow;
+}
+
+function isAuthorized(req: http.IncomingMessage): boolean {
+  if (!apiKey) return true;
+  const bearer = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  const headerKey = String(req.headers["x-coborouter-api-key"] || "");
+  return bearer === apiKey || headerKey === apiKey;
 }
 
 function readBody(req: http.IncomingMessage): Promise<string> {
@@ -70,6 +78,12 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "POST" && url.pathname === "/api/route-inference") {
+      if (!isAuthorized(req)) {
+        res.writeHead(401, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "unauthorized", detail: "set a valid bearer token or x-coborouter-api-key" }));
+        return;
+      }
+
       if (!withinRateLimit(req)) {
         res.writeHead(429, { "content-type": "application/json" });
         res.end(JSON.stringify({ error: "rate_limited", detail: `limit ${maxRequestsPerWindow} requests per minute` }));

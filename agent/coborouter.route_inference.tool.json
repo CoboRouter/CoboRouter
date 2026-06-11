@@ -39,11 +39,6 @@
       "idempotency_key": {
         "type": "string",
         "description": "Caller-supplied replay key for agent/payment idempotency."
-      },
-      "scenario": {
-        "type": "string",
-        "enum": ["approved", "blocked", "budget_declined", "local", "simple_zai", "custom"],
-        "description": "Demo helper. Use custom for normal agent calls."
       }
     }
   },
@@ -56,7 +51,8 @@
     "payment.wallet_provider": "cobo_agentic_wallet",
     "payment.proof_type": "on_chain",
     "payment.status": "settled",
-    "payment.tx_hash": "required"
+    "payment.tx_hash": "required",
+    "receipt.receipt_hash": "required"
   },
   "edge_case_proofs": {
     "budget_declined": "wallet_policy.result=blocked, wallet_policy.reason=quote_exceeds_task_budget, payment.status=not_created",

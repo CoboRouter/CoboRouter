@@ -1,6 +1,6 @@
 {
   "status": "completed",
-  "task_id": "task_d3f2637fa65f",
+  "task_id": "task_2457d18911a5",
   "broker_decision": {
     "task_type": "private_local_summary",
     "triage_source": "deterministic_fallback",
@@ -12,8 +12,8 @@
     "actual_cost_usd": 0,
     "triage_cost_usd": 0,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_e619393232d2",
-    "quote_hash": "sha256:c4510a049200759c5a09e546631b85d14fd37fe84a9176ba872cbfc8f829853a",
+    "quote_id": "quote_5491de8e6c67",
+    "quote_hash": "sha256:5503611c2e5c477af099a4769b3b20b342ccebffe313e2f66b6f865bd91ca534",
     "route_trace": [
       {
         "provider_id": "zai_flash",
@@ -58,11 +58,11 @@
     "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
     "policyHash": "sha256:e42767f9d46706c607d1246098c38ae9a91afd169bb47267e977ba68c7a2fa50",
     "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
-    "policySource": "cobo_pact_preflight",
-    "policyAuthority": "cobo_agentic_wallet",
+    "policySource": "coborouter_preflight",
+    "policyAuthority": "coborouter_policy_engine",
     "evidence": {
-      "source": "cobo_pact_preflight",
-      "live": true,
+      "source": "coborouter_preflight",
+      "live": false,
       "coboPactId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
       "spendCapUsd": 5,
       "providerAllowlistHash": "sha256:7d1da4f84d544e1ef5197a84feaf7875a5a9f2d0546a629934137b5bfe7f6d6c"
@@ -76,14 +76,15 @@
     "receipt_id": "coborouter_edge_local_001",
     "prompt_hash": "sha256:5817b458f8703d0d6e729fbf55b8c43aeb3ba6fb87617f190d5044d521f24ff4",
     "policy_hash": "sha256:e42767f9d46706c607d1246098c38ae9a91afd169bb47267e977ba68c7a2fa50",
-    "quote_hash": "sha256:c4510a049200759c5a09e546631b85d14fd37fe84a9176ba872cbfc8f829853a",
+    "quote_hash": "sha256:5503611c2e5c477af099a4769b3b20b342ccebffe313e2f66b6f865bd91ca534",
     "route_trace_hash": "sha256:d4e4142930ed6ebd5b65fc64690d2c3d25e351cdfa067fa421e0b9baa61fce89",
-    "quote_id": "quote_e619393232d2",
+    "receipt_hash": "sha256:c1094e0270355616987dcd38ad3169fe78dfe71aaa9778911390adb4261b2f54",
+    "quote_id": "quote_5491de8e6c67",
     "idempotency_key": "edge-local-001",
-    "timestamp": "2026-06-11T00:58:13.617Z",
+    "timestamp": "2026-06-11T01:56:54.151Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_edge_local_001.json",
-    "archive_path": "receipts/archive/coborouter_edge_local_001/2026-06-11T00-58-13-617Z.json",
+    "archive_path": "receipts/archive/coborouter_edge_local_001/2026-06-11T01-56-54-151Z.json",
     "execution_mode": "demo"
   },
   "payment": {

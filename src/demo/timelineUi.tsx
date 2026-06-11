@@ -319,7 +319,7 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
           prompt: promptInput.value,
           routing_mode: "cheapest_capable",
           max_spend_usd: Number(budgetInput.value),
-          allowed_providers: scenario === "simple_zai" ? zaiProviderIds : [...zaiProviderIds, "second_real_provider", "local_baseline"],
+          allowed_providers: scenario === "simple_zai" ? zaiProviderIds : [...zaiProviderIds, "local_baseline"],
           require_receipt: true,
           idempotency_key: "demo-" + scenario + "-001",
           scenario

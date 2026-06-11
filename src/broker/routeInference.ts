@@ -80,7 +80,7 @@ export function demoRequest(scenario: Exclude<DemoScenario, "custom">): RouteInf
         : scenario === "human_approval"
           ? 0.25
           : 0.25,
-    allowed_providers: [...zaiProviderIds, "second_real_provider", "local_baseline"],
+    allowed_providers: [...zaiProviderIds, "local_baseline"],
     require_receipt: true,
     idempotency_key:
       scenario === "budget_declined"
@@ -118,6 +118,27 @@ function receiptPaths(receiptId: string): { receiptPath: string; logPath: string
   return {
     receiptPath: `receipts/${receiptId}.json`,
     logPath: "logs/demo-run.jsonl"
+  };
+}
+
+function withAuthorizationEvidence(
+  walletPolicy: RouteInferenceResponse["wallet_policy"],
+  authorization: { operationId: string }
+): RouteInferenceResponse["wallet_policy"] {
+  if (walletPolicy.policyAuthority !== "coborouter_policy_engine") {
+    return walletPolicy;
+  }
+
+  return {
+    ...walletPolicy,
+    policySource: "cobo_pact_authorization",
+    policyAuthority: "cobo_agentic_wallet",
+    evidence: {
+      ...walletPolicy.evidence,
+      source: "cobo_pact_authorization",
+      live: true,
+      coboPactId: authorization.operationId
+    }
   };
 }
 
@@ -208,6 +229,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
       policy_hash: walletPolicy.policyHash,
       quote_hash: quoteHash,
       route_trace_hash: routeTraceHash,
+      receipt_hash: "",
       quote_id: quoteId,
       idempotency_key: request.idempotency_key,
       timestamp,
@@ -286,6 +308,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
     const pendingResponse: RouteInferenceResponse = {
       status: authorization.status === "pending_approval" ? "requires_human_approval" : "failed",
       ...base,
+      wallet_policy: withAuthorizationEvidence(base.wallet_policy, authorization),
       payment: {
         wallet_provider: "cobo_agentic_wallet",
         operation_id: authorization.operationId,
@@ -312,6 +335,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
     const settlementFailureResponse: RouteInferenceResponse = {
       status: "paid_failed",
       ...base,
+      wallet_policy: withAuthorizationEvidence(base.wallet_policy, authorization),
       broker_decision: {
         ...base.broker_decision,
         reason: "settlement_failed_before_inference"
@@ -343,6 +367,7 @@ export async function routeInference(request: RouteInferenceRequest): Promise<Ro
   const completedResponse: RouteInferenceResponse = {
     status: "completed",
     ...base,
+    wallet_policy: withAuthorizationEvidence(base.wallet_policy, authorization),
     broker_decision: {
       ...base.broker_decision,
       actual_cost_usd: inference.actualCostUsd

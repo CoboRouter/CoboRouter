@@ -1,19 +1,19 @@
 {
-  "status": "blocked",
-  "task_id": "task_3d011afe9780",
+  "status": "completed",
+  "task_id": "task_422af7520890",
   "broker_decision": {
     "task_type": "defi_treasury_management",
     "triage_source": "zai_live",
     "triage_model": "glm-5.1",
-    "selected_provider": null,
-    "selected_model": null,
-    "reason": "quote_exceeds_task_budget",
+    "selected_provider": "zai",
+    "selected_model": "glm-5.1",
+    "reason": "cheapest capable paid provider under wallet budget",
     "estimated_cost_usd": 0.0299,
-    "actual_cost_usd": 0,
+    "actual_cost_usd": 0.0275,
     "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_3bf7eef40718",
-    "quote_hash": "sha256:00e6afab08dfb6cafdbef9cc333279c0bd302f70381a51d1cf129d52123e822b",
+    "quote_id": "quote_32af3a6830cf",
+    "quote_hash": "sha256:5c0aa5c1b9e5fc1650a5c5935d8b417b3030655d74ee5a73188b59759750c2e6",
     "route_trace": [
       {
         "provider_id": "zai_flash",
@@ -142,8 +142,8 @@
         "estimated_input_tokens": 3412,
         "estimated_output_tokens": 5700,
         "estimated_cost_usd": 0.0299,
-        "decision": "rejected",
-        "reason": "quote exceeds task budget",
+        "decision": "selected",
+        "reason": "cheapest capable paid provider under wallet budget",
         "capable": true,
         "requires_wallet_payment": true
       },
@@ -172,18 +172,6 @@
         "requires_wallet_payment": true
       },
       {
-        "provider_id": "second_real_provider",
-        "model": "configured-real-model",
-        "display_name": "Second Real Provider",
-        "estimated_input_tokens": 3412,
-        "estimated_output_tokens": 5700,
-        "estimated_cost_usd": 0.0336,
-        "decision": "rejected",
-        "reason": "reasoning capability 4 below required 5",
-        "capable": false,
-        "requires_wallet_payment": true
-      },
-      {
         "provider_id": "local_baseline",
         "model": "local-small",
         "display_name": "Local Baseline",
@@ -198,53 +186,60 @@
     ]
   },
   "wallet_policy": {
-    "result": "blocked",
-    "reason": "quote_exceeds_task_budget",
+    "result": "approved",
     "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
-    "policyHash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
+    "policyHash": "sha256:71f9bae9fa1d7202f7fea96d674e423fabde3d159c5203bdf312e5a9557b39fb",
     "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
-    "policySource": "cobo_pact_preflight",
+    "policySource": "cobo_pact_authorization",
     "policyAuthority": "cobo_agentic_wallet",
     "evidence": {
-      "source": "cobo_pact_preflight",
+      "source": "cobo_pact_authorization",
       "live": true,
       "coboPactId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
       "spendCapUsd": 5,
-      "providerAllowlistHash": "sha256:423ab56d55ae8a8815fe0968d0b3e118f5fa111867b5f0f90948f9bae39b8e08"
+      "providerAllowlistHash": "sha256:00b46258b888bd47e09a0e3912a3485508558a337d2274d69e903294683370e8"
     },
-    "max_spend_usd": 0.02,
-    "approved_spend_usd": 0,
+    "max_spend_usd": 0.25,
+    "approved_spend_usd": 0.0299,
     "provider_allowlisted": true,
     "human_approval_required": false
   },
   "receipt": {
-    "receipt_id": "coborouter_demo_blocked_001",
+    "receipt_id": "coborouter_demo_approved_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
-    "policy_hash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
-    "quote_hash": "sha256:00e6afab08dfb6cafdbef9cc333279c0bd302f70381a51d1cf129d52123e822b",
-    "route_trace_hash": "sha256:f46bc611e6de86c81547faf827437921704affff9ba2da00ca04e23f04546543",
-    "quote_id": "quote_3bf7eef40718",
-    "idempotency_key": "demo-blocked-001",
-    "timestamp": "2026-06-11T01:00:12.517Z",
+    "policy_hash": "sha256:71f9bae9fa1d7202f7fea96d674e423fabde3d159c5203bdf312e5a9557b39fb",
+    "quote_hash": "sha256:5c0aa5c1b9e5fc1650a5c5935d8b417b3030655d74ee5a73188b59759750c2e6",
+    "route_trace_hash": "sha256:c8a7eb5c858311f7443b6aec98f8d9383286b77c12f4ed8906b1c8941922ef63",
+    "receipt_hash": "sha256:0f32d10eaa0601b5a9f53b945d709a8630ed19d0a690c93adb8b9cc9475ef111",
+    "quote_id": "quote_32af3a6830cf",
+    "idempotency_key": "demo-approved-001",
+    "timestamp": "2026-06-11T01:56:27.092Z",
     "log_path": "logs/demo-run.jsonl",
-    "receipt_path": "receipts/coborouter_demo_blocked_001.json",
-    "archive_path": "receipts/archive/coborouter_demo_blocked_001/2026-06-11T01-00-12-517Z.json",
+    "receipt_path": "receipts/coborouter_demo_approved_001.json",
+    "archive_path": "receipts/archive/coborouter_demo_approved_001/2026-06-11T01-56-27-092Z.json",
     "execution_mode": "live"
   },
   "payment": {
     "wallet_provider": "cobo_agentic_wallet",
-    "operation_id": null,
-    "payment_reference": null,
-    "tx_hash": null,
-    "explorer_url": null,
-    "proof_type": "cobo_operation",
-    "status": "not_created",
+    "operation_id": "7406658f-973a-4fa7-8a62-4c072225c107",
+    "payment_reference": "coborouter_c54ceef0-e251-4f3a-8d2d-dc2d855add43",
+    "tx_hash": "0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b",
+    "explorer_url": "https://sepolia.etherscan.io/tx/0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b",
+    "proof_type": "on_chain",
+    "status": "settled",
     "refund_status": "not_required"
   },
   "provider_invoice": {
-    "provider_request_id": null,
-    "provider_invoice_id": null,
+    "provider_request_id": "zai_req_a7aa919086cb",
+    "provider_invoice_id": "zai_invoice_642ab68119f7",
     "simulated": false
   },
-  "answer": null
+  "answer": {
+    "summary": "**Demo Fixture Data Notice:** The rates, protocols, and risks evaluated below are based on provided demo fixture data, not live market conditions.\n\n### Yield Option Comparison\n*   **Option A (USDC Lending - 4.2% APY):** Lower yield, but high liquidity ensures the DAO can withdraw funds almost instantly to cover operations or seize other opportunities. Smart contract risk is mitigated by audits.\n*   **Option B (USDC Vault - 6.1% APY):** Higher yield, but medium liquidity introduces withdrawal friction (e.g., lockups, withdrawal queues, or slippage). Audits mitigate smart contract risk, but liqu",
+    "steps": [
+      "Use the provided fixture options only.",
+      "Prefer the option with stronger liquidity and simpler withdrawal risk unless higher yield is explicitly accepted.",
+      "Record the wallet-bounded inference procurement receipt before acting."
+    ]
+  }
 }

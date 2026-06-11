@@ -86,8 +86,8 @@ export type WalletPolicyResult = {
   policyId: string;
   policyHash: string;
   walletAddress?: string;
-  policySource: "cobo_pact_preflight" | "local_policy_guard";
-  policyAuthority: "cobo_agentic_wallet" | "local_demo";
+  policySource: "cobo_pact_authorization" | "coborouter_preflight" | "local_policy_guard";
+  policyAuthority: "cobo_agentic_wallet" | "coborouter_policy_engine" | "local_demo";
   evidence: {
     source: string;
     live: boolean;
@@ -174,6 +174,7 @@ export type RouteInferenceResponse = {
     policy_hash: string;
     quote_hash: string;
     route_trace_hash: string;
+    receipt_hash: string;
     quote_id: string;
     idempotency_key?: string;
     timestamp: string;

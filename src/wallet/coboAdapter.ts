@@ -223,8 +223,8 @@ export class LiveCoboWalletAdapter implements CoboWalletAdapter {
       input,
       this.policyId,
       this.walletAddress,
-      "cobo_agentic_wallet",
-      "cobo_pact_preflight",
+      "coborouter_policy_engine",
+      "coborouter_preflight",
       process.env.COBO_LIVE_PACT_ID || this.policyId
     );
   }

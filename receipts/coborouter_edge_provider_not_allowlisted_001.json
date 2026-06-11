@@ -1,6 +1,6 @@
 {
   "status": "blocked",
-  "task_id": "task_f4e65ae4cf4f",
+  "task_id": "task_780deb8faefc",
   "broker_decision": {
     "task_type": "treasury_management",
     "triage_source": "zai_live",
@@ -12,8 +12,8 @@
     "actual_cost_usd": 0,
     "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_963f151f457c",
-    "quote_hash": "sha256:de3d55f6ee028f46688867d8f6170ffe1790a7933cad04431247a5cca00fab8e",
+    "quote_id": "quote_cdd2550293fc",
+    "quote_hash": "sha256:a812a2dabd1b8e2e65339bf00559ece4826e7670d9da6ad7472277bff651087c",
     "route_trace": [
       {
         "provider_id": "zai_flash",
@@ -172,18 +172,6 @@
         "requires_wallet_payment": true
       },
       {
-        "provider_id": "second_real_provider",
-        "model": "configured-real-model",
-        "display_name": "Second Real Provider",
-        "estimated_input_tokens": 3412,
-        "estimated_output_tokens": 5700,
-        "estimated_cost_usd": 0.0336,
-        "decision": "rejected",
-        "reason": "reasoning capability 4 below required 5",
-        "capable": false,
-        "requires_wallet_payment": true
-      },
-      {
         "provider_id": "local_baseline",
         "model": "local-small",
         "display_name": "Local Baseline",
@@ -201,16 +189,16 @@
     "result": "blocked",
     "reason": "provider_not_allowlisted",
     "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
-    "policyHash": "sha256:36ff2af4d3f31ea1bd6ebe04233f2df91b9235d0a90b198705c693516ee31698",
+    "policyHash": "sha256:d4359a7a50cfa70305966a408eb9be6271fc8723dc7949c9abc6f18d6e03a4d8",
     "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
-    "policySource": "cobo_pact_preflight",
-    "policyAuthority": "cobo_agentic_wallet",
+    "policySource": "coborouter_preflight",
+    "policyAuthority": "coborouter_policy_engine",
     "evidence": {
-      "source": "cobo_pact_preflight",
-      "live": true,
+      "source": "coborouter_preflight",
+      "live": false,
       "coboPactId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
       "spendCapUsd": 5,
-      "providerAllowlistHash": "sha256:93e27feaf1d7017e9f401e7b7b9a960224bdc9f48c964b50a64a6b52809ccbdf"
+      "providerAllowlistHash": "sha256:20f7e4af56afe87cfcbf9a6746104286e5160b95e7cd63cd8f07e56f4d2291dd"
     },
     "max_spend_usd": 0.25,
     "approved_spend_usd": 0,
@@ -220,15 +208,16 @@
   "receipt": {
     "receipt_id": "coborouter_edge_provider_not_allowlisted_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
-    "policy_hash": "sha256:36ff2af4d3f31ea1bd6ebe04233f2df91b9235d0a90b198705c693516ee31698",
-    "quote_hash": "sha256:de3d55f6ee028f46688867d8f6170ffe1790a7933cad04431247a5cca00fab8e",
-    "route_trace_hash": "sha256:f42817f6e43816d345b7b3ceb9bfc850e2f4ba6018cbb0710ea1ae786d73345f",
-    "quote_id": "quote_963f151f457c",
+    "policy_hash": "sha256:d4359a7a50cfa70305966a408eb9be6271fc8723dc7949c9abc6f18d6e03a4d8",
+    "quote_hash": "sha256:a812a2dabd1b8e2e65339bf00559ece4826e7670d9da6ad7472277bff651087c",
+    "route_trace_hash": "sha256:c8a7eb5c858311f7443b6aec98f8d9383286b77c12f4ed8906b1c8941922ef63",
+    "receipt_hash": "sha256:82c8f8b664bffb33b3525a9385c81d28445ef4a599c5645b7abddebef8f3fe3f",
+    "quote_id": "quote_cdd2550293fc",
     "idempotency_key": "edge-provider-not-allowlisted-001",
-    "timestamp": "2026-06-11T00:58:23.852Z",
+    "timestamp": "2026-06-11T01:57:22.010Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_edge_provider_not_allowlisted_001.json",
-    "archive_path": "receipts/archive/coborouter_edge_provider_not_allowlisted_001/2026-06-11T00-58-23-852Z.json",
+    "archive_path": "receipts/archive/coborouter_edge_provider_not_allowlisted_001/2026-06-11T01-57-22-010Z.json",
     "execution_mode": "live"
   },
   "payment": {

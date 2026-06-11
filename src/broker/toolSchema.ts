@@ -33,11 +33,6 @@ export const routeInferenceToolSchema = {
       idempotency_key: {
         type: "string",
         description: "Caller-supplied replay key for demo and future payment idempotency."
-      },
-      scenario: {
-        type: "string",
-        enum: ["approved", "blocked", "budget_declined", "local", "simple_zai", "custom"],
-        description: "Demo helper used to choose cached triage fixtures and receipt names."
       }
     }
   }

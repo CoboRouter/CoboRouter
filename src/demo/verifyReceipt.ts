@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import type { RouteDecision, RouteInferenceResponse } from "../types.js";
 import { sha256 } from "../utils/hash.js";
+import { receiptHash } from "../receipts/receiptGenerator.js";
 
 type Check = {
   name: string;
@@ -67,6 +68,7 @@ const checks: Check[] = [
   check("policy hash present", receipt.receipt.policy_hash.startsWith("sha256:") && receipt.wallet_policy.policyHash === receipt.receipt.policy_hash, receipt.receipt.policy_hash),
   check("route trace hash", receipt.receipt.route_trace_hash === routeTraceHash, `${receipt.receipt.route_trace_hash} expected ${routeTraceHash}`),
   check("quote hash", receipt.receipt.quote_hash === quoteHash && receipt.broker_decision.quote_hash === quoteHash, `${receipt.receipt.quote_hash} expected ${quoteHash}`),
+  check("receipt hash", receipt.receipt.receipt_hash === receiptHash(receipt), `${receipt.receipt.receipt_hash || "missing"} expected ${receiptHash(receipt)}`),
   check("route trace has quotes", receipt.broker_decision.route_trace.length > 0, `${receipt.broker_decision.route_trace.length} entries`),
   check(
     "token estimates present",

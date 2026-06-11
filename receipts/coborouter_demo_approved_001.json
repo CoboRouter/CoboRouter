@@ -1,6 +1,6 @@
 {
   "status": "completed",
-  "task_id": "task_b79d124fdc00",
+  "task_id": "task_422af7520890",
   "broker_decision": {
     "task_type": "defi_treasury_management",
     "triage_source": "zai_live",
@@ -12,8 +12,8 @@
     "actual_cost_usd": 0.0275,
     "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_bfbb339de165",
-    "quote_hash": "sha256:cb4dbab3e3fa0bf0296ca166b9af3aca78309c88190f622e47f61ee5e07ea7fb",
+    "quote_id": "quote_32af3a6830cf",
+    "quote_hash": "sha256:5c0aa5c1b9e5fc1650a5c5935d8b417b3030655d74ee5a73188b59759750c2e6",
     "route_trace": [
       {
         "provider_id": "zai_flash",
@@ -172,18 +172,6 @@
         "requires_wallet_payment": true
       },
       {
-        "provider_id": "second_real_provider",
-        "model": "configured-real-model",
-        "display_name": "Second Real Provider",
-        "estimated_input_tokens": 3412,
-        "estimated_output_tokens": 5700,
-        "estimated_cost_usd": 0.0336,
-        "decision": "rejected",
-        "reason": "reasoning capability 4 below required 5",
-        "capable": false,
-        "requires_wallet_payment": true
-      },
-      {
         "provider_id": "local_baseline",
         "model": "local-small",
         "display_name": "Local Baseline",
@@ -200,16 +188,16 @@
   "wallet_policy": {
     "result": "approved",
     "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
-    "policyHash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
+    "policyHash": "sha256:71f9bae9fa1d7202f7fea96d674e423fabde3d159c5203bdf312e5a9557b39fb",
     "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
-    "policySource": "cobo_pact_preflight",
+    "policySource": "cobo_pact_authorization",
     "policyAuthority": "cobo_agentic_wallet",
     "evidence": {
-      "source": "cobo_pact_preflight",
+      "source": "cobo_pact_authorization",
       "live": true,
       "coboPactId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
       "spendCapUsd": 5,
-      "providerAllowlistHash": "sha256:423ab56d55ae8a8815fe0968d0b3e118f5fa111867b5f0f90948f9bae39b8e08"
+      "providerAllowlistHash": "sha256:00b46258b888bd47e09a0e3912a3485508558a337d2274d69e903294683370e8"
     },
     "max_spend_usd": 0.25,
     "approved_spend_usd": 0.0299,
@@ -219,15 +207,16 @@
   "receipt": {
     "receipt_id": "coborouter_demo_approved_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
-    "policy_hash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
-    "quote_hash": "sha256:cb4dbab3e3fa0bf0296ca166b9af3aca78309c88190f622e47f61ee5e07ea7fb",
-    "route_trace_hash": "sha256:f42817f6e43816d345b7b3ceb9bfc850e2f4ba6018cbb0710ea1ae786d73345f",
-    "quote_id": "quote_bfbb339de165",
+    "policy_hash": "sha256:71f9bae9fa1d7202f7fea96d674e423fabde3d159c5203bdf312e5a9557b39fb",
+    "quote_hash": "sha256:5c0aa5c1b9e5fc1650a5c5935d8b417b3030655d74ee5a73188b59759750c2e6",
+    "route_trace_hash": "sha256:c8a7eb5c858311f7443b6aec98f8d9383286b77c12f4ed8906b1c8941922ef63",
+    "receipt_hash": "sha256:0f32d10eaa0601b5a9f53b945d709a8630ed19d0a690c93adb8b9cc9475ef111",
+    "quote_id": "quote_32af3a6830cf",
     "idempotency_key": "demo-approved-001",
-    "timestamp": "2026-06-11T01:00:19.704Z",
+    "timestamp": "2026-06-11T01:56:27.092Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_demo_approved_001.json",
-    "archive_path": "receipts/archive/coborouter_demo_approved_001/2026-06-11T01-00-19-704Z.json",
+    "archive_path": "receipts/archive/coborouter_demo_approved_001/2026-06-11T01-56-27-092Z.json",
     "execution_mode": "live"
   },
   "payment": {
@@ -241,12 +230,12 @@
     "refund_status": "not_required"
   },
   "provider_invoice": {
-    "provider_request_id": "zai_req_a8d71a330f04",
-    "provider_invoice_id": "zai_invoice_74d03afa25fb",
+    "provider_request_id": "zai_req_a7aa919086cb",
+    "provider_invoice_id": "zai_invoice_642ab68119f7",
     "simulated": false
   },
   "answer": {
-    "summary": "**Demo Notice:** This analysis uses demo fixture data only. No real funds are being transacted.\n\n**Option Comparison & Risks**\n*   **Option A (4.2% APY, High Liquidity):** Lower yield, but high liquidity ensures the DAO can withdraw funds almost instantly. Primary risk is smart contract vulnerability (mitigated by audits) and stablecoin depeg.\n*   **Option B (6.1% APY, Medium Liquidity):** Higher yield, but medium liquidity introduces withdrawal delay risks during market volatility. The DAO might face slippage or lockups if immediate capital is needed. \n\n**Recommendation:** **Option A**. For a",
+    "summary": "**Demo Fixture Data Notice:** The rates, protocols, and risks evaluated below are based on provided demo fixture data, not live market conditions.\n\n### Yield Option Comparison\n*   **Option A (USDC Lending - 4.2% APY):** Lower yield, but high liquidity ensures the DAO can withdraw funds almost instantly to cover operations or seize other opportunities. Smart contract risk is mitigated by audits.\n*   **Option B (USDC Vault - 6.1% APY):** Higher yield, but medium liquidity introduces withdrawal friction (e.g., lockups, withdrawal queues, or slippage). Audits mitigate smart contract risk, but liqu",
     "steps": [
       "Use the provided fixture options only.",
       "Prefer the option with stronger liquidity and simpler withdrawal risk unless higher yield is explicitly accepted.",
