@@ -1,6 +1,6 @@
 {
   "status": "blocked",
-  "task_id": "task_4146d1146313",
+  "task_id": "task_dc8aea23f3e9",
   "broker_decision": {
     "task_type": "defi_treasury_management",
     "triage_source": "zai_live",
@@ -8,16 +8,16 @@
     "selected_provider": null,
     "selected_model": null,
     "reason": "quote_exceeds_task_budget",
-    "estimated_cost_usd": 0.08,
+    "estimated_cost_usd": 0.0916,
     "actual_cost_usd": 0,
     "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_0c575b57fb55",
+    "quote_id": "quote_8221c0a1fc52",
     "route_trace": [
       {
         "provider_id": "zai_flash",
         "model": "glm-4.7-flash",
-        "display_name": "Z.AI Flash",
+        "display_name": "Z.AI GLM-4.7-Flash",
         "estimated_cost_usd": 0,
         "decision": "rejected",
         "reason": "reasoning capability 3 below required 5",
@@ -25,13 +25,123 @@
         "requires_wallet_payment": false
       },
       {
+        "provider_id": "zai_glm_4_5_flash",
+        "model": "glm-4.5-flash",
+        "display_name": "Z.AI GLM-4.5-Flash",
+        "estimated_cost_usd": 0,
+        "decision": "rejected",
+        "reason": "reasoning capability 3 below required 5",
+        "capable": false,
+        "requires_wallet_payment": false
+      },
+      {
+        "provider_id": "zai_glm_4_7_flashx",
+        "model": "glm-4.7-flashx",
+        "display_name": "Z.AI GLM-4.7-FlashX",
+        "estimated_cost_usd": 0.0076,
+        "decision": "rejected",
+        "reason": "reasoning capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_32b_128k",
+        "model": "glm-4-32b-0414-128k",
+        "display_name": "Z.AI GLM-4-32B-0414-128K",
+        "estimated_cost_usd": 0.0029,
+        "decision": "rejected",
+        "reason": "reasoning capability 3 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5_air",
+        "model": "glm-4.5-air",
+        "display_name": "Z.AI GLM-4.5-Air",
+        "estimated_cost_usd": 0.0211,
+        "decision": "rejected",
+        "reason": "reasoning capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_7",
+        "model": "glm-4.7",
+        "display_name": "Z.AI GLM-4.7",
+        "estimated_cost_usd": 0.0446,
+        "decision": "rejected",
+        "reason": "web3_context capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_6",
+        "model": "glm-4.6",
+        "display_name": "Z.AI GLM-4.6",
+        "estimated_cost_usd": 0.0446,
+        "decision": "rejected",
+        "reason": "reasoning capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5",
+        "model": "glm-4.5",
+        "display_name": "Z.AI GLM-4.5",
+        "estimated_cost_usd": 0.0446,
+        "decision": "rejected",
+        "reason": "reasoning capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_5",
+        "model": "glm-5",
+        "display_name": "Z.AI GLM-5",
+        "estimated_cost_usd": 0.0664,
+        "decision": "rejected",
+        "reason": "web3_context capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_5_turbo",
+        "model": "glm-5-turbo",
+        "display_name": "Z.AI GLM-5-Turbo",
+        "estimated_cost_usd": 0.0824,
+        "decision": "rejected",
+        "reason": "web3_context capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
         "provider_id": "zai",
         "model": "glm-5.1",
-        "display_name": "Z.AI",
-        "estimated_cost_usd": 0.08,
+        "display_name": "Z.AI GLM-5.1",
+        "estimated_cost_usd": 0.0916,
         "decision": "rejected",
         "reason": "quote exceeds task budget",
         "capable": true,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5_airx",
+        "model": "glm-4.5-airx",
+        "display_name": "Z.AI GLM-4.5-AirX",
+        "estimated_cost_usd": 0.0897,
+        "decision": "rejected",
+        "reason": "reasoning capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5_x",
+        "model": "glm-4.5-x",
+        "display_name": "Z.AI GLM-4.5-X",
+        "estimated_cost_usd": 0.1777,
+        "decision": "rejected",
+        "reason": "web3_context capability 4 below required 5",
+        "capable": false,
         "requires_wallet_payment": true
       },
       {
@@ -60,7 +170,7 @@
     "result": "blocked",
     "reason": "quote_exceeds_task_budget",
     "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
-    "policyHash": "sha256:45889933cfc1e232869a6beb2c1e89d156e27b52b92d69fb857328818bc3e9d2",
+    "policyHash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
     "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
     "max_spend_usd": 0.03,
     "approved_spend_usd": 0,
@@ -70,10 +180,10 @@
   "receipt": {
     "receipt_id": "coborouter_edge_budget_declined_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
-    "policy_hash": "sha256:45889933cfc1e232869a6beb2c1e89d156e27b52b92d69fb857328818bc3e9d2",
-    "quote_id": "quote_0c575b57fb55",
+    "policy_hash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
+    "quote_id": "quote_8221c0a1fc52",
     "idempotency_key": "edge-budget-declined-001",
-    "timestamp": "2026-06-10T23:47:01.820Z",
+    "timestamp": "2026-06-10T23:59:58.556Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_edge_budget_declined_001.json"
   },

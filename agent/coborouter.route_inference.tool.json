@@ -30,7 +30,7 @@
         "items": {
           "type": "string"
         },
-        "description": "Agent-side provider allowlist. The demo paid route uses zai."
+        "description": "Agent-side provider allowlist. Supported Z.AI provider IDs include zai, zai_glm_5_turbo, zai_glm_5, zai_glm_4_7, zai_flash, zai_glm_4_7_flashx, zai_glm_4_6, zai_glm_4_5, zai_glm_4_5_air, zai_glm_4_5_x, zai_glm_4_5_airx, zai_glm_4_5_flash, and zai_glm_4_32b_128k."
       },
       "require_receipt": {
         "type": "boolean",

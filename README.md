@@ -75,6 +75,19 @@ Receipts:
 - [`receipts/coborouter_edge_local_001.json`](receipts/coborouter_edge_local_001.json)
 - [`receipts/coborouter_edge_zai_flash_001.json`](receipts/coborouter_edge_zai_flash_001.json)
 
+## Z.AI Model Coverage
+
+CoboRouter can quote and route prompt execution across the Z.AI chat-completion language-model family:
+
+| Tier | Models |
+| --- | --- |
+| Flagship agent reasoning | `glm-5.1`, `glm-5-turbo`, `glm-5` |
+| Agent/coding reasoning | `glm-4.7`, `glm-4.6`, `glm-4.5`, `glm-4.5-x` |
+| Lightweight / faster routes | `glm-4.7-flash`, `glm-4.7-flashx`, `glm-4.5-air`, `glm-4.5-airx`, `glm-4.5-flash` |
+| Long-context baseline | `glm-4-32b-0414-128k` |
+
+Routing uses the same quote table for every model: capability fit, estimated cost, latency, wallet-payment requirement, and provider allowlist.
+
 ## Demo screens
 
 | Wallet policy blocks overspend | Approved route settles on-chain |

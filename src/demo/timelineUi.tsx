@@ -140,7 +140,7 @@ export function timelineHtml(): string {
       <h1>CoboRouter</h1>
       <p class="pitch">Agents ask for outcomes, not models. CoboRouter procures inference through policy-bound Cobo Agentic Wallet controls and returns wallet-native receipts.</p>
     </div>
-    <strong class="mono">Cobo Track Demo</strong>
+    <strong class="mono">Live Wallet Router</strong>
   </header>
   <main>
     <aside>
@@ -153,7 +153,7 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
       <label for="budget">Task budget</label>
       <input id="budget" type="number" value="0.03" min="0" step="0.01" />
       <div class="policy">
-        <span>Allowed: zai</span>
+        <span>Allowed: Z.AI family</span>
         <span>Human approval: $0.50</span>
         <span>Asset: USDC</span>
         <span>Mode: cheapest</span>
@@ -178,6 +178,21 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
     const budgetInput = document.getElementById("budget");
     const initialScenario = new URLSearchParams(window.location.search).get("scenario") === "approved" ? "approved" : "blocked";
     let latestReceiptJson = "";
+    const zaiProviderIds = [
+      "zai",
+      "zai_glm_5_turbo",
+      "zai_glm_5",
+      "zai_glm_4_7",
+      "zai_flash",
+      "zai_glm_4_7_flashx",
+      "zai_glm_4_6",
+      "zai_glm_4_5",
+      "zai_glm_4_5_air",
+      "zai_glm_4_5_x",
+      "zai_glm_4_5_airx",
+      "zai_glm_4_5_flash",
+      "zai_glm_4_32b_128k"
+    ];
 
     function esc(value) {
       return String(value).replace(/[&<>"']/g, char => ({
@@ -244,7 +259,7 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
           prompt: promptInput.value,
           routing_mode: "cheapest_capable",
           max_spend_usd: Number(budgetInput.value),
-          allowed_providers: scenario === "simple_zai" ? ["zai_flash", "zai"] : ["zai", "zai_flash", "second_real_provider", "local_baseline"],
+          allowed_providers: scenario === "simple_zai" ? zaiProviderIds : [...zaiProviderIds, "second_real_provider", "local_baseline"],
           require_receipt: true,
           idempotency_key: "demo-" + scenario + "-001",
           scenario

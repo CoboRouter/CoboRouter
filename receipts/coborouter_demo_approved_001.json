@@ -1,6 +1,6 @@
 {
   "status": "completed",
-  "task_id": "task_d9d42ac350e2",
+  "task_id": "task_32067e2b60c1",
   "broker_decision": {
     "task_type": "defi_treasury_management",
     "triage_source": "zai_live",
@@ -8,16 +8,16 @@
     "selected_provider": "zai",
     "selected_model": "glm-5.1",
     "reason": "cheapest capable paid provider under wallet budget",
-    "estimated_cost_usd": 0.08,
-    "actual_cost_usd": 0.0736,
+    "estimated_cost_usd": 0.0916,
+    "actual_cost_usd": 0.0843,
     "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_b7565109c0d1",
+    "quote_id": "quote_7700f29e24e2",
     "route_trace": [
       {
         "provider_id": "zai_flash",
         "model": "glm-4.7-flash",
-        "display_name": "Z.AI Flash",
+        "display_name": "Z.AI GLM-4.7-Flash",
         "estimated_cost_usd": 0,
         "decision": "rejected",
         "reason": "reasoning capability 3 below required 5",
@@ -25,13 +25,123 @@
         "requires_wallet_payment": false
       },
       {
+        "provider_id": "zai_glm_4_5_flash",
+        "model": "glm-4.5-flash",
+        "display_name": "Z.AI GLM-4.5-Flash",
+        "estimated_cost_usd": 0,
+        "decision": "rejected",
+        "reason": "reasoning capability 3 below required 5",
+        "capable": false,
+        "requires_wallet_payment": false
+      },
+      {
+        "provider_id": "zai_glm_4_7_flashx",
+        "model": "glm-4.7-flashx",
+        "display_name": "Z.AI GLM-4.7-FlashX",
+        "estimated_cost_usd": 0.0076,
+        "decision": "rejected",
+        "reason": "reasoning capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_32b_128k",
+        "model": "glm-4-32b-0414-128k",
+        "display_name": "Z.AI GLM-4-32B-0414-128K",
+        "estimated_cost_usd": 0.0029,
+        "decision": "rejected",
+        "reason": "reasoning capability 3 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5_air",
+        "model": "glm-4.5-air",
+        "display_name": "Z.AI GLM-4.5-Air",
+        "estimated_cost_usd": 0.0211,
+        "decision": "rejected",
+        "reason": "reasoning capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_7",
+        "model": "glm-4.7",
+        "display_name": "Z.AI GLM-4.7",
+        "estimated_cost_usd": 0.0446,
+        "decision": "rejected",
+        "reason": "web3_context capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_6",
+        "model": "glm-4.6",
+        "display_name": "Z.AI GLM-4.6",
+        "estimated_cost_usd": 0.0446,
+        "decision": "rejected",
+        "reason": "reasoning capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5",
+        "model": "glm-4.5",
+        "display_name": "Z.AI GLM-4.5",
+        "estimated_cost_usd": 0.0446,
+        "decision": "rejected",
+        "reason": "reasoning capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_5",
+        "model": "glm-5",
+        "display_name": "Z.AI GLM-5",
+        "estimated_cost_usd": 0.0664,
+        "decision": "rejected",
+        "reason": "web3_context capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_5_turbo",
+        "model": "glm-5-turbo",
+        "display_name": "Z.AI GLM-5-Turbo",
+        "estimated_cost_usd": 0.0824,
+        "decision": "rejected",
+        "reason": "web3_context capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
         "provider_id": "zai",
         "model": "glm-5.1",
-        "display_name": "Z.AI",
-        "estimated_cost_usd": 0.08,
+        "display_name": "Z.AI GLM-5.1",
+        "estimated_cost_usd": 0.0916,
         "decision": "selected",
         "reason": "cheapest capable paid provider under wallet budget",
         "capable": true,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5_airx",
+        "model": "glm-4.5-airx",
+        "display_name": "Z.AI GLM-4.5-AirX",
+        "estimated_cost_usd": 0.0897,
+        "decision": "rejected",
+        "reason": "reasoning capability 4 below required 5",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5_x",
+        "model": "glm-4.5-x",
+        "display_name": "Z.AI GLM-4.5-X",
+        "estimated_cost_usd": 0.1777,
+        "decision": "rejected",
+        "reason": "web3_context capability 4 below required 5",
+        "capable": false,
         "requires_wallet_payment": true
       },
       {
@@ -59,20 +169,20 @@
   "wallet_policy": {
     "result": "approved",
     "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
-    "policyHash": "sha256:45889933cfc1e232869a6beb2c1e89d156e27b52b92d69fb857328818bc3e9d2",
+    "policyHash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
     "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
     "max_spend_usd": 0.25,
-    "approved_spend_usd": 0.08,
+    "approved_spend_usd": 0.0916,
     "provider_allowlisted": true,
     "human_approval_required": false
   },
   "receipt": {
     "receipt_id": "coborouter_demo_approved_001",
     "prompt_hash": "sha256:96ed902d629dc361a02d98363d07fa51498ca5f85799059ec6e9d4350ff31a1e",
-    "policy_hash": "sha256:45889933cfc1e232869a6beb2c1e89d156e27b52b92d69fb857328818bc3e9d2",
-    "quote_id": "quote_b7565109c0d1",
+    "policy_hash": "sha256:1235dc4c6ed4e59ef36145b09a5edc85cb92b7031c0c8eeb0fbc5e378a9b5c82",
+    "quote_id": "quote_7700f29e24e2",
     "idempotency_key": "demo-approved-001",
-    "timestamp": "2026-06-10T23:47:57.204Z",
+    "timestamp": "2026-06-11T00:04:00.458Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_demo_approved_001.json"
   },
@@ -87,12 +197,12 @@
     "refund_status": "not_required"
   },
   "provider_invoice": {
-    "provider_request_id": "zai_req_57a91baee9ca",
-    "provider_invoice_id": "zai_invoice_f4752eb85025",
+    "provider_request_id": "zai_req_fccd16eec57e",
+    "provider_invoice_id": "zai_invoice_aac1b20dcf8f",
     "simulated": false
   },
   "answer": {
-    "summary": "**Demo Fixture Data Notice:** The rates, protocols, and wallet details below are simulated fixture data for demonstration purposes only.\n\n### Option Comparison & Risks\n\n*   **Option A (USDC Lending - 4.2% APY):** High liquidity, audited. \n    *   *Risks:* Minimal smart contract risk due to audits. Low yield means higher opportunity cost. Very low risk of insolvency unless the entire stablecoin depegs.\n*   **Option B (USDC Vault - 6.1% APY):** Medium liquidity, audited.\n    *   *Risks:* Audited, but the higher yield implies the vault takes on additional strategy risk (e.g., leveraged yield farm",
+    "summary": "**Disclaimer:** This is a demo using fixture data. No real funds are deployed, and this is not financial advice.\n\n**Option Comparison & Risks**\n*   **Option A (4.2% APY, High Liquidity):** Minimal withdrawal friction. Risks are limited to standard smart contract vulnerabilities and protocol insolvency, both mitigated by the audit and high liquidity ensuring you can exit anytime.\n*   **Option B (6.1% APY, Medium Liquidity):** Higher yield but introduces liquidity risk. Medium liquidity means large withdrawals might face delays or slippage. Same smart contract/insolvency risks apply, with slight",
     "steps": [
       "Use the provided fixture options only.",
       "Prefer the option with stronger liquidity and simpler withdrawal risk unless higher yield is explicitly accepted.",

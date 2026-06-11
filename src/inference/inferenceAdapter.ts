@@ -61,7 +61,7 @@ export async function runInference(provider: ProviderConfig, prompt: string, est
         }
       }
     } catch {
-      // Fall through to deterministic demo answer so the hackathon demo remains runnable.
+      // Fall through to deterministic fixture data so local demos remain runnable.
     }
   }
 

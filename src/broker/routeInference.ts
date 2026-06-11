@@ -8,6 +8,21 @@ import { appendJsonl } from "../utils/fs.js";
 import { sha256, shortId } from "../utils/hash.js";
 
 type DemoScenario = NonNullable<RouteInferenceRequest["scenario"]>;
+const zaiProviderIds = [
+  "zai",
+  "zai_glm_5_turbo",
+  "zai_glm_5",
+  "zai_glm_4_7",
+  "zai_flash",
+  "zai_glm_4_7_flashx",
+  "zai_glm_4_6",
+  "zai_glm_4_5",
+  "zai_glm_4_5_air",
+  "zai_glm_4_5_x",
+  "zai_glm_4_5_airx",
+  "zai_glm_4_5_flash",
+  "zai_glm_4_32b_128k"
+];
 
 function treasuryPrompt(): string {
   return [
@@ -49,7 +64,7 @@ export function demoRequest(scenario: Exclude<DemoScenario, "custom">): RouteInf
       prompt: simpleZaiPrompt(),
       routing_mode: "cheapest_capable",
       max_spend_usd: 0.01,
-      allowed_providers: ["zai_flash", "zai"],
+      allowed_providers: zaiProviderIds,
       require_receipt: true,
       idempotency_key: "edge-zai-flash-001",
       scenario
@@ -60,7 +75,7 @@ export function demoRequest(scenario: Exclude<DemoScenario, "custom">): RouteInf
     prompt: treasuryPrompt(),
     routing_mode: "cheapest_capable",
     max_spend_usd: scenario === "blocked" || scenario === "budget_declined" ? 0.03 : 0.25,
-    allowed_providers: ["zai", "zai_flash", "second_real_provider", "local_baseline"],
+    allowed_providers: [...zaiProviderIds, "second_real_provider", "local_baseline"],
     require_receipt: true,
     idempotency_key: scenario === "budget_declined" ? "edge-budget-declined-001" : `demo-${scenario}-001`,
     scenario: scenario === "budget_declined" ? "budget_declined" : scenario

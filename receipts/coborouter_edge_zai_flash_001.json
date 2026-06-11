@@ -1,6 +1,6 @@
 {
   "status": "completed",
-  "task_id": "task_53a8bd9a40d7",
+  "task_id": "task_08259f91c653",
   "broker_decision": {
     "task_type": "simple_text_generation",
     "triage_source": "zai_live",
@@ -12,12 +12,12 @@
     "actual_cost_usd": 0,
     "triage_cost_usd": 0.0009,
     "routing_mode": "cheapest_capable",
-    "quote_id": "quote_2cc4eba0d9b9",
+    "quote_id": "quote_a3ae4f3d79ba",
     "route_trace": [
       {
         "provider_id": "zai_flash",
         "model": "glm-4.7-flash",
-        "display_name": "Z.AI Flash",
+        "display_name": "Z.AI GLM-4.7-Flash",
         "estimated_cost_usd": 0,
         "decision": "selected",
         "reason": "cheapest capable zero-spend provider",
@@ -25,13 +25,123 @@
         "requires_wallet_payment": false
       },
       {
-        "provider_id": "zai",
-        "model": "glm-5.1",
-        "display_name": "Z.AI",
-        "estimated_cost_usd": 0.08,
+        "provider_id": "zai_glm_4_5_flash",
+        "model": "glm-4.5-flash",
+        "display_name": "Z.AI GLM-4.5-Flash",
+        "estimated_cost_usd": 0,
+        "decision": "rejected",
+        "reason": "capable zero-spend provider",
+        "capable": true,
+        "requires_wallet_payment": false
+      },
+      {
+        "provider_id": "zai_glm_4_7_flashx",
+        "model": "glm-4.7-flashx",
+        "display_name": "Z.AI GLM-4.7-FlashX",
+        "estimated_cost_usd": 0.0076,
+        "decision": "rejected",
+        "reason": "capable paid provider",
+        "capable": true,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_32b_128k",
+        "model": "glm-4-32b-0414-128k",
+        "display_name": "Z.AI GLM-4-32B-0414-128K",
+        "estimated_cost_usd": 0.0029,
         "decision": "rejected",
         "reason": "latency_sensitivity capability 3 below required 4",
         "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5_air",
+        "model": "glm-4.5-air",
+        "display_name": "Z.AI GLM-4.5-Air",
+        "estimated_cost_usd": 0.0211,
+        "decision": "rejected",
+        "reason": "quote exceeds task budget",
+        "capable": true,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_7",
+        "model": "glm-4.7",
+        "display_name": "Z.AI GLM-4.7",
+        "estimated_cost_usd": 0.0446,
+        "decision": "rejected",
+        "reason": "latency_sensitivity capability 3 below required 4",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_6",
+        "model": "glm-4.6",
+        "display_name": "Z.AI GLM-4.6",
+        "estimated_cost_usd": 0.0446,
+        "decision": "rejected",
+        "reason": "latency_sensitivity capability 3 below required 4",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5",
+        "model": "glm-4.5",
+        "display_name": "Z.AI GLM-4.5",
+        "estimated_cost_usd": 0.0446,
+        "decision": "rejected",
+        "reason": "latency_sensitivity capability 3 below required 4",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_5",
+        "model": "glm-5",
+        "display_name": "Z.AI GLM-5",
+        "estimated_cost_usd": 0.0664,
+        "decision": "rejected",
+        "reason": "latency_sensitivity capability 3 below required 4",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_5_turbo",
+        "model": "glm-5-turbo",
+        "display_name": "Z.AI GLM-5-Turbo",
+        "estimated_cost_usd": 0.0824,
+        "decision": "rejected",
+        "reason": "quote exceeds task budget",
+        "capable": true,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai",
+        "model": "glm-5.1",
+        "display_name": "Z.AI GLM-5.1",
+        "estimated_cost_usd": 0.0916,
+        "decision": "rejected",
+        "reason": "latency_sensitivity capability 3 below required 4",
+        "capable": false,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5_airx",
+        "model": "glm-4.5-airx",
+        "display_name": "Z.AI GLM-4.5-AirX",
+        "estimated_cost_usd": 0.0897,
+        "decision": "rejected",
+        "reason": "quote exceeds task budget",
+        "capable": true,
+        "requires_wallet_payment": true
+      },
+      {
+        "provider_id": "zai_glm_4_5_x",
+        "model": "glm-4.5-x",
+        "display_name": "Z.AI GLM-4.5-X",
+        "estimated_cost_usd": 0.1777,
+        "decision": "rejected",
+        "reason": "quote exceeds task budget",
+        "capable": true,
         "requires_wallet_payment": true
       }
     ]
@@ -39,7 +149,7 @@
   "wallet_policy": {
     "result": "approved",
     "policyId": "c54ceef0-e251-4f3a-8d2d-dc2d855add43",
-    "policyHash": "sha256:75cae5517c0d2a3d600b9593d509e13c05f4b91994795cdc48c4f4d087226a09",
+    "policyHash": "sha256:71f9bae9fa1d7202f7fea96d674e423fabde3d159c5203bdf312e5a9557b39fb",
     "walletAddress": "0xc13002774e556722447b588bdd9550ec253e1445",
     "max_spend_usd": 0.01,
     "approved_spend_usd": 0,
@@ -49,10 +159,10 @@
   "receipt": {
     "receipt_id": "coborouter_edge_zai_flash_001",
     "prompt_hash": "sha256:5cde0ee6c7857eb545bc725faecf1c15c46f4ba2d949d7358577d1237f0b9746",
-    "policy_hash": "sha256:75cae5517c0d2a3d600b9593d509e13c05f4b91994795cdc48c4f4d087226a09",
-    "quote_id": "quote_2cc4eba0d9b9",
+    "policy_hash": "sha256:71f9bae9fa1d7202f7fea96d674e423fabde3d159c5203bdf312e5a9557b39fb",
+    "quote_id": "quote_a3ae4f3d79ba",
     "idempotency_key": "edge-zai-flash-001",
-    "timestamp": "2026-06-10T23:47:04.476Z",
+    "timestamp": "2026-06-11T00:00:00.858Z",
     "log_path": "logs/demo-run.jsonl",
     "receipt_path": "receipts/coborouter_edge_zai_flash_001.json"
   },
@@ -67,12 +177,12 @@
     "refund_status": "not_required"
   },
   "provider_invoice": {
-    "provider_request_id": "zai_req_f5118ee1b412",
-    "provider_invoice_id": "zai_invoice_8c3146ecd369",
+    "provider_request_id": "zai_req_c83fca713673",
+    "provider_invoice_id": "zai_invoice_5088a1aaf2d9",
     "simulated": false
   },
   "answer": {
-    "summary": "CoboRouter helps agents choose and pay for AI inference while strictly adhering to your wallet policies.",
+    "summary": "CoboRouter helps agents select and pay for model inference securely according to your wallet policy.",
     "steps": [
       "Use the lightweight Z.AI route because triage marked the task as simple.",
       "Skip GLM-5.1 because the prompt does not need flagship reasoning.",
