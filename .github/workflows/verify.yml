@@ -9,6 +9,8 @@ jobs:
   local-demo-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      COBO_PROOF_TYPE: on_chain
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,16 +45,8 @@ jobs:
       - name: Agent E2E
         run: npm run e2e:agent
 
-      - name: Evidence pack
-        run: |
-          npm run evidence
-          npm run packet:application
-          npm run audit:submission
-          npm run env:final-template
-          npm run blockers:final
-          npm run artifact:index
-          npm run bundle:submission
-          npm run bundle:archive
+      - name: Verify approved receipt
+        run: npm run verify:receipt -- receipts/coborouter_demo_approved_001.json
 
-      - name: Verify submission pack
-        run: npm run verify:submission
+      - name: Verify blocked receipt
+        run: npm run verify:receipt -- receipts/coborouter_demo_blocked_001.json
