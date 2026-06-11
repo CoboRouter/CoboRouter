@@ -40,7 +40,7 @@ Agents will need to spend money autonomously. Model routing without spend govern
 
 ## Use CoboRouter
 
-Fastest path for judges: open the [GitHub-hosted product demo](https://coborouter.github.io/CoboRouter/) and click through approved, blocked, local, lightweight Z.AI, human-approval, and settlement-failure routes. It replays committed product receipts, including the live Cobo/Z.AI receipt and Sepolia transaction proof, without requiring local keys.
+Fastest path: open the [GitHub-hosted product demo](https://coborouter.github.io/CoboRouter/) and click through approved, blocked, local, lightweight Z.AI, human-approval, and settlement-failure routes. It replays committed product receipts, including the live Cobo/Z.AI receipt and Sepolia transaction proof, without requiring local keys.
 
 Any agentic runtime can use CoboRouter as a tool over HTTP. The repo includes a portable tool manifest at [`agent/coborouter.route_inference.tool.json`](agent/coborouter.route_inference.tool.json), or agents can discover the live schema from the running server.
 
@@ -134,7 +134,7 @@ Agents call only `route_inference`. They do not need provider keys, wallet keys,
 - pricing source and last update time
 - dispute/refund policy
 
-Pricing in this hackathon build is operator-controlled registry data. Live execution receipts still record the actual provider request/invoice reference and the Cobo payment operation, so a judge can distinguish quote estimates from execution evidence.
+Pricing is operator-controlled registry data. Live execution receipts still record the actual provider request/invoice reference and the Cobo payment operation, so operators can distinguish quote estimates from execution evidence.
 
 ## Why it matters
 
@@ -411,6 +411,6 @@ The receipt is designed for operators and agents to audit quickly.
 - Unknown providers are denied by allowlist.
 - Overspend attempts stop before inference.
 - Receipts explicitly separate Cobo Agentic Wallet controls from CoboRouter pre-wallet controls.
-- Provider pricing is registry-based for the hackathon demo; provider invoices and Cobo operations are execution evidence.
+- Provider pricing is registry-based; provider invoices and Cobo operations are execution evidence.
 - Transfer settlement uses tiny testnet SETH for proof.
 - Every paid path produces a receipt with prompt hash, route trace, policy hash, provider invoice, Cobo proof, reconciliation status, and a verifier-checked receipt hash.

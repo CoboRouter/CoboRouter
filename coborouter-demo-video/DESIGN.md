@@ -20,4 +20,4 @@ CoboRouter should feel like a serious agentic finance control plane: dark, preci
 - Do not use fake provider/payment claims beyond the repo's receipt language.
 - Do not hide the blocked path; the policy denial is a core feature.
 - Do not use soft pastel, beige, or generic SaaS marketing styling.
-- Do not overfill the frame with tiny JSON; show only judge-relevant proof.
+- Do not overfill the frame with tiny JSON; show only product-relevant proof.
