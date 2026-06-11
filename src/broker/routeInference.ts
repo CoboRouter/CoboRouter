@@ -44,7 +44,7 @@ function localOnlyPrompt(): string {
 }
 
 function simpleZaiPrompt(): string {
-  return "Summarize this product in one friendly sentence: CoboRouter helps agents choose and pay for inference under wallet policy.";
+  return "Summarize this product in one friendly sentence: CoboRouter helps agents choose, authorize, and pay for inference with wallet-governed receipts.";
 }
 
 export function demoRequest(scenario: Exclude<DemoScenario, "custom">): RouteInferenceRequest {

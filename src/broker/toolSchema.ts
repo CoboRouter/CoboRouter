@@ -1,6 +1,6 @@
 export const routeInferenceToolSchema = {
   name: "route_inference",
-  description: "Route an agent task to a capable model and pay through a policy-bound Cobo Agentic Wallet.",
+  description: "Route an agent task to a capable model, run pre-wallet spend checks, authorize paid routes through Cobo Agentic Wallet, and return an auditable receipt.",
   input_schema: {
     type: "object",
     required: ["prompt", "routing_mode", "max_spend_usd", "allowed_providers"],
@@ -17,14 +17,14 @@ export const routeInferenceToolSchema = {
       max_spend_usd: {
         type: "number",
         minimum: 0,
-        description: "Per-task inference spend cap enforced by wallet policy."
+        description: "Per-task inference spend cap checked before wallet authorization and recorded in the receipt."
       },
       allowed_providers: {
         type: "array",
         items: {
           type: "string"
         },
-        description: "Caller/provider allowlist. Cobo policy also enforces deny-by-default provider boundaries."
+        description: "Agent/provider allowlist used for pre-wallet routing and spend safety."
       },
       require_receipt: {
         type: "boolean",

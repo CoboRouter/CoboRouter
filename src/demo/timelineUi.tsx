@@ -263,7 +263,7 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
         return;
       }
       if (scenario === "simple_zai") {
-        promptInput.value = "Summarize this product in one friendly sentence: CoboRouter helps agents choose and pay for inference under wallet policy.";
+        promptInput.value = "Summarize this product in one friendly sentence: CoboRouter helps agents choose, authorize, and pay for inference with wallet-governed receipts.";
         budgetInput.value = "0.01";
         return;
       }
@@ -297,12 +297,12 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
       latestReceiptJson = JSON.stringify(response, null, 2);
       const blocked = response.status === "blocked" || response.status === "requires_human_approval" || response.status === "paid_failed" || response.status === "failed";
       const walletStatus = response.status === "requires_human_approval"
-        ? { className: "pending", label: "HUMAN APPROVAL REQUIRED" }
+        ? { className: "pending", label: "PRE-WALLET HUMAN APPROVAL" }
         : response.status === "paid_failed" || response.status === "failed"
           ? { className: "blocked", label: "FAILED SAFELY" }
           : response.status === "blocked"
-            ? { className: "blocked", label: "BLOCKED BY WALLET POLICY" }
-            : { className: "approved", label: "APPROVED BY WALLET POLICY" };
+            ? { className: "blocked", label: "BLOCKED BEFORE CAW SPEND" }
+            : { className: "approved", label: response.wallet_policy.policyAuthority === "cobo_agentic_wallet" ? "AUTHORIZED BY CAW" : "PREFLIGHT APPROVED" };
       const paymentStatus = response.payment.status === "settled"
         ? { className: "approved", label: "ON-CHAIN PROOF" }
         : response.payment.status === "failed"
@@ -315,16 +315,16 @@ Use a reasoning-capable model only if needed and return a wallet/payment receipt
         node("2. Live Boundary", "Fresh run at " + response.receipt.timestamp + "; execution mode " + response.receipt.execution_mode + "; triage " + response.broker_decision.triage_source + "; provider invoice simulated=" + response.provider_invoice.simulated, response.receipt.execution_mode === "live" ? { className: "approved", label: "LIVE PATH" } : { className: "pending", label: "DEMO/LOCAL PATH" }, '<p class="mono">archive: ' + esc(response.receipt.archive_path) + '<br>quote: ' + esc(response.receipt.quote_hash) + '</p>'),
         node("3. GLM/Z.AI Triage", response.broker_decision.task_type + " via " + response.broker_decision.triage_source, { className: "pending", label: response.broker_decision.triage_model }),
         node("4. Provider Quotes", "CoboRouter estimates tokens from this prompt, then compares capability, price, and wallet eligibility.", null, quoteTable(response.broker_decision.route_trace)),
-        node("5. Cobo Wallet Policy", response.wallet_policy.reason || "policy approved spend within boundaries", walletStatus, '<p class="mono">authority: ' + esc(response.wallet_policy.policyAuthority) + '<br>source: ' + esc(response.wallet_policy.policySource) + '<br>policy: ' + esc(response.wallet_policy.policyHash) + '<br>wallet: ' + esc(response.wallet_policy.walletAddress) + '<br>pact: ' + esc(response.wallet_policy.evidence.coboPactId || "none") + '<br>authorized quote: $' + esc(response.wallet_policy.approved_spend_usd) + '</p>' + boundaryDetail(response)),
+        node("5. Spend Governance + CAW", response.wallet_policy.reason || "preflight passed; paid routes request Cobo authorization before provider execution", walletStatus, '<p class="mono">authority: ' + esc(response.wallet_policy.policyAuthority) + '<br>source: ' + esc(response.wallet_policy.policySource) + '<br>policy: ' + esc(response.wallet_policy.policyHash) + '<br>wallet: ' + esc(response.wallet_policy.walletAddress) + '<br>pact: ' + esc(response.wallet_policy.evidence.coboPactId || "none") + '<br>authorized quote: $' + esc(response.wallet_policy.approved_spend_usd) + '</p>' + boundaryDetail(response)),
         node("6. Payment Proof", response.payment.status + " / " + response.payment.proof_type, paymentStatus, paymentDetail(response.payment)),
-        node("7. Answer", response.answer ? response.answer.summary : "No inference ran because wallet policy blocked the spend.", response.answer ? { className: "approved", label: "ANSWER RETURNED" } : { className: "blocked", label: "NO INFERENCE" }),
+        node("7. Answer", response.answer ? response.answer.summary : "No inference ran because spend governance stopped before provider execution.", response.answer ? { className: "approved", label: "ANSWER RETURNED" } : { className: "blocked", label: "NO INFERENCE" }),
         node("8. Receipt", "Latest receipt saved to " + response.receipt.receipt_path + "; archive copy saved to " + response.receipt.archive_path, null, reconciliationDetail(response) + receiptTools() + '<pre>' + esc(latestReceiptJson) + '</pre>')
       ].join("");
     }
 
     async function run(scenario) {
       setScenarioPrompt(scenario);
-      timeline.innerHTML = node("Running", "Calling route_inference and Cobo policy adapter...", { className: "pending", label: "WORKING" });
+      timeline.innerHTML = node("Running", "Calling route_inference, spend preflight, and Cobo adapter...", { className: "pending", label: "WORKING" });
       const response = await fetch("/api/route-inference", {
         method: "POST",
         headers: { "content-type": "application/json" },

@@ -143,7 +143,7 @@ function localPolicyDecision(
 export class DemoCoboWalletAdapter implements CoboWalletAdapter {
   private readonly policyId = process.env.COBO_POLICY_ID || "cobo_policy_demo";
   private readonly walletAddress = process.env.COBO_WALLET_ADDRESS || demoWalletAddress;
-  private readonly proofType = process.env.COBO_PROOF_TYPE === "on_chain" ? "on_chain" : "cobo_operation";
+  private readonly proofType = "cobo_operation";
 
   async checkPolicy(input: WalletPolicyInput): Promise<WalletPolicyResult> {
     return localPolicyDecision(input, this.policyId, this.walletAddress, "local_demo", "local_policy_guard");
@@ -151,26 +151,24 @@ export class DemoCoboWalletAdapter implements CoboWalletAdapter {
 
   async authorizeSpend(_input: WalletPolicyInput): Promise<WalletAuthorization> {
     const operationId = shortId("cobo_op");
-    const txHash = this.proofType === "on_chain" ? `0x${operationId.replace("cobo_op_", "").padEnd(64, "0")}` : null;
     return {
       operationId,
       paymentReference: shortId("cobo_pay"),
       status: "authorized",
       proofType: this.proofType,
-      txHash,
-      explorerUrl: txHash ? `https://explorer.example/tx/${txHash}` : null
+      txHash: null,
+      explorerUrl: null
     };
   }
 
   async settleSpend(operationId: string, _actualCostUsd: number): Promise<WalletAuthorization> {
-    const txHash = this.proofType === "on_chain" ? `0x${operationId.replace("cobo_op_", "").padEnd(64, "0")}` : null;
     return {
       operationId,
       paymentReference: shortId("cobo_pay"),
       status: "settled",
       proofType: this.proofType,
-      txHash,
-      explorerUrl: txHash ? `https://explorer.example/tx/${txHash}` : null
+      txHash: null,
+      explorerUrl: null
     };
   }
 

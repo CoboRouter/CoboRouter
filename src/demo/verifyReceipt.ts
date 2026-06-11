@@ -96,9 +96,19 @@ if (receipt.payment.status === "settled") {
   checks.push(
     check("Cobo operation id", Boolean(receipt.payment.operation_id), receipt.payment.operation_id || "missing"),
     check("payment reference", Boolean(receipt.payment.payment_reference), receipt.payment.payment_reference || "missing"),
-    check("tx hash", Boolean(receipt.payment.tx_hash), receipt.payment.tx_hash || "missing"),
-    check("explorer URL", Boolean(receipt.payment.explorer_url), receipt.payment.explorer_url || "missing")
+    check("supported Cobo proof type", ["cobo_operation", "on_chain"].includes(receipt.payment.proof_type), receipt.payment.proof_type)
   );
+
+  if (receipt.payment.proof_type === "on_chain") {
+    checks.push(
+      check("tx hash", Boolean(receipt.payment.tx_hash), receipt.payment.tx_hash || "missing"),
+      check("explorer URL", Boolean(receipt.payment.explorer_url), receipt.payment.explorer_url || "missing")
+    );
+  } else {
+    checks.push(
+      check("Cobo operation proof", Boolean(receipt.payment.operation_id && receipt.payment.payment_reference), `${receipt.payment.operation_id || "missing"} / ${receipt.payment.payment_reference || "missing"}`)
+    );
+  }
 }
 
 if (receipt.status === "blocked" || receipt.status === "requires_human_approval") {

@@ -6,7 +6,7 @@
 
 ### Wallet-governed inference procurement for autonomous agents
 
-**CoboRouter lets autonomous agents safely buy intelligence. It combines model routing with wallet-native spend policy, so every inference purchase is governed, paid, and receipted.**
+**CoboRouter lets autonomous agents safely buy intelligence. It combines model routing, pre-wallet spend governance, Cobo Agentic Wallet authorization, and receipts so paid inference can be governed, settled, and audited.**
 
 [![Verify CoboRouter](https://github.com/CoboRouter/CoboRouter/actions/workflows/verify.yml/badge.svg)](https://github.com/CoboRouter/CoboRouter/actions/workflows/verify.yml)
 ![Cobo Agentic Wallet](https://img.shields.io/badge/Cobo-Agentic%20Wallet-111827?style=for-the-badge)
@@ -29,12 +29,12 @@ CoboRouter is an **agentic resource procurement flow** for wallet-bound autonomo
 
 1. An agent sends a task prompt and spend cap.
 2. CoboRouter scores the prompt and routes to the cheapest capable provider.
-3. Cobo Agentic Wallet policy approves or blocks spend.
-4. Approved jobs call live Z.AI / GLM-5.1.
-5. CoboRouter settles a live Cobo wallet transaction.
+3. CoboRouter blocks invalid spend before any wallet operation.
+4. Approved paid jobs request Cobo Agentic Wallet authorization.
+5. CoboRouter calls live Z.AI / GLM-5.1 and settles through Cobo.
 6. The agent receives the answer plus a tamper-evident receipt.
 
-Agents will need to spend money autonomously. Wallet policy without model-routing intelligence is too dumb; model routing without wallet-native controls is too unsafe. CoboRouter joins them.
+Agents will need to spend money autonomously. Model routing without spend governance is too unsafe; wallet authorization without prompt intelligence is too blunt. CoboRouter joins them.
 
 ## Use CoboRouter
 
@@ -56,7 +56,7 @@ http://localhost:4173
 Click **Run live approved route** to watch the procurement timeline update:
 
 ```text
-Agent Task -> Z.AI Triage -> Provider Quotes -> Cobo Policy -> Payment/Block -> Inference -> Receipt
+Agent Task -> Z.AI Triage -> Provider Quotes -> Spend Preflight -> Cobo Authorization -> Inference -> Receipt
 ```
 
 Call it as an agent tool:
@@ -113,7 +113,7 @@ Agents call only `route_inference`. They do not need provider keys, wallet keys,
 | --- | --- |
 | Prompt triage | CoboRouter scores the task before choosing a model. |
 | Provider procurement | The agent asks for an outcome; CoboRouter buys the right inference. |
-| Wallet policy | Cobo Agentic Wallet approves, blocks, or pauses spend. |
+| Spend governance | CoboRouter blocks invalid spend before wallet authorization; approved paid routes are authorized and settled through Cobo Agentic Wallet. |
 | Live execution | Approved paid routes call Z.AI / GLM and settle through Cobo. |
 | Receipts | Every route returns a prompt hash, quote hash, route trace, policy result, provider invoice, payment proof, and receipt hash. |
 
@@ -136,7 +136,7 @@ Pricing in this hackathon build is operator-controlled registry data. Live execu
 
 Most LLM routers answer: **Which model should I call?**
 
-CoboRouter answers: **Can this autonomous agent procure this inference under wallet policy, pay for it safely, and prove what happened?**
+CoboRouter answers: **Can this autonomous agent procure this inference under spend governance, pay for it safely, and prove what happened?**
 
 | Generic router | CoboRouter |
 | --- | --- |
@@ -168,11 +168,12 @@ flowchart LR
   A["Agent prompt + spend cap"] --> B["route_inference tool"]
   B --> C["Prompt triage"]
   C --> D["Provider quote engine"]
-  D --> E{"Cobo policy"}
-  E -->|"blocked"| F["No inference, no spend, blocked receipt"]
-  E -->|"approved"| G["Live Z.AI / GLM-5.1 call"]
-  G --> H["Cobo transfer settlement"]
-  H --> I["Answer + receipt + tx hash"]
+  D --> E{"Spend preflight"}
+  E -->|"blocked before wallet"| F["No inference, no spend, blocked receipt"]
+  E -->|"approved paid route"| G["Cobo authorization"]
+  G --> H["Live Z.AI / GLM-5.1 call"]
+  H --> I["Cobo settlement"]
+  I --> J["Answer + receipt + proof"]
 ```
 
 ## Live proof
@@ -184,7 +185,7 @@ This repo includes receipts from a live end-to-end run.
 | Prompt triage | `zai_live` using `glm-5.1` |
 | Selected model | `zai / glm-5.1` |
 | Z.AI provider invoice | `provider_invoice.simulated=false` |
-| Cobo policy / pact | `c54ceef0-e251-4f3a-8d2d-dc2d855add43` |
+| Cobo pact / policy reference | `c54ceef0-e251-4f3a-8d2d-dc2d855add43` |
 | Agent wallet | `0xc13002774e556722447b588bdd9550ec253e1445` |
 | Cobo operation | `7406658f-973a-4fa7-8a62-4c072225c107` |
 | On-chain tx | [`0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b`](https://sepolia.etherscan.io/tx/0xe90621cec8fcfd0cb6311aa3f61e2cbaa65c5e45afc5ff4a570487834fbe998b) |
@@ -192,11 +193,11 @@ This repo includes receipts from a live end-to-end run.
 
 ## Policy behavior
 
-CoboRouter handles successful procurement, wallet-policy denial, local execution, and lightweight model routing. These are product behaviors: the agent can spend, get blocked, stay local, or pause for a human without leaving the wallet policy boundary.
+CoboRouter handles successful procurement, pre-wallet spend denial, local execution, and lightweight model routing. These are product behaviors: the agent can spend, get blocked before wallet authorization, stay local, or pause for a human with the control boundary visible in the receipt.
 
 | Scenario | Command | Expected proof |
 | --- | --- | --- |
-| Wallet policy declines overspend | `npm run demo:budget-declined` | `wallet_policy.reason=quote_exceeds_task_budget`, `payment.status=not_created` |
+| Preflight declines overspend | `npm run demo:budget-declined` | `wallet_policy.reason=quote_exceeds_task_budget`, `payment.status=not_created` |
 | Provider is not allowlisted | `npm run demo:provider-denied` | `wallet_policy.reason=provider_not_allowlisted`, no inference |
 | Human approval is required | `npm run demo:human-approval` | `wallet_policy.result=requires_human_approval`, no payment |
 | Settlement fails safely | `npm run demo:settlement-failure` | `status=paid_failed`, no provider call, reconciliation receipt |
@@ -227,13 +228,13 @@ Routing uses the same quote table for every model: capability fit, estimated cos
 
 ## Demo screens
 
-| Wallet policy blocks overspend | Approved route settles on-chain |
+| Preflight blocks overspend | Approved route settles on-chain |
 | --- | --- |
-| ![Blocked Cobo policy path](docs/screenshots/blocked.png) | ![Approved Cobo settlement path](docs/screenshots/approved.png) |
+| ![Blocked pre-wallet spend path](docs/screenshots/blocked.png) | ![Approved Cobo settlement path](docs/screenshots/approved.png) |
 
 ## Proof
 
-Operators can verify the agent tool surface, wallet policy outcomes, payment proof, and receipt integrity from the repo.
+Operators can verify the agent tool surface, pre-wallet spend outcomes, Cobo payment proof, and receipt integrity from the repo.
 
 | What to check | Where |
 | --- | --- |
@@ -245,16 +246,24 @@ Operators can verify the agent tool surface, wallet policy outcomes, payment pro
 | Policy behavior | `npm run demo:budget-declined`, `npm run demo:provider-denied`, `npm run demo:human-approval`, `npm run demo:settlement-failure` |
 | Routing behavior | `npm run demo:local`, `npm run demo:zai-flash` |
 | Receipt verifier | `npm run verify:receipt -- receipts/coborouter_demo_approved_001.json` |
-| Agentic E2E proof | `npm run e2e:agent` expects `25 passed, 0 failed` |
+| Agentic E2E proof | `npm run e2e:agent` expects `31 passed, 0 failed` |
 | Wallet proof | Cobo operation `7406658f-973a-4fa7-8a62-4c072225c107` and Sepolia tx above |
 
-Receipts record `receipt.execution_mode`, Z.AI invoice status, Cobo policy authority/source, prompt-derived token estimates, `control_boundary`, `reconciliation`, `receipt.receipt_hash`, and an archive copy under `receipts/archive/...`.
+Fresh clones verify without credentials:
+
+```bash
+npm run ci:local
+```
+
+Local mode uses cached/deterministic Z.AI behavior and Cobo operation proof. It does not mint synthetic explorer links. Live mode requires `.env` credentials and is the only mode expected to produce a Sepolia transaction hash.
+
+Receipts record `receipt.execution_mode`, Z.AI invoice status, spend authority/source, prompt-derived token estimates, `control_boundary`, `reconciliation`, `receipt.receipt_hash`, and an archive copy under `receipts/archive/...`.
 
 The demo API also includes product guardrails: bounded request bodies, bounded prompt length, optional `COBOROUTER_API_KEY` bearer auth, per-client rate limiting, and idempotency-key conflict detection for replay safety.
 
 ## Operating Lifecycle
 
-1. Configure wallet policy, settlement destination, provider allowlist, and API access.
+1. Configure Cobo wallet credentials, settlement destination, provider allowlist, spend caps, and API access.
 2. Agents discover `/api/tool-schema` and `/api/providers`.
 3. Agents call `/api/route-inference` with a prompt, routing preference, provider allowlist, spend cap, and idempotency key.
 4. CoboRouter triages the prompt, quotes providers, and runs pre-wallet safety checks.
@@ -375,12 +384,12 @@ The receipt is designed for operators and agents to audit quickly.
 | --- | --- |
 | [`src/broker/routeInference.ts`](src/broker/routeInference.ts) | End-to-end orchestration: triage, route, wallet check, inference, receipt |
 | [`agent/coborouter.route_inference.tool.json`](agent/coborouter.route_inference.tool.json) | Portable agent tool manifest for `route_inference` |
-| [`src/wallet/coboAdapter.ts`](src/wallet/coboAdapter.ts) | Cobo Agentic Wallet policy + transfer settlement adapter |
+| [`src/wallet/coboAdapter.ts`](src/wallet/coboAdapter.ts) | Cobo Agentic Wallet authorization + transfer settlement adapter |
 | [`src/triage/zaiTriage.ts`](src/triage/zaiTriage.ts) | GLM/Z.AI prompt triage with cached fallback |
 | [`src/inference/inferenceAdapter.ts`](src/inference/inferenceAdapter.ts) | Live provider execution and invoice boundary |
 | [`src/demo/e2eAgentClient.ts`](src/demo/e2eAgentClient.ts) | External agent-style HTTP proof |
 | [`src/demo/verifyReceipt.ts`](src/demo/verifyReceipt.ts) | Offline receipt hash and proof verifier |
-| [`src/demo/timelineUi.tsx`](src/demo/timelineUi.tsx) | Timeline UI for inspecting routing, wallet policy, settlement, and receipt state |
+| [`src/demo/timelineUi.tsx`](src/demo/timelineUi.tsx) | Timeline UI for inspecting routing, spend preflight, settlement, and receipt state |
 | [`receipts/coborouter_demo_approved_001.json`](receipts/coborouter_demo_approved_001.json) | Live approved receipt |
 | [`receipts/coborouter_demo_blocked_001.json`](receipts/coborouter_demo_blocked_001.json) | Blocked no-spend receipt |
 | [`receipts/coborouter_edge_budget_declined_001.json`](receipts/coborouter_edge_budget_declined_001.json) | Explicit budget-declined receipt |

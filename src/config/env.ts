@@ -19,6 +19,6 @@ export async function loadEnv(path = ".env"): Promise<void> {
       }
     }
   } catch {
-    // .env is optional; the demo runs with cached triage and demo wallet policy.
+    // .env is optional; the demo runs with cached triage and demo Cobo operation proof.
   }
 }

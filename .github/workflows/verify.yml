@@ -9,8 +9,6 @@ jobs:
   local-demo-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      COBO_PROOF_TYPE: on_chain
     steps:
       - name: Checkout
         uses: actions/checkout@v4

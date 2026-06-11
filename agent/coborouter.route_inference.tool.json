@@ -1,6 +1,6 @@
 {
   "name": "route_inference",
-  "description": "Route an autonomous agent task to a capable model, enforce Cobo Agentic Wallet spend policy, execute live inference, and return an answer with wallet/payment receipt.",
+  "description": "Route an autonomous agent task to a capable model, run spend preflight, authorize paid routes through Cobo Agentic Wallet, execute inference, and return an answer with wallet/payment receipt.",
   "transport": {
     "type": "http",
     "method": "POST",
@@ -24,7 +24,7 @@
       "max_spend_usd": {
         "type": "number",
         "minimum": 0,
-        "description": "Per-task inference spend cap enforced by CoboRouter and Cobo wallet policy."
+        "description": "Per-task inference spend cap checked before wallet authorization and recorded in the receipt."
       },
       "allowed_providers": {
         "type": "array",

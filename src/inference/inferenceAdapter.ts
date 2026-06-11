@@ -107,7 +107,7 @@ export async function runInference(provider: ProviderConfig, prompt: string, est
       : [
           `Start with ${safer.name} for the $1,000 USDC treasury because liquidity is ${safer.liquidity}.`,
           `Treat ${higherYield.name} as a yield-upside option only if the agent accepts medium liquidity and extra strategy risk.`,
-          "Keep the action bounded by wallet policy, log the route decision, and attach the Cobo operation proof to the receipt."
+          "Keep the action bounded by spend governance, log the route decision, and attach the Cobo operation proof to the receipt."
         ],
     providerRequestId: `${provider.provider_id}_demo_req`,
     providerInvoiceId: provider.requires_wallet_payment ? `${provider.provider_id}_demo_invoice` : null,
